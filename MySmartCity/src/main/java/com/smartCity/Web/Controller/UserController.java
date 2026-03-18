@@ -5,7 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.smartCity.Web.Model.User;
-import com.smartCity.Web.Security.UserService;
+import com.smartCity.Web.Service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
