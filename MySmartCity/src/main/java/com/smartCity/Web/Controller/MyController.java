@@ -19,4 +19,8 @@ public class MyController {
 	public String registerPage() {
 		return "register";
 	}
+	@RequestMapping("/dashboard")
+	public String dashBoard() {
+		return "dashboard";
+	}
 }
