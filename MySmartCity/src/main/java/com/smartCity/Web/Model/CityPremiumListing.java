@@ -1,60 +1,52 @@
 package com.smartCity.Web.Model;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "businesses")
-public class Business extends BaseEntity {
+@Table(name = "city_premium_listings")
+public class CityPremiumListing extends BaseEntity {
 
 	@Column(nullable = false)
-	private String name;
-
-	@Column(nullable = false)
-	private String category;
+	private String featureName;
 
 	@Column(columnDefinition = "TEXT")
 	private String description;
-
-	@Column(nullable = false)
-	private String address;
-
-	@Column(length = 20)
-	private String phoneNumber;
-
-	@Column(length = 100)
-	private String email;
-
-	@Column(length = 100)
-	private String website;
 
 	@Column(length = 500)
 	private String imageUrl;
 
 	@Column(nullable = false)
-	private double latitude;
+	private LocalDate startDate;
 
 	@Column(nullable = false)
-	private double longitude;
+	private LocalDate endDate;
 
 	@Column(nullable = false)
-	private double rating = 0.0;
+	private BigDecimal quarterlyPrice;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
 	@Column(nullable = false)
-	private int reviewCount = 0;
+	private boolean isActive = true;
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private boolean isPremium = false;
+	private ListingTier tier = ListingTier.STANDARD;
 
-	// 🔥 OWNER (CORRECT WAY)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	@JsonIgnore
 	private User user;
 
-	// 🔥 CITY LINK (IMPORTANT FOR YOUR PROJECT)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "city_id", nullable = false)
 	private City city;

@@ -13,5 +13,10 @@ public class BusinessRequest {
 	private String address;
 	
 	private Long userId;
+
+	public Long getCityId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

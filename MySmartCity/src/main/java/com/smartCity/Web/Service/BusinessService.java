@@ -2,16 +2,16 @@ package com.smartCity.Web.Service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.smartCity.Web.Exception.ResourceNotFoundException;
 import com.smartCity.Web.Model.Business;
+import com.smartCity.Web.Model.City;
 import com.smartCity.Web.Model.User;
 import com.smartCity.Web.Repository.BusinessRepository;
+import com.smartCity.Web.Repository.CityRepository;
 import com.smartCity.Web.Repository.UserRepository;
 import com.smartCity.Web.dto.request.BusinessRequest;
 import com.smartCity.Web.dto.response.BusinessResponse;
@@ -20,64 +20,89 @@ import com.smartCity.Web.dto.response.PagedResponse;
 @Service
 public class BusinessService {
 
-	private final BusinessRepository businessRepository;
-	private final UserRepository userRepository;
+    private final BusinessRepository businessRepository;
+    private final UserRepository userRepository;
+    private final CityRepository cityRepository;
 
-	public BusinessService(BusinessRepository businessRepository, UserRepository userRepository) {
-		this.businessRepository = businessRepository;
-		this.userRepository = userRepository;
-	}
+    public BusinessService(BusinessRepository businessRepository,
+                           UserRepository userRepository,
+                           CityRepository cityRepository) {
+        this.businessRepository = businessRepository;
+        this.userRepository = userRepository;
+        this.cityRepository = cityRepository;
+    }
 
-	// CREATE BUSINESS
-	public BusinessResponse createBusiness(BusinessRequest request) {
+    public BusinessResponse createBusiness(BusinessRequest request) {
 
-		User user = userRepository.findById(request.getUserId())
-				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        // ✅ GET EMAIL FROM JWT
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
 
-		Business business = new Business();
-		business.setName(request.getName());
-		business.setCategory(request.getCategory());
-		business.setAddress(request.getAddress());
-		business.setUser(user);
+        // ✅ FETCH USER
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-		Business saved = businessRepository.save(business);
+        // ⚠️ VALIDATE CITY ID
+        if (request.getCityId() == null) {
+            throw new RuntimeException("City ID is required");
+        }
 
-		BusinessResponse response = new BusinessResponse();
-		response.setId(saved.getId());
-		response.setName(saved.getName());
-		response.setCategory(saved.getCategory());
-		response.setAddress(saved.getAddress());
+        City city = cityRepository.findById(request.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("City not found"));
 
-		return response;
-	}
+        // ✅ CREATE BUSINESS
+        Business business = new Business();
+        business.setName(request.getName());
+        business.setCategory(request.getCategory());
+        business.setAddress(request.getAddress());
+        business.setCity(city);
+        business.setUser(user);
 
-	public PagedResponse<BusinessResponse> getBusinesses(int page, int size, String category, String name,
-			String sortBy, String order) {
+        Business saved = businessRepository.save(business);
 
-		// 🔥 DEFAULT VALUES
-		sortBy = (sortBy == null || sortBy.isEmpty()) ? "id" : sortBy;
-		order = (order == null || order.isEmpty()) ? "asc" : order;
+        return mapToResponse(saved);
+    }
 
-		Sort sort = order.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+    public PagedResponse<BusinessResponse> getBusinesses(int page, int size, String category, String name,
+                                                        String sortBy, String order) {
 
-		Pageable pageable = PageRequest.of(page, size, sort);
+        sortBy = (sortBy == null || sortBy.isEmpty()) ? "id" : sortBy;
+        order = (order == null || order.isEmpty()) ? "asc" : order;
 
-		String categoryFilter = (category == null) ? "" : category;
-		String nameFilter = (name == null) ? "" : name;
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
 
-		Page<Business> businessPage = businessRepository
-				.findByCategoryContainingIgnoreCaseAndNameContainingIgnoreCase(categoryFilter, nameFilter, pageable);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-		List<BusinessResponse> items = businessPage.getContent().stream().map(b -> {
-			BusinessResponse res = new BusinessResponse();
-			res.setId(b.getId());
-			res.setName(b.getName());
-			res.setCategory(b.getCategory());
-			res.setAddress(b.getAddress());
-			return res;
-		}).toList();
+        String categoryFilter = (category == null) ? "" : category;
+        String nameFilter = (name == null) ? "" : name;
 
-		return new PagedResponse<>(items, businessPage.getNumber(), businessPage.getSize(),
-				businessPage.getTotalElements(), businessPage.getTotalPages());
-	}
+        Page<Business> pageData =
+                businessRepository.findByCategoryContainingIgnoreCaseAndNameContainingIgnoreCase(
+                        categoryFilter, nameFilter, pageable
+                );
+
+        List<BusinessResponse> items =
+                pageData.getContent().stream().map(this::mapToResponse).toList();
+
+        return new PagedResponse<>(
+                items,
+                pageData.getNumber(),
+                pageData.getSize(),
+                pageData.getTotalElements(),
+                pageData.getTotalPages()
+        );
+    }
+
+    private BusinessResponse mapToResponse(Business b) {
+        BusinessResponse res = new BusinessResponse();
+        res.setId(b.getId());
+        res.setName(b.getName());
+        res.setCategory(b.getCategory());
+        res.setAddress(b.getAddress());
+        return res;
+    }
 }

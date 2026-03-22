@@ -52,7 +52,7 @@ async function loadBusinesses() {
             throw new Error(result.message);
         }
 
-        // 🔥 FIX IS HERE
+
         const data = result.data.items;
 
         const container = document.getElementById("list");
