@@ -1,48 +1,51 @@
 package com.smartCity.Web.Controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.smartCity.Web.Model.User;
 import com.smartCity.Web.Service.UserService;
+import com.smartCity.Web.dto.request.LoginRequest;
+import com.smartCity.Web.dto.request.UserRequest;
+import com.smartCity.Web.dto.response.ApiResponse;
+import com.smartCity.Web.dto.response.UserResponse;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 
-@RequiredArgsConstructor
-@Controller
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login";
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
+    // REGISTER
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponse>> register(
+            @Valid @RequestBody UserRequest request) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        userService.register(request),
+                        "User registered successfully"
+                )
+        );
+    }
+
+    // 🔥 LOGIN → RETURNS TOKEN
     @PostMapping("/login")
-    public String loginUser(@RequestParam String email,
-                            @RequestParam String password,
-                            Model model) {
+    public ResponseEntity<ApiResponse<String>> login(
+            @RequestBody LoginRequest request) {
 
-        boolean valid = service.validataUser(email, password);
-
-        if (valid) {
-            return "redirect:/dashboard";
-        }
-
-        model.addAttribute("error", "Invalid credentials");
-        return "login";
-    }
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
-    }
-
-    @PostMapping("/user/save")
-    public String saveUser(@ModelAttribute User user) {
-        service.saveUser(user);
-        return "redirect:/";
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        userService.login(request),
+                        "Login successful"
+                )
+        );
     }
 }

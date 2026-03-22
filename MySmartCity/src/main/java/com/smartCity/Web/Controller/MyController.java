@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class MyController {
 	@RequestMapping("/index")
 	public String welcomeUser(Model model) {
-		String message = "hi sirs and madams";
+		String message = "hi sirs / madams";
 		model.addAttribute("message", message);
 		return "index";
 	}
