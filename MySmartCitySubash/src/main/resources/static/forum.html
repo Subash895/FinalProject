@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+<h1>Forum</h1>
+
+<form id="forumForm">
+    <input id="title" placeholder="Title" required>
+    <input id="content" placeholder="Content" required>
+    <button type="submit">Add</button>
+</form>
+
+<button id="loadBtn">Load Posts</button>
+
+<div id="list"></div>
+</div>
+
+<!-- 🔥 IMPORTANT: LOAD JS WITH DEFER -->
+<script src="js/api.js" defer></script>
+<script src="js/forum.js" defer></script>
+
+</body>
+</html>
