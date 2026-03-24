@@ -1,26 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySmartCity — Cities</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/city.css">
 </head>
 <body>
 
-<div class="container">
-<h1>City</h1>
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">🏙️</div>
+      My<span>Smart</span>City
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="city.html" class="active"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+    </ul>
+  </nav>
 
-<form id="cityForm">
-    <input id="name" placeholder="City Name" required>
-    <input id="country" placeholder="Country" required>
-    <button>Add</button>
-</form>
+  <div class="page-wrapper">
 
-<button id="loadBtn">Load Cities</button>
+    <div class="page-header">
+      <h1>Explore <span class="highlight">Cities</span></h1>
+      <p>Add and browse cities connected to the SmartCity platform</p>
+      <div class="header-line"></div>
+    </div>
 
-<div id="list"></div>
-</div>
+    <!-- ── Add City Form ──────────────────────────────────────── -->
+    <div class="glass-card form-card">
+      <div class="form-title">🏛️ Add a City</div>
+      <form id="cityForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">City Name</label>
+            <input class="form-control" id="name" placeholder="e.g. Bengaluru" required>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input class="form-control" id="country" placeholder="e.g. India" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add City</button>
+      </form>
+    </div>
 
-<script src="js/api.js"></script>
-<script src="js/city.js"></script>
+    <!-- ── City List ──────────────────────────────────────────── -->
+    <div class="section-header">
+      <h2>All Cities</h2>
+      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+    </div>
+
+    <div id="list" class="city-list">
+      <div class="empty-state glass-card">
+        <div class="empty-icon">🏛️</div>
+        <p>Click Refresh to load cities</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">© 2025 MySmartCity · City Explorer</footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/city.js"></script>
 
 </body>
 </html>

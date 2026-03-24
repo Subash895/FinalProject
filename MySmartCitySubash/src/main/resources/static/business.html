@@ -1,27 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySmartCity — Businesses</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/business.css">
 </head>
 <body>
 
-<div class="container">
-<h1>Business</h1>
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">🏙️</div>
+      My<span>Smart</span>City
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html" class="active"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+    </ul>
+  </nav>
 
-<form id="businessForm">
-    <input id="name" placeholder="Name" required>
-    <input id="category" placeholder="Category" required>
-    <input id="address" placeholder="Address" required>
-    <button>Add</button>
-</form>
+  <div class="page-wrapper">
 
-<button id="loadBtn">Load</button>
+    <!-- ── Page Header ────────────────────────────────────────── -->
+    <div class="page-header">
+      <h1><span class="highlight">Business</span> Directory</h1>
+      <p>Explore and register local businesses in your city</p>
+      <div class="header-line"></div>
+    </div>
 
-<div id="list"></div>
-</div>
+    <!-- ── Add Business Form ──────────────────────────────────── -->
+    <div class="glass-card business-form-card">
+      <div class="form-title">➕ Register a Business</div>
+      <form id="businessForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Business Name</label>
+            <input class="form-control" id="name" placeholder="e.g. Sunrise Bakery" required>
+          </div>
+          <div class="form-group">
+            <label for="category">Category</label>
+            <input class="form-control" id="category" placeholder="e.g. Food & Beverage" required>
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input class="form-control" id="address" placeholder="e.g. 12 Main St, Bengaluru" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Business</button>
+      </form>
+    </div>
 
-<script src="js/api.js"></script>
-<script src="js/business.js"></script>
+    <!-- ── Business List ──────────────────────────────────────── -->
+    <div class="section-header">
+      <h2>All Businesses</h2>
+      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+    </div>
+
+    <div id="list" class="card-list">
+      <div class="empty-state glass-card">
+        <div class="empty-icon">💼</div>
+        <p>Click Refresh to load businesses</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">© 2025 MySmartCity · Business Directory</footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/business.js"></script>
 
 </body>
 </html>

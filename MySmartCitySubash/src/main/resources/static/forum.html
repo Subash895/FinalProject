@@ -1,27 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySmartCity — Forum</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/forum.css">
 </head>
 <body>
 
-<div class="container">
-<h1>Forum</h1>
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">🏙️</div>
+      My<span>Smart</span>City
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html" class="active"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+    </ul>
+  </nav>
 
-<form id="forumForm">
-    <input id="title" placeholder="Title" required>
-    <input id="content" placeholder="Content" required>
-    <button type="submit">Add</button>
-</form>
+  <div class="page-wrapper">
 
-<button id="loadBtn">Load Posts</button>
+    <div class="page-header">
+      <h1>Community <span class="highlight">Forum</span></h1>
+      <p>Share ideas, ask questions, and connect with your city</p>
+      <div class="header-line"></div>
+    </div>
 
-<div id="list"></div>
-</div>
+    <!-- ── Stats ──────────────────────────────────────────────── -->
+    <div class="forum-stats glass-card">
+      <div class="forum-stat">
+        <span class="stat-val" id="postCount">—</span>
+        <span class="stat-lbl">Posts</span>
+      </div>
+      <div class="forum-stat">
+        <span class="stat-val">Active</span>
+        <span class="stat-lbl">Status</span>
+      </div>
+      <div class="forum-stat">
+        <span class="stat-val">Open</span>
+        <span class="stat-lbl">Community</span>
+      </div>
+    </div>
 
-<!-- 🔥 IMPORTANT: LOAD JS WITH DEFER -->
-<script src="js/api.js" defer></script>
-<script src="js/forum.js" defer></script>
+    <!-- ── New Post Form ──────────────────────────────────────── -->
+    <div class="glass-card form-card forum-form-card">
+      <div class="form-title">✏️ New Post</div>
+      <form id="forumForm">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label for="title">Post Title</label>
+            <input class="form-control" id="title" placeholder="What's on your mind?" required>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label for="content">Content</label>
+            <textarea class="form-control" id="content" placeholder="Share your thoughts with the community..." required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Post to Forum</button>
+      </form>
+    </div>
+
+    <!-- ── Posts List ─────────────────────────────────────────── -->
+    <div class="section-header">
+      <h2>Recent Discussions</h2>
+      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+    </div>
+
+    <div id="list" class="forum-list">
+      <div class="empty-state glass-card">
+        <div class="empty-icon">💬</div>
+        <p>Click Refresh to load forum posts</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">© 2025 MySmartCity · Community Forum</footer>
+
+  <script src="js/api.js" defer></script>
+  <script src="js/forum.js" defer></script>
 
 </body>
 </html>

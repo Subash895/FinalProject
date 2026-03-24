@@ -1,27 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySmartCity — News</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/news.css">
 </head>
 <body>
 
-<div class="container">
-<h1>Place</h1>
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">🏙️</div>
+      My<span>Smart</span>City
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html" class="active"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+    </ul>
+  </nav>
 
-<form id="placeForm">
-    <input id="name" placeholder="Place Name" required>
-    <input id="category" placeholder="Category" required>
-    <input id="location" placeholder="Location" required>
-    <button>Add</button>
-</form>
+  <div class="page-wrapper">
 
-<button id="loadBtn">Load Places</button>
+    <div class="page-header">
+      <h1>City <span class="highlight">News</span></h1>
+      <p>Latest updates, announcements, and stories from your city</p>
+      <div class="header-line"></div>
+    </div>
 
-<div id="list"></div>
-</div>
+    <!-- ── Add News Form ──────────────────────────────────────── -->
+    <div class="glass-card form-card">
+      <div class="form-title">📰 Publish News</div>
+      <form id="newsForm">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label for="title">Headline</label>
+            <input class="form-control" id="title" placeholder="Enter a compelling headline..." required>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label for="content">Story</label>
+            <textarea class="form-control" id="content" placeholder="Write the full news story here..." style="min-height:90px;resize:vertical;font-family:var(--font-body);" required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Publish Article</button>
+      </form>
+    </div>
 
-<script src="js/api.js"></script>
-<script src="js/place.js"></script>
+    <!-- ── News List ──────────────────────────────────────────── -->
+    <div class="section-header">
+      <h2>Latest Articles</h2>
+      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+    </div>
+
+    <div id="list" class="news-list">
+      <div class="empty-state glass-card">
+        <div class="empty-icon">📰</div>
+        <p>Click Refresh to load news articles</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">© 2025 MySmartCity · City News</footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/news.js"></script>
 
 </body>
 </html>

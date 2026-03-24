@@ -1,22 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySmartCity — Home</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/index.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>Smart City</h1>
+	<!-- ── Navbar ─────────────────────────────────────────────── -->
+	<nav class="navbar">
+		<a href="index.html" class="navbar-brand">
+			<div class="brand-icon">🏙️</div> My<span>Smart</span>City
+		</a>
+		<ul class="navbar-nav">
+			<li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+			<li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+			<li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+			<li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+			<li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+			<li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+			<li><a href="login.html"
+				style="color: var(--cyan); background: var(--cyan-dim); border-radius: 8px;">Login</a></li>
+		</ul>
+	</nav>
 
-    <a href="login.html">Login</a><br>
-    <a href="register.html">Register</a><br>
-    <a href="business.html">Business</a><br>
-    <a href="city.html">City</a><br>
-    <a href="place.html">Place</a><br>
-    <a href="forum.html">Forum</a><br>
-    <a href="news.html">News</a><br>
-    <a href="subscription.html">Subscription</a>
-</div>
+	<!-- ── Hero ───────────────────────────────────────────────── -->
+	<section class="hero">
+		<div class="hero-eyebrow">
+			<span class="dot"></span> Your City, Connected
+		</div>
+
+		<h1>
+			Discover Your <span class="line-cyan">Smart City</span> <span
+				class="line-purple">Platform</span>
+		</h1>
+
+		<p class="hero-desc">Explore businesses, local events, city news,
+			and community forums — all in one intelligent platform built for
+			modern urban life.</p>
+
+		<div class="hero-actions">
+			<a href="register.html" class="btn btn-primary">Get Started →</a> <a
+				href="business.html" class="btn btn-secondary">Explore
+				Businesses</a>
+		</div>
+
+		<div class="stats-bar">
+			<div class="stat-item">
+				<span class="stat-number">120+</span> <span class="stat-label">Cities</span>
+			</div>
+			<div class="stat-item">
+				<span class="stat-number">3.4K</span> <span class="stat-label">Businesses</span>
+			</div>
+			<div class="stat-item">
+				<span class="stat-number">850</span> <span class="stat-label">Places</span>
+			</div>
+			<div class="stat-item">
+				<span class="stat-number">12K</span> <span class="stat-label">Users</span>
+			</div>
+		</div>
+	</section>
+
+	<!-- ── Features ───────────────────────────────────────────── -->
+	<section class="features-section">
+		<p class="features-label">Everything your city needs</p>
+		<div class="features-grid">
+			<a href="city.html" class="feature-card"> <span
+				class="feature-icon">🏛️</span>
+				<h3>Cities</h3>
+				<p>Browse and manage city profiles</p>
+			</a> <a href="business.html" class="feature-card"> <span
+				class="feature-icon">💼</span>
+				<h3>Businesses</h3>
+				<p>Local business directory</p>
+			</a> <a href="place.html" class="feature-card"> <span
+				class="feature-icon">📍</span>
+				<h3>Places</h3>
+				<p>Discover key locations</p>
+			</a> <a href="forum.html" class="feature-card"> <span
+				class="feature-icon">💬</span>
+				<h3>Forum</h3>
+				<p>Community discussions</p>
+			</a> <a href="news.html" class="feature-card"> <span
+				class="feature-icon">📰</span>
+				<h3>News</h3>
+				<p>City news and updates</p>
+			</a> <a href="subscription.html" class="feature-card"> <span
+				class="feature-icon">⭐</span>
+				<h3>Subscribe</h3>
+				<p>Get premium city insights</p>
+			</a>
+		</div>
+	</section>
+
+	<!-- ── Footer ─────────────────────────────────────────────── -->
+	<footer class="site-footer"> © 2025 MySmartCity · Built with
+		❤️ for smarter urban living </footer>
 
 </body>
 </html>
