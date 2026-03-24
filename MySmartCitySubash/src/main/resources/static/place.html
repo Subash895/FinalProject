@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — News</title>
+  <title>MySmartCity — Places</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/news.css">
+  <link rel="stylesheet" href="css/place.css">
 </head>
 <body>
 
@@ -18,9 +18,9 @@
     <ul class="navbar-nav">
       <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
       <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
-      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="place.html" class="active"><span class="nav-icon">📍</span>Places</a></li>
       <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
-      <li><a href="news.html" class="active"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
       <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
       <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
     </ul>
@@ -29,48 +29,53 @@
   <div class="page-wrapper">
 
     <div class="page-header">
-      <h1>City <span class="highlight">News</span></h1>
-      <p>Latest updates, announcements, and stories from your city</p>
+      <h1>Discover <span class="highlight">Places</span></h1>
+      <p>Find parks, landmarks, attractions and key city locations</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Add News Form ──────────────────────────────────────── -->
+    <!-- ── Add Place Form ─────────────────────────────────────── -->
     <div class="glass-card form-card">
-      <div class="form-title">📰 Publish News</div>
-      <form id="newsForm">
+      <div class="form-title">📍 Add a Place</div>
+      <form id="placeForm">
         <div class="form-grid">
-          <div class="form-group" style="grid-column: 1 / -1">
-            <label for="title">Headline</label>
-            <input class="form-control" id="title" placeholder="Enter a compelling headline..." required>
+          <div class="form-group">
+            <label for="name">Place Name</label>
+            <input class="form-control" id="name" placeholder="e.g. Cubbon Park" required>
           </div>
-          <div class="form-group" style="grid-column: 1 / -1">
-            <label for="content">Story</label>
-            <textarea class="form-control" id="content" placeholder="Write the full news story here..." style="min-height:90px;resize:vertical;font-family:var(--font-body);" required></textarea>
+          <div class="form-group">
+            <label for="category">Category</label>
+            <input class="form-control" id="category" placeholder="e.g. Park / Museum" required>
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input class="form-control" id="location" placeholder="e.g. MG Road, Bengaluru" required>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Publish Article</button>
+        <button type="submit" class="btn btn-primary">Add Place</button>
       </form>
     </div>
 
-    <!-- ── News List ──────────────────────────────────────────── -->
+    <!-- ── Places List ────────────────────────────────────────── -->
     <div class="section-header">
-      <h2>Latest Articles</h2>
+      <h2>All Places</h2>
       <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
     </div>
 
-    <div id="list" class="news-list">
+    <div id="list" class="place-list">
       <div class="empty-state glass-card">
-        <div class="empty-icon">📰</div>
-        <p>Click Refresh to load news articles</p>
+        <div class="empty-icon">📍</div>
+        <p>Click Refresh to load places</p>
       </div>
     </div>
 
   </div>
 
-  <footer class="site-footer">© 2025 MySmartCity · City News</footer>
+  <footer class="site-footer">© 2025 MySmartCity · Places Explorer</footer>
 
   <script src="js/api.js"></script>
-  <script src="js/news.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/place.js"></script>
 
 </body>
 </html>

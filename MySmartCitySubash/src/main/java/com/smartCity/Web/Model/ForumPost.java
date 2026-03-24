@@ -10,20 +10,12 @@ public class ForumPost {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
 	private String title;
 
-	@Column(nullable = false, columnDefinition = "TEXT")
+	@Column(columnDefinition = "TEXT")
 	private String content;
 
-	public ForumPost() {
-	}
-
-	public ForumPost(String title, String content) {
-		this.title = title;
-		this.content = content;
-	}
-
+	// getters & setters
 	public Long getId() {
 		return id;
 	}

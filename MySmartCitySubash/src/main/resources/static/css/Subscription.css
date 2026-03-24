@@ -1,137 +1,135 @@
 /* ============================================================
    SMART CITY — subscription.css
-   Subscription / Plans page styles
    ============================================================ */
-
 .plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 1.25rem;
+	margin-bottom: 3rem;
 }
 
 .plan-card {
-  padding: 2rem 1.75rem;
-  border-radius: var(--radius-lg);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
+	padding: 2rem 1.75rem;
+	border-radius: var(--radius-lg);
+	background: var(--bg-card);
+	border: 1px solid var(--border);
+	transition: var(--transition);
+	position: relative;
+	overflow: hidden;
 }
 
 .plan-card.popular {
-  border-color: var(--cyan);
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
+	border-color: var(--cyan);
+	box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
 }
 
 .plan-card.popular::before {
-  content: 'POPULAR';
-  position: absolute;
-  top: 1rem;
-  right: -1.8rem;
-  background: var(--cyan);
-  color: #060a14;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  padding: 3px 2.5rem;
-  transform: rotate(45deg);
-  transform-origin: center;
+	content: 'POPULAR';
+	position: absolute;
+	top: 1rem;
+	right: -2rem;
+	background: var(--cyan);
+	color: #060a14;
+	font-size: 0.58rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	padding: 3px 3rem;
+	transform: rotate(45deg);
 }
 
 .plan-name {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
+	font-family: var(--font-display);
+	font-size: 0.78rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--text-secondary);
+	margin-bottom: 0.75rem;
 }
 
 .plan-price {
-  font-family: var(--font-display);
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1;
-  margin-bottom: 0.25rem;
+	font-family: var(--font-display);
+	font-size: 2.4rem;
+	font-weight: 800;
+	line-height: 1;
+	margin-bottom: 0.25rem;
 }
 
 .plan-price span {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  vertical-align: bottom;
+	font-size: 1rem;
+	font-weight: 400;
+	color: var(--text-muted);
 }
 
 .plan-desc {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
+	font-size: 0.8rem;
+	color: var(--text-muted);
+	margin-bottom: 1.5rem;
 }
 
 .plan-features {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 1.75rem;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	margin-bottom: 1.75rem;
 }
 
 .plan-features li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.84rem;
+	color: var(--text-secondary);
 }
 
 .plan-features li::before {
-  content: '✓';
-  color: var(--green);
-  font-weight: 700;
-  font-size: 0.8rem;
-  flex-shrink: 0;
+	content: '✓';
+	color: var(--green);
+	font-weight: 700;
+	flex-shrink: 0;
 }
 
 .plan-card .btn {
-  width: 100%;
-  justify-content: center;
-}
-
-/* ── Sub List ───────────────────────────────────────────────── */
-.sub-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  transition: var(--transition);
-  animation: fadeInUp 0.4s ease both;
-}
-
-.sub-card:hover {
-  border-color: var(--border-glow);
-}
-
-.sub-card .sub-email {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.sub-card .sub-type {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
+	width: 100%;
+	justify-content: center;
 }
 
 .sub-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.sub-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	border-radius: var(--radius-sm);
+	background: var(--bg-card);
+	border: 1px solid var(--border);
+	transition: var(--transition);
+	animation: fadeInUp 0.4s ease both;
+}
+
+.sub-card:hover {
+	border-color: var(--border-glow);
+}
+
+.sub-email {
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+.sub-type {
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	margin-top: 2px;
+}
+
+.sub-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }

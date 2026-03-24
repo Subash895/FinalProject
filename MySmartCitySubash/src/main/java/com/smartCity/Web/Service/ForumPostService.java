@@ -16,6 +16,15 @@ public class ForumPostService {
 	}
 
 	public ForumPost create(ForumPost post) {
+
+		if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
+			throw new RuntimeException("Title required");
+		}
+
+		if (post.getContent() == null || post.getContent().trim().isEmpty()) {
+			throw new RuntimeException("Content required");
+		}
+
 		return repository.save(post);
 	}
 
