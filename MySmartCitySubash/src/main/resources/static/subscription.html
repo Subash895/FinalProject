@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MySmartCity — Subscription</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/subscription.css">
+  <link rel="stylesheet" href="css/Subscription.css">
 </head>
 <body>
 
@@ -22,7 +22,9 @@
       <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
       <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
       <li><a href="subscription.html" class="active"><span class="nav-icon">⭐</span>Subscribe</a></li>
-      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
     </ul>
   </nav>
 
@@ -41,7 +43,7 @@
         <div class="plan-price">₹0 <span>/ month</span></div>
         <div class="plan-desc">Great for casual city explorers</div>
         <ul class="plan-features">
-          <li>Browse businesses & places</li>
+          <li>Browse businesses &amp; places</li>
           <li>Read city news</li>
           <li>View forum posts</li>
           <li>Basic city info</li>
@@ -56,7 +58,7 @@
         <ul class="plan-features">
           <li>Everything in Free</li>
           <li>Post forum discussions</li>
-          <li>Add businesses & places</li>
+          <li>Add businesses &amp; places</li>
           <li>City history access</li>
           <li>Priority support</li>
         </ul>
@@ -66,7 +68,7 @@
       <div class="plan-card glass-card">
         <div class="plan-name">Enterprise</div>
         <div class="plan-price">₹999 <span>/ month</span></div>
-        <div class="plan-desc">For city administrators & businesses</div>
+        <div class="plan-desc">For city administrators &amp; businesses</div>
         <ul class="plan-features">
           <li>Everything in Pro</li>
           <li>Market rate analytics</li>
@@ -114,8 +116,10 @@
   <footer class="site-footer">© 2025 MySmartCity · Subscription Plans</footer>
 
   <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/subscription.js"></script>
+  <script>applyRoleUI();</script>
 
 </body>
 </html>

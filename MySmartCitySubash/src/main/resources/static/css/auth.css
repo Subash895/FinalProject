@@ -185,3 +185,61 @@
 	display: block;
 	animation: fadeInUp 0.3s ease both;
 }
+/* ── Role Selector (register page) ─────────────────────────── */
+.role-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.role-option {
+    cursor: pointer;
+    display: block;
+}
+
+.role-option input[type="radio"] {
+    display: none;
+}
+
+.role-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.85rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.role-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    background: rgba(0,212,255,0.04);
+}
+
+.role-option input[type="radio"]:checked + .role-card {
+    border-color: var(--cyan);
+    background: rgba(0,212,255,0.08);
+}
+
+.role-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.role-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.role-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.role-desc {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+}

@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span> Adding...';
         try {
             await apiRequest("/places", "POST", {
-                name: document.getElementById("name").value.trim(),
+                name:     document.getElementById("name").value.trim(),
                 category: document.getElementById("category").value.trim(),
                 location: document.getElementById("location").value.trim()
             });
@@ -58,15 +58,17 @@ async function loadPlaces() {
       <div class="place-card glass-card" style="animation-delay:${i * 0.05}s">
         <div class="place-top">
           <div class="place-icon-wrap">${getPlaceIcon(p.category)}</div>
-          <div>
+          <div class="place-info">
             <h3>${p.name}</h3>
-            <span class="place-cat">${p.category || "Place"}</span>
+            <div class="place-meta">
+              <span>🏷️ ${p.category || "—"}</span>
+              <span>📍 ${p.location || p.type || "—"}</span>
+            </div>
           </div>
         </div>
-        <div class="place-loc">📍 ${p.location || "—"}</div>
         <div class="card-actions">
-          <button class="btn btn-edit btn-sm" onclick='editPlace(${p.id}, ${JSON.stringify(p)})'>✏️ Edit</button>
-          <button class="btn btn-delete btn-sm" onclick="deletePlace(${p.id}, '${esc(p.name)}')">🗑️ Delete</button>
+          ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editPlace(${p.id}, ${JSON.stringify(p)})'>✏️ Edit</button>` : ""}
+          ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deletePlace(${p.id}, '${esc(p.name)}')">🗑️ Delete</button>` : ""}
         </div>
       </div>`).join("");
     } catch {
@@ -78,11 +80,11 @@ function editPlace(id, p) {
     openEditModal({
         title: "Edit Place",
         fields: [
-            { key: "name", label: "Place Name", placeholder: "e.g. Cubbon Park" },
-            { key: "category", label: "Category", placeholder: "e.g. Park" },
-            { key: "location", label: "Location", placeholder: "e.g. MG Road, Bengaluru" }
+            { key: "name",     label: "Place Name", placeholder: "e.g. Cubbon Park" },
+            { key: "category", label: "Category",   placeholder: "e.g. Park" },
+            { key: "location", label: "Location",   placeholder: "e.g. MG Road, Bengaluru" }
         ],
-        values: { name: p.name, category: p.category, location: p.location },
+        values: { name: p.name, category: p.category, location: p.location || p.type },
         onSave: async (data) => { await apiRequest(`/places/${id}`, "PUT", data); await loadPlaces(); }
     });
 }

@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span> Adding...';
         try {
             await apiRequest("/cities", "POST", {
-                name: document.getElementById("name").value.trim(),
+                name:    document.getElementById("name").value.trim(),
                 country: document.getElementById("country").value.trim()
             });
             e.target.reset();
@@ -50,8 +50,8 @@ async function loadCities() {
         </div>
         <div class="city-actions">
           <span class="badge badge-cyan">Active</span>
-          <button class="btn btn-edit btn-sm" onclick='editCity(${c.id}, ${JSON.stringify(c)})'>✏️</button>
-          <button class="btn btn-delete btn-sm" onclick="deleteCity(${c.id}, '${esc(c.name)}')">🗑️</button>
+          ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editCity(${c.id}, ${JSON.stringify(c)})'>✏️</button>` : ""}
+          ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${c.id}, '${esc(c.name)}')">🗑️</button>` : ""}
         </div>
       </div>`).join("");
     } catch {
@@ -63,8 +63,8 @@ function editCity(id, c) {
     openEditModal({
         title: "Edit City",
         fields: [
-            { key: "name", label: "City Name", placeholder: "e.g. Bengaluru" },
-            { key: "country", label: "Country", placeholder: "e.g. India" }
+            { key: "name",    label: "City Name", placeholder: "e.g. Bengaluru" },
+            { key: "country", label: "Country",   placeholder: "e.g. India" }
         ],
         values: { name: c.name, country: c.country },
         onSave: async (data) => { await apiRequest(`/cities/${id}`, "PUT", data); await loadCities(); }

@@ -13,16 +13,22 @@ import com.smartCity.Web.Service.MarketRateService;
 @CrossOrigin("*")
 public class MarketRateController {
 
-    @Autowired
-    private MarketRateService service;
+	@Autowired
+	private MarketRateService service;
 
-    @PostMapping
-    public MarketRate create(@RequestBody MarketRate rate) {
-        return service.createMarketRate(rate);
-    }
+	@PostMapping
+	public MarketRate create(@RequestBody MarketRate rate) {
+		return service.createMarketRate(rate);
+	}
 
-    @GetMapping
-    public List<MarketRate> getAll() {
-        return service.getAllMarketRates();
-    }
+	@PutMapping
+	public MarketRate update(@PathVariable Long id, @RequestBody MarketRate rate) {
+
+		return service.updateMarketRate(id, rate);
+	}
+
+	@GetMapping
+	public List<MarketRate> getAll() {
+		return service.getAllMarketRates();
+	}
 }

@@ -22,62 +22,47 @@
       <li><a href="forum.html" class="active"><span class="nav-icon">💬</span>Forum</a></li>
       <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
       <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
-      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
     </ul>
   </nav>
 
   <div class="page-wrapper">
 
     <div class="page-header">
-      <h1>Community <span class="highlight">Forum</span></h1>
-      <p>Share ideas, ask questions, and connect with your city</p>
+      <h1><span class="highlight">Community</span> Forum</h1>
+      <p>Discussions, announcements and city conversations</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Stats ──────────────────────────────────────────────── -->
-    <div class="forum-stats glass-card">
-      <div class="forum-stat">
-        <span class="stat-val" id="postCount">—</span>
-        <span class="stat-lbl">Posts</span>
-      </div>
-      <div class="forum-stat">
-        <span class="stat-val">Active</span>
-        <span class="stat-lbl">Status</span>
-      </div>
-      <div class="forum-stat">
-        <span class="stat-val">Open</span>
-        <span class="stat-lbl">Community</span>
-      </div>
-    </div>
-
-    <!-- ── New Post Form ──────────────────────────────────────── -->
-    <div class="glass-card form-card forum-form-card">
-      <div class="form-title">✏️ New Post</div>
+    <!-- ── Create Post Form — BUSINESS + ADMIN only ──────────── -->
+    <div id="addForumSection" class="glass-card forum-form-card" style="display:none">
+      <div class="form-title">✍️ Create a Forum Post</div>
       <form id="forumForm">
         <div class="form-grid">
-          <div class="form-group" style="grid-column: 1 / -1">
+          <div class="form-group" style="grid-column:1/-1">
             <label for="title">Post Title</label>
-            <input class="form-control" id="title" placeholder="What's on your mind?" required>
+            <input class="form-control" id="title" placeholder="e.g. New community event this weekend" required>
           </div>
-          <div class="form-group" style="grid-column: 1 / -1">
+          <div class="form-group" style="grid-column:1/-1">
             <label for="content">Content</label>
-            <textarea class="form-control" id="content" placeholder="Share your thoughts with the community..." required></textarea>
+            <textarea class="form-control" id="content" placeholder="Share details with the community…" required></textarea>
           </div>
         </div>
         <button type="submit" class="btn btn-primary">Post to Forum</button>
       </form>
     </div>
 
-    <!-- ── Posts List ─────────────────────────────────────────── -->
     <div class="section-header">
-      <h2>Recent Discussions</h2>
+      <h2>All Posts <span class="badge badge-purple" id="postCount">0</span></h2>
       <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
     </div>
 
     <div id="list" class="forum-list">
       <div class="empty-state glass-card">
         <div class="empty-icon">💬</div>
-        <p>Click Refresh to load forum posts</p>
+        <p>Click Refresh to load posts</p>
       </div>
     </div>
 
@@ -85,9 +70,14 @@
 
   <footer class="site-footer">© 2025 MySmartCity · Community Forum</footer>
 
-  <script src="js/api.js" defer></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/forum.js" defer></script>
+  <script src="js/forum.js"></script>
+  <script>
+    applyRoleUI();
+    if (isBusiness()) document.getElementById("addForumSection").style.display = "";
+  </script>
 
 </body>
 </html>

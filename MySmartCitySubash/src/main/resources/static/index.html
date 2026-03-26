@@ -21,8 +21,9 @@
 			<li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
 			<li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
 			<li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
-			<li><a href="login.html"
-				style="color: var(--cyan); background: var(--cyan-dim); border-radius: 8px;">Login</a></li>
+			<li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+			<li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+			<li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
 		</ul>
 	</nav>
 
@@ -99,5 +100,8 @@
 	<footer class="site-footer"> © 2025 MySmartCity · Built with
 		❤️ for smarter urban living </footer>
 
+	<script src="js/api.js"></script>
+	<script src="js/auth.js"></script>
+	<script>applyRoleUI();</script>
 </body>
 </html>

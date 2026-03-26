@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span> Posting...';
         try {
             await apiRequest("/forumposts", "POST", {
-                title: document.getElementById("title").value.trim(),
+                title:   document.getElementById("title").value.trim(),
                 content: document.getElementById("content").value.trim()
             });
             e.target.reset();
@@ -43,7 +43,11 @@ async function loadPosts() {
             return;
         }
         container.className = "forum-list";
-        container.innerHTML = data.map((p, i) => `
+        container.innerHTML = data.map((p, i) => {
+            // Edit and Delete: ADMIN only
+            const canEdit   = isAdmin();
+            const canDelete = isAdmin();
+            return `
       <div class="forum-post-card glass-card" style="animation-delay:${i * 0.05}s">
         <div class="post-header">
           <h3>${p.title}</h3>
@@ -55,11 +59,12 @@ async function loadPosts() {
           <span class="sep"></span>
           <span>📅 Recently posted</span>
           <div class="post-btns">
-            <button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>✏️ Edit</button>
-            <button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">🗑️ Delete</button>
+            ${canEdit   ? `<button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>✏️ Edit</button>` : ""}
+            ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">🗑️ Delete</button>` : ""}
           </div>
         </div>
-      </div>`).join("");
+      </div>`;
+        }).join("");
     } catch {
         container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">⚠️</span><p>Cannot connect to server.</p></div>`;
     }
@@ -69,7 +74,7 @@ function editPost(id, p) {
     openEditModal({
         title: "Edit Post",
         fields: [
-            { key: "title", label: "Title", placeholder: "Post title" },
+            { key: "title",   label: "Title",   placeholder: "Post title" },
             { key: "content", label: "Content", placeholder: "Post content" }
         ],
         values: { title: p.title, content: p.content },

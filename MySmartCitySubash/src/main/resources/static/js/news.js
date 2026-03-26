@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span> Publishing...';
         try {
             await apiRequest("/news", "POST", {
-                title: document.getElementById("title").value.trim(),
+                title:   document.getElementById("title").value.trim(),
                 content: document.getElementById("content").value.trim()
             });
             e.target.reset();
@@ -47,8 +47,8 @@ async function loadNews() {
           <div class="news-body">${n.content || ""}</div>
           <div class="news-timestamp">📅 Published recently</div>
           <div class="card-actions">
-            <button class="btn btn-edit btn-sm" onclick='editNews(${n.id}, ${JSON.stringify(n)})'>✏️ Edit</button>
-            <button class="btn btn-delete btn-sm" onclick="deleteNews(${n.id}, '${esc(n.title)}')">🗑️ Delete</button>
+            ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editNews(${n.id}, ${JSON.stringify(n)})'>✏️ Edit</button>` : ""}
+            ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteNews(${n.id}, '${esc(n.title)}')">🗑️ Delete</button>` : ""}
           </div>
         </div>
         <div class="news-label">
@@ -64,8 +64,8 @@ function editNews(id, n) {
     openEditModal({
         title: "Edit Article",
         fields: [
-            { key: "title", label: "Headline", placeholder: "Article headline" },
-            { key: "content", label: "Content", placeholder: "Story content" }
+            { key: "title",   label: "Headline", placeholder: "Article headline" },
+            { key: "content", label: "Content",  placeholder: "Story content" }
         ],
         values: { title: n.title, content: n.content },
         onSave: async (data) => { await apiRequest(`/news/${id}`, "PUT", data); await loadNews(); }

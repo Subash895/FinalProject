@@ -22,20 +22,22 @@
       <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
       <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
       <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
-      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
     </ul>
   </nav>
 
   <div class="page-wrapper">
 
     <div class="page-header">
-      <h1>Explore <span class="highlight">Cities</span></h1>
-      <p>Add and browse cities connected to the SmartCity platform</p>
+      <h1><span class="highlight">City</span> Directory</h1>
+      <p>Browse cities in the SmartCity network</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Add City Form ──────────────────────────────────────── -->
-    <div class="glass-card form-card">
+    <!-- ── Add City Form — ADMIN only ────────────────────────── -->
+    <div id="addCitySection" class="glass-card city-form-card" style="display:none">
       <div class="form-title">🏛️ Add a City</div>
       <form id="cityForm">
         <div class="form-grid">
@@ -52,13 +54,12 @@
       </form>
     </div>
 
-    <!-- ── City List ──────────────────────────────────────────── -->
     <div class="section-header">
       <h2>All Cities</h2>
       <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
     </div>
 
-    <div id="list" class="city-list">
+    <div id="list" class="card-list">
       <div class="empty-state glass-card">
         <div class="empty-icon">🏛️</div>
         <p>Click Refresh to load cities</p>
@@ -67,11 +68,16 @@
 
   </div>
 
-  <footer class="site-footer">© 2025 MySmartCity · City Explorer</footer>
+  <footer class="site-footer">© 2025 MySmartCity · City Directory</footer>
 
   <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/city.js"></script>
+  <script>
+    applyRoleUI();
+    if (isAdmin()) document.getElementById("addCitySection").style.display = "";
+  </script>
 
 </body>
 </html>

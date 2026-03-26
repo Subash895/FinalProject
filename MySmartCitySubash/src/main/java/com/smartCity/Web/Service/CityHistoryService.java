@@ -21,4 +21,16 @@ public class CityHistoryService {
     public List<CityHistory> getAllCityHistory() {
         return repository.findAll();
     }
+
+    public CityHistory updateCityHistory(Long id, CityHistory history) {
+
+        CityHistory existing = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("CityHistory not found with id: " + id));
+        existing.setTitle(history.getTitle());
+        existing.setContent(history.getContent());
+        existing.setCity(history.getCity());
+
+        return repository.save(existing);
+    }
+	
 }

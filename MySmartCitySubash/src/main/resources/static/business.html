@@ -22,7 +22,9 @@
       <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
       <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
       <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
-      <li><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
     </ul>
   </nav>
 
@@ -35,8 +37,8 @@
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Add Business Form ──────────────────────────────────── -->
-    <div class="glass-card business-form-card">
+    <!-- ── Add Business Form — USER / BUSINESS / ADMIN only ──── -->
+    <div id="addBusinessSection" class="glass-card business-form-card" style="display:none">
       <div class="form-title">➕ Register a Business</div>
       <form id="businessForm">
         <div class="form-grid">
@@ -75,8 +77,13 @@
   <footer class="site-footer">© 2025 MySmartCity · Business Directory</footer>
 
   <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/business.js"></script>
+  <script>
+    applyRoleUI();
+    if (isUser()) document.getElementById("addBusinessSection").style.display = "";
+  </script>
 
 </body>
 </html>

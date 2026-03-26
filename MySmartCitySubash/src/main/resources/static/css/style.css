@@ -356,3 +356,7 @@ textarea.form-control { min-height: 90px; resize: vertical; font-family: var(--f
   .form-grid { grid-template-columns: 1fr; }
   .card-list { grid-template-columns: 1fr; }
 }
+/* ── Nav logout ─────────────────────────────────────────────── */
+.navbar-nav a[style*="var(--red)"] {
+    transition: var(--transition);
+}

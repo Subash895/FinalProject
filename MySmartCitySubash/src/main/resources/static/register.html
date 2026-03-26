@@ -38,6 +38,31 @@
           <label for="password">Password</label>
           <input class="form-control" id="password" type="password" placeholder="Min. 8 characters" required>
         </div>
+        <div class="form-group">
+          <label>Account Type</label>
+          <div class="role-selector">
+            <label class="role-option">
+              <input type="radio" name="role" value="USER" checked>
+              <span class="role-card">
+                <span class="role-icon">👤</span>
+                <span class="role-info">
+                  <span class="role-name">User</span>
+                  <span class="role-desc">View all data, add businesses &amp; comments</span>
+                </span>
+              </span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="BUSINESS">
+              <span class="role-card">
+                <span class="role-icon">🏢</span>
+                <span class="role-info">
+                  <span class="role-name">Business</span>
+                  <span class="role-desc">User + create forums &amp; manage own business</span>
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
         <button type="submit" class="btn-submit">Create Account →</button>
       </form>
 
@@ -55,10 +80,12 @@
       e.preventDefault();
       const errEl = document.getElementById("registerError");
       errEl.classList.remove("show");
+      const role = document.querySelector('input[name="role"]:checked')?.value || "USER";
       registerUser(
         document.getElementById("name").value,
         document.getElementById("email").value,
-        document.getElementById("password").value
+        document.getElementById("password").value,
+        role
       ).catch(() => {
         errEl.textContent = "Registration failed. Please try again.";
         errEl.classList.add("show");
