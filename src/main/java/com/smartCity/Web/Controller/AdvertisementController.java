@@ -20,7 +20,7 @@ public class AdvertisementController {
     public Advertisement createAdvertisement(@RequestBody Advertisement ad) {
         return service.createAdvertisement(ad);
     }
-
+//   @GetMapping("/{id}")
     @GetMapping
     public List<Advertisement> getAllAdvertisements() {
         return service.getAllAdvertisements();
