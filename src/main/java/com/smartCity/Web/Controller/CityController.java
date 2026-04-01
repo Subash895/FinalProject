@@ -39,6 +39,12 @@ public class CityController {
 		return service.getById(id);
 	}
 
+	/*
+	@GetMapping("")
+	public Optional<City> getById(@RequestParam Long id) {
+		return service.getById(id);
+	}
+*/
 	@PutMapping("/{id}")
 	public City update(@PathVariable Long id, @RequestBody City entity) {
 		return service.update(id, entity);

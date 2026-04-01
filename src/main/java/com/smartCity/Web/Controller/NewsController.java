@@ -25,4 +25,20 @@ public class NewsController {
     public List<News> getAll() {
         return service.getAllNews();
     }
+
+    @GetMapping("/{id}")
+    public News getById(@PathVariable Long id) {
+        return service.getNewsById(id)
+                .orElseThrow(() -> new RuntimeException("News not found with id: " + id));
+    }
+
+    @PutMapping("/{id}")
+    public News update(@PathVariable Long id, @RequestBody News news) {
+        return service.updateNews(id, news);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.deleteNews(id);
+    }
 }

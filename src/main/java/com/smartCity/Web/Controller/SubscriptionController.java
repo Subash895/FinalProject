@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.Model.Subscription;
@@ -32,6 +33,11 @@ public class SubscriptionController {
 	@GetMapping
 	public List<Subscription> getAll() {
 		return service.getAll();
+	}
+
+	@GetMapping(params = "email")
+	public List<Subscription> getByEmail(@RequestParam String email) {
+		return service.getByEmail(email);
 	}
 
 	@GetMapping("/{id}")

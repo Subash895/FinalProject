@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.*;
 import com.smartCity.Web.Model.User;
 import com.smartCity.Web.Service.UserService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
 	private final UserService userService;
+
+	public AuthController(UserService userService) {
+		this.userService = userService;
+	}
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody User user) {
@@ -21,7 +22,7 @@ public class AuthController {
 			User savedUser = userService.register(user);
 			return ResponseEntity.ok(savedUser);
 		} catch (Exception e) {
-			e.printStackTrace(); // 🔥 shows real error in console
+			e.printStackTrace(); //shows real error in console
 			return ResponseEntity.internalServerError().body("Register failed: " + e.getMessage());
 		}
 	}

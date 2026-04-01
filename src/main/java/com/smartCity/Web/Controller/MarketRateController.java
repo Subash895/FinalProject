@@ -22,7 +22,7 @@ public class MarketRateController {
 	}
 
 	@PutMapping
-	public MarketRate update(@PathVariable Long id, @RequestBody MarketRate rate) {
+	public MarketRate update(@PathVariable int id, @RequestBody MarketRate rate) {
 
 		return service.updateMarketRate(id, rate);
 	}

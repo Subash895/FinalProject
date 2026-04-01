@@ -3,25 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — Places</title>
+  <title>MySmartCity - Places</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/place.css">
 </head>
 <body>
-
-  <!-- ── Navbar ─────────────────────────────────────────────── -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">🏙️</div>
+      <div class="brand-icon">SC</div>
       My<span>Smart</span>City
     </a>
     <ul class="navbar-nav">
-      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
-      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
-      <li><a href="place.html" class="active"><span class="nav-icon">📍</span>Places</a></li>
-      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
-      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
-      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li><a href="city.html"><span class="nav-icon">C</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">B</span>Business</a></li>
+      <li><a href="place.html" class="active"><span class="nav-icon">P</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">F</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">N</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">S</span>Subscribe</a></li>
       <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
       <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
       <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
@@ -29,16 +27,14 @@
   </nav>
 
   <div class="page-wrapper">
-
     <div class="page-header">
-      <h1><span class="highlight">Places</span> Explorer</h1>
-      <p>Discover parks, museums, restaurants, and more</p>
+      <h1><span class="highlight">Places</span> Directory</h1>
+      <p>Track every place with a clear category and an exact location.</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Add Place Form — ADMIN only ───────────────────────── -->
     <div id="addPlaceSection" class="glass-card place-form-card" style="display:none">
-      <div class="form-title">📍 Add a Place</div>
+      <div class="form-title">Add a Place</div>
       <form id="placeForm">
         <div class="form-grid">
           <div class="form-group">
@@ -58,21 +54,42 @@
       </form>
     </div>
 
+    <div class="glass-card place-filter-card">
+      <div class="filter-copy">
+        <h2>Find Places</h2>
+        <p>Filter the directory by category, location, or both.</p>
+      </div>
+      <form id="filterForm" class="filter-grid">
+        <div class="form-group">
+          <label for="filterCategory">Category</label>
+          <input class="form-control" id="filterCategory" placeholder="e.g. Park">
+        </div>
+        <div class="form-group">
+          <label for="filterLocation">Location</label>
+          <input class="form-control" id="filterLocation" placeholder="e.g. Bengaluru">
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-secondary">Apply Filter</button>
+          <button type="button" id="clearFiltersBtn" class="btn btn-ghost">Clear</button>
+          <button type="button" id="loadBtn" class="btn btn-primary">Refresh</button>
+        </div>
+      </form>
+    </div>
+
     <div class="section-header">
       <h2>All Places</h2>
-      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+      <div id="resultSummary" class="result-summary">Showing all places</div>
     </div>
 
     <div id="list" class="place-list">
       <div class="empty-state glass-card">
-        <div class="empty-icon">📍</div>
+        <div class="empty-icon">PL</div>
         <p>Click Refresh to load places</p>
       </div>
     </div>
-
   </div>
 
-  <footer class="site-footer">© 2025 MySmartCity · Places Explorer</footer>
+  <footer class="site-footer">Copyright 2025 MySmartCity - Places Directory</footer>
 
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
@@ -82,6 +99,5 @@
     applyRoleUI();
     if (isAdmin()) document.getElementById("addPlaceSection").style.display = "";
   </script>
-
 </body>
 </html>

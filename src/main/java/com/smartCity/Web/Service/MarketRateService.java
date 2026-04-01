@@ -18,7 +18,7 @@ public class MarketRateService {
 		return repository.save(rate);
 	}
 
-	public MarketRate updateMarketRate(Long id, MarketRate rate) {
+	public MarketRate updateMarketRate(int id, MarketRate rate) {
 
 		MarketRate existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("MarketRate not found with id: " + id));

@@ -133,3 +133,10 @@
 	align-items: center;
 	gap: 0.5rem;
 }
+
+.admin-note {
+	margin-bottom: 1.5rem;
+	padding: 1rem 1.25rem;
+	color: var(--text-secondary);
+	border: 1px solid var(--border);
+}
