@@ -87,3 +87,29 @@ SPRING_JPA_HIBERNATE_DDL_AUTO=update
 7. Open the app service settings and generate a public domain.
 
 After that, Railway gives you a public URL that anyone can open.
+
+## Deploy From Local
+
+For Windows PowerShell or Command Prompt, you can deploy directly from this machine with:
+
+```bat
+scripts\deploy-railway.cmd
+```
+
+Optional project name:
+
+```bat
+scripts\deploy-railway.cmd my-smart-city
+```
+
+What the script does:
+
+- logs you into Railway if needed
+- creates a Railway project on first run
+- creates a MySQL service
+- creates and links the app service
+- sets Spring Boot database variables
+- deploys the current directory
+- generates a public Railway domain
+
+After the first setup, running the same script again will redeploy the app from local.
