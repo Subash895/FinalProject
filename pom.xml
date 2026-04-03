@@ -58,9 +58,8 @@
         </dependency>
 
         <dependency>
-        	<groupId>com.smartCity.Web</groupId>
-        	<artifactId>MySmartCity</artifactId>
-        	<version>0.0.1-SNAPSHOT</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
 

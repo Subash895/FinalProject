@@ -2,7 +2,9 @@
    SMART CITY — api.js  (Shared API utility)
    ============================================================ */
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = window.location.origin && window.location.origin !== "null"
+    ? `${window.location.origin}/api`
+    : "http://localhost:8080/api";
 
 async function apiRequest(endpoint, method = "GET", data = null) {
     const options = {
