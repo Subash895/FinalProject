@@ -8,6 +8,7 @@ import com.smartCity.Web.Service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin("*")
 public class AuthController {
 
 	private final UserService userService;
