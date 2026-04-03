@@ -65,3 +65,25 @@ docker run -p 8080:8080 \
 - Do not commit real database passwords to `application.properties`.
 - Cloud deployment needs both the app and a MySQL database.
 - GitHub Actions now runs `mvn test` on pushes and pull requests.
+
+## Publish To The World
+
+The easiest path for this project is Railway because the repo already contains a `Dockerfile` and now includes a `railway.toml`.
+
+1. Push the latest code to GitHub.
+2. Go to Railway and create a new project.
+3. Choose `Deploy from GitHub repo`.
+4. Select this repository.
+5. Add a MySQL service in the same Railway project.
+6. Set these environment variables on the app service:
+
+```text
+SPRING_DATASOURCE_URL=jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}
+SPRING_DATASOURCE_USERNAME=${{MySQL.MYSQLUSER}}
+SPRING_DATASOURCE_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+```
+
+7. Open the app service settings and generate a public domain.
+
+After that, Railway gives you a public URL that anyone can open.
