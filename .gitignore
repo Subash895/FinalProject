@@ -39,3 +39,6 @@ build/
 .env.*
 !.env.example
 data/
+non_deployment_files/
+local-run.out
+local-run.err

@@ -1,4 +1,4 @@
-package com.smartCity.Web.Config;
+package com.smartCity.Web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,0 +1,50 @@
+package com.smartCity.Web.forum;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import com.smartCity.Web.forum.ForumPost;
+import com.smartCity.Web.forum.ForumPostService;
+
+@RestController
+@RequestMapping("/api/forumposts")
+@CrossOrigin(origins = "*")
+public class ForumPostController {
+
+    private final ForumPostService service;
+
+    public ForumPostController(ForumPostService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    public ResponseEntity<ForumPost> create(@RequestBody ForumPost post) {
+        return ResponseEntity.ok(service.create(post));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ForumPost>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ForumPost> getById(@PathVariable Long id) {
+        return service.getById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ForumPost> update(@PathVariable Long id, @RequestBody ForumPost post) {
+        return ResponseEntity.ok(service.update(id, post));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+
