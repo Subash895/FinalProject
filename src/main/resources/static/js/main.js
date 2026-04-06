@@ -123,3 +123,36 @@ function closeAnyModal() {
 }
 
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeAnyModal(); });
+
+const THEME_STORAGE_KEY = "smartcity.theme";
+
+function getThemePreference() {
+    return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
+}
+
+function updateThemeToggleIcon() {
+    document.querySelectorAll(".nav-theme-toggle .theme-icon").forEach(icon => {
+        icon.textContent = getThemePreference() === "light" ? "☀" : "☾";
+    });
+}
+
+function applyTheme(theme) {
+    const nextTheme = theme === "light" ? "light" : "dark";
+    document.body.classList.toggle("theme-light", nextTheme === "light");
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    updateThemeToggleIcon();
+}
+
+function toggleTheme() {
+    applyTheme(getThemePreference() === "light" ? "dark" : "light");
+}
+
+function initializeTheme() {
+    if (!document.body) {
+        return;
+    }
+    applyTheme(getThemePreference());
+}
+
+document.addEventListener("DOMContentLoaded", initializeTheme);

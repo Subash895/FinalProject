@@ -1,9 +1,8 @@
 package com.smartCity.Web.comment;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,34 +13,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartCity.Web.comment.Comment;
-import com.smartCity.Web.comment.CommentService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.comment.CommentDtos;
 
 @RestController
 @RequestMapping("/api/comments")
 @CrossOrigin("*")
 public class CommentController {
-	@Autowired
-	private CommentService service;
+	private final CommentService service;
+	private final ApiDtoMapper apiDtoMapper;
+
+	public CommentController(CommentService service, ApiDtoMapper apiDtoMapper) {
+		this.service = service;
+		this.apiDtoMapper = apiDtoMapper;
+	}
 
 	@PostMapping
-	public Comment create(@RequestBody Comment entity) {
-		return service.save(entity);
+	public CommentDtos.CommentResponse create(@RequestBody CommentDtos.CommentRequest entity) {
+		return apiDtoMapper.toCommentResponse(service.save(apiDtoMapper.toComment(entity)));
 	}
 
 	@GetMapping
-	public List<Comment> getAll() {
-		return service.getAll();
+	public List<CommentDtos.CommentResponse> getAll() {
+		return service.getAll().stream().map(apiDtoMapper::toCommentResponse).collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
-	public Optional<Comment> getById(@PathVariable Long id) {
-		return service.getById(id);
+	public org.springframework.http.ResponseEntity<CommentDtos.CommentResponse> getById(@PathVariable Long id) {
+		return service.getById(id).map(apiDtoMapper::toCommentResponse).map(org.springframework.http.ResponseEntity::ok)
+				.orElse(org.springframework.http.ResponseEntity.notFound().build());
 	}
 
 	@PutMapping("/{id}")
-	public Comment update(@PathVariable Long id, @RequestBody Comment entity) {
-		return service.update(id, entity);
+	public CommentDtos.CommentResponse update(@PathVariable Long id, @RequestBody CommentDtos.CommentRequest entity) {
+		return apiDtoMapper.toCommentResponse(service.update(id, apiDtoMapper.toComment(entity)));
 	}
 
 	@DeleteMapping("/{id}")

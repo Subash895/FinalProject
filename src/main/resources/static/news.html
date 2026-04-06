@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — News</title>
+  <title>MySmartCity - News</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/news.css">
 </head>
 <body>
 
-  <!-- ── Navbar ─────────────────────────────────────────────── -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">🏙️</div>
+      <div class="brand-icon">SC</div>
       My<span>Smart</span>City
     </a>
     <ul class="navbar-nav">
@@ -25,20 +25,19 @@
       <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
       <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
       <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">◾</span></button></li>
     </ul>
   </nav>
 
   <div class="page-wrapper">
-
     <div class="page-header">
       <h1><span class="highlight">City</span> News</h1>
       <p>Latest updates, announcements and city news</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Publish Form — ADMIN only ─────────────────────────── -->
     <div id="addNewsSection" class="glass-card news-form-card" style="display:none">
-      <div class="form-title">📝 Publish an Article</div>
+      <div class="form-title">Publish an Article</div>
       <form id="newsForm">
         <div class="form-grid">
           <div class="form-group" style="grid-column:1/-1">
@@ -47,7 +46,7 @@
           </div>
           <div class="form-group" style="grid-column:1/-1">
             <label for="content">Content</label>
-            <textarea class="form-control" id="content" placeholder="Write the full article here…" required></textarea>
+            <textarea class="form-control" id="content" placeholder="Write the full article here..." required></textarea>
           </div>
         </div>
         <button type="submit" class="btn btn-primary">Publish Article</button>
@@ -56,19 +55,18 @@
 
     <div class="section-header">
       <h2>Latest Articles</h2>
-      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+      <button id="loadBtn" class="btn btn-secondary">Refresh</button>
     </div>
 
     <div id="list" class="news-list">
       <div class="empty-state glass-card">
-        <div class="empty-icon">📰</div>
+        <div class="empty-icon">NW</div>
         <p>Click Refresh to load news</p>
       </div>
     </div>
-
   </div>
 
-  <footer class="site-footer">© 2025 MySmartCity · City News</footer>
+  <footer class="site-footer">Copyright 2025 MySmartCity - City News</footer>
 
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>

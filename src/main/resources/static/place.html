@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MySmartCity - Places</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/place.css">
 </head>
@@ -14,22 +16,23 @@
       My<span>Smart</span>City
     </a>
     <ul class="navbar-nav">
-      <li><a href="city.html"><span class="nav-icon">C</span>Cities</a></li>
-      <li><a href="business.html"><span class="nav-icon">B</span>Business</a></li>
-      <li><a href="place.html" class="active"><span class="nav-icon">P</span>Places</a></li>
-      <li><a href="forum.html"><span class="nav-icon">F</span>Forum</a></li>
-      <li><a href="news.html"><span class="nav-icon">N</span>News</a></li>
-      <li><a href="subscription.html"><span class="nav-icon">S</span>Subscribe</a></li>
+      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html" class="active"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
       <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
       <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
       <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">☾</span></button></li>
     </ul>
   </nav>
 
   <div class="page-wrapper">
     <div class="page-header">
       <h1><span class="highlight">Places</span> Directory</h1>
-      <p>Track every place with a clear category and an exact location.</p>
+      <p>Track every place with an exact city, address, and map position.</p>
       <div class="header-line"></div>
     </div>
 
@@ -37,6 +40,12 @@
       <div class="form-title">Add a Place</div>
       <form id="placeForm">
         <div class="form-grid">
+          <div class="form-group">
+            <label for="cityId">City</label>
+            <select class="form-control" id="cityId" required>
+              <option value="">Select a city</option>
+            </select>
+          </div>
           <div class="form-group">
             <label for="name">Place Name</label>
             <input class="form-control" id="name" placeholder="e.g. Cubbon Park" required>
@@ -47,9 +56,17 @@
           </div>
           <div class="form-group">
             <label for="location">Location</label>
-            <input class="form-control" id="location" placeholder="e.g. MG Road, Bengaluru" required>
+            <input class="form-control" id="location" placeholder="Search address or landmark" required>
+          </div>
+          <div class="form-group form-group-wide">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" placeholder="Short place description"></textarea>
           </div>
         </div>
+        <div class="place-map-toolbar">
+          <span id="placeMapStatus" class="place-map-status">Loading OpenStreetMap...</span>
+        </div>
+        <div id="placeMap" class="place-map"></div>
         <button type="submit" class="btn btn-primary">Add Place</button>
       </form>
     </div>
@@ -92,6 +109,8 @@
   <footer class="site-footer">Copyright 2025 MySmartCity - Places Directory</footer>
 
   <script src="js/api.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/osm-maps.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/place.js"></script>

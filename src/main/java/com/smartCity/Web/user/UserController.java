@@ -1,44 +1,50 @@
 package com.smartCity.Web.user;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.smartCity.Web.user.User;
-import com.smartCity.Web.user.UserService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.user.UserDtos;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin("*")
 public class UserController {
 
-    @Autowired
-    private UserService service;
+    private final UserService service;
+    private final ApiDtoMapper apiDtoMapper;
+
+    public UserController(UserService service, ApiDtoMapper apiDtoMapper) {
+        this.service = service;
+        this.apiDtoMapper = apiDtoMapper;
+    }
 
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return service.register(user);
+    public UserDtos.UserResponse create(@RequestBody UserDtos.UserRequest user) {
+        return apiDtoMapper.toUserResponse(service.register(apiDtoMapper.toUser(user)));
     }
 
 
     @GetMapping
-    public List<User> getAll() {
-        return service.getAll();
+    public List<UserDtos.UserResponse> getAll() {
+        return service.getAll().stream().map(apiDtoMapper::toUserResponse).collect(Collectors.toList());
     }
 
 
     @GetMapping("/{id}")
-    public Optional<User> getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<UserDtos.UserResponse> getById(@PathVariable Long id) {
+        return service.getById(id).map(apiDtoMapper::toUserResponse).map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
-        return service.update(id, user);
+    public UserDtos.UserResponse update(@PathVariable Long id, @RequestBody UserDtos.UserRequest user) {
+        return apiDtoMapper.toUserResponse(service.update(id, apiDtoMapper.toUser(user)));
     }
 
     @DeleteMapping("/{id}")

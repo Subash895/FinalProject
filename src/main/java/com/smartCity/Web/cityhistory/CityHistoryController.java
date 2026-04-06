@@ -1,8 +1,8 @@
 package com.smartCity.Web.cityhistory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,27 +12,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.cityhistory.CityHistoryDtos;
+
 @RestController
 @RequestMapping("/api/cityhistory")
 @CrossOrigin("*")
 public class CityHistoryController {
 
-	@Autowired
-	private CityHistoryService service;
+	private final CityHistoryService service;
+	private final ApiDtoMapper apiDtoMapper;
+
+	public CityHistoryController(CityHistoryService service, ApiDtoMapper apiDtoMapper) {
+		this.service = service;
+		this.apiDtoMapper = apiDtoMapper;
+	}
 
 	@PostMapping
-	public CityHistory createCityHistory(@RequestBody CityHistory history) {
-		return service.createCityHistory(history);
+	public CityHistoryDtos.CityHistoryResponse createCityHistory(@RequestBody CityHistoryDtos.CityHistoryRequest history) {
+		return apiDtoMapper.toCityHistoryResponse(service.createCityHistory(apiDtoMapper.toCityHistory(history)));
 	}
 
 	
 	@PutMapping("/{id}")
-	public CityHistory update(@PathVariable Long id, @RequestBody CityHistory history) {
-		return service.updateCityHistory(id, history);
+	public CityHistoryDtos.CityHistoryResponse update(@PathVariable Long id, @RequestBody CityHistoryDtos.CityHistoryRequest history) {
+		return apiDtoMapper.toCityHistoryResponse(service.updateCityHistory(id, apiDtoMapper.toCityHistory(history)));
 	}
 
 	@GetMapping
-	public List<CityHistory> getAllCityHistory() {
-		return service.getAllCityHistory();
+	public List<CityHistoryDtos.CityHistoryResponse> getAllCityHistory() {
+		return service.getAllCityHistory().stream().map(apiDtoMapper::toCityHistoryResponse).collect(Collectors.toList());
 	}
 }

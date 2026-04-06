@@ -1,35 +1,40 @@
 package com.smartCity.Web.marketrate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.smartCity.Web.marketrate.MarketRate;
-import com.smartCity.Web.marketrate.MarketRateService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.marketrate.MarketRateDtos;
 
 @RestController
 @RequestMapping("/api/marketrates")
 @CrossOrigin("*")
 public class MarketRateController {
 
-	@Autowired
-	private MarketRateService service;
+	private final MarketRateService service;
+	private final ApiDtoMapper apiDtoMapper;
 
-	@PostMapping
-	public MarketRate create(@RequestBody MarketRate rate) {
-		return service.createMarketRate(rate);
+	public MarketRateController(MarketRateService service, ApiDtoMapper apiDtoMapper) {
+		this.service = service;
+		this.apiDtoMapper = apiDtoMapper;
 	}
 
-	@PutMapping
-	public MarketRate update(@PathVariable int id, @RequestBody MarketRate rate) {
+	@PostMapping
+	public MarketRateDtos.MarketRateResponse create(@RequestBody MarketRateDtos.MarketRateRequest rate) {
+		return apiDtoMapper.toMarketRateResponse(service.createMarketRate(apiDtoMapper.toMarketRate(rate)));
+	}
 
-		return service.updateMarketRate(id, rate);
+	@PutMapping("/{id}")
+	public MarketRateDtos.MarketRateResponse update(@PathVariable int id, @RequestBody MarketRateDtos.MarketRateRequest rate) {
+
+		return apiDtoMapper.toMarketRateResponse(service.updateMarketRate(id, apiDtoMapper.toMarketRate(rate)));
 	}
 
 	@GetMapping
-	public List<MarketRate> getAll() {
-		return service.getAllMarketRates();
+	public List<MarketRateDtos.MarketRateResponse> getAll() {
+		return service.getAllMarketRates().stream().map(apiDtoMapper::toMarketRateResponse).collect(Collectors.toList());
 	}
 }
 

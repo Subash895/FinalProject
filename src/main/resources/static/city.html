@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — Cities</title>
+  <title>MySmartCity - Cities</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/city.css">
 </head>
 <body>
-
-  <!-- ── Navbar ─────────────────────────────────────────────── -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">🏙️</div>
+      <div class="brand-icon">SC</div>
       My<span>Smart</span>City
     </a>
     <ul class="navbar-nav">
@@ -25,25 +25,28 @@
       <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
       <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
       <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">☾</span></button></li>
     </ul>
   </nav>
 
   <div class="page-wrapper">
-
     <div class="page-header">
       <h1><span class="highlight">City</span> Directory</h1>
-      <p>Browse cities in the SmartCity network</p>
+      <p>Browse cities in the SmartCity network and inspect them on the map.</p>
       <div class="header-line"></div>
     </div>
 
-    <!-- ── Add City Form — ADMIN only ────────────────────────── -->
     <div id="addCitySection" class="glass-card city-form-card" style="display:none">
-      <div class="form-title">🏛️ Add a City</div>
+      <div class="form-title">Add a City</div>
       <form id="cityForm">
         <div class="form-grid">
           <div class="form-group">
             <label for="name">City Name</label>
             <input class="form-control" id="name" placeholder="e.g. Bengaluru" required>
+          </div>
+          <div class="form-group">
+            <label for="state">State</label>
+            <input class="form-control" id="state" placeholder="e.g. Karnataka">
           </div>
           <div class="form-group">
             <label for="country">Country</label>
@@ -54,23 +57,34 @@
       </form>
     </div>
 
+    <div class="glass-card city-map-card">
+      <div class="section-header city-map-header">
+        <div>
+          <h2>City Map</h2>
+          <p id="cityMapStatus" class="city-map-status">Loading OpenStreetMap...</p>
+        </div>
+      </div>
+      <div id="cityMap" class="city-map"></div>
+    </div>
+
     <div class="section-header">
       <h2>All Cities</h2>
-      <button id="loadBtn" class="btn btn-secondary">🔄 Refresh</button>
+      <button id="loadBtn" class="btn btn-secondary">Refresh</button>
     </div>
 
     <div id="list" class="card-list">
       <div class="empty-state glass-card">
-        <div class="empty-icon">🏛️</div>
+        <div class="empty-icon">CT</div>
         <p>Click Refresh to load cities</p>
       </div>
     </div>
-
   </div>
 
-  <footer class="site-footer">© 2025 MySmartCity · City Directory</footer>
+  <footer class="site-footer">Copyright 2025 MySmartCity - City Directory</footer>
 
   <script src="js/api.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/osm-maps.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/city.js"></script>
@@ -78,6 +92,5 @@
     applyRoleUI();
     if (isAdmin()) document.getElementById("addCitySection").style.display = "";
   </script>
-
 </body>
 </html>

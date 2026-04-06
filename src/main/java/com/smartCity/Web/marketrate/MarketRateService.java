@@ -22,6 +22,12 @@ public class MarketRateService {
 
 		MarketRate existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("MarketRate not found with id: " + id));
+		existing.setProductName(rate.getProductName());
+		existing.setPrice(rate.getPrice());
+		existing.setUnit(rate.getUnit());
+		if (rate.getPriceDate() != null) {
+			existing.setPriceDate(rate.getPriceDate());
+		}
 		return repository.save(existing);
 	}
 

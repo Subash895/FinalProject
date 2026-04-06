@@ -8,6 +8,6 @@ public class MySmartCitySubashApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MySmartCitySubashApplication.class, args);
-		System.out.println(" SmartCity Application Started Successfully!");
+		System.out.println(" SmartCity Subash Application is Started Successfully!");
 	}
 }

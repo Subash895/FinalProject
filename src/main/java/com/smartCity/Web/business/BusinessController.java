@@ -1,9 +1,8 @@
 package com.smartCity.Web.business;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,34 +13,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartCity.Web.business.Business;
-import com.smartCity.Web.business.BusinessService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.business.BusinessDtos;
 
 @RestController
 @RequestMapping("/api/businesses")
 @CrossOrigin("*")
 public class BusinessController {
-	@Autowired
-	private BusinessService service;
+	private final BusinessService service;
+	private final ApiDtoMapper apiDtoMapper;
+
+	public BusinessController(BusinessService service, ApiDtoMapper apiDtoMapper) {
+		this.service = service;
+		this.apiDtoMapper = apiDtoMapper;
+	}
 
 	@PostMapping
-	public Business create(@RequestBody Business entity) {
-		return service.save(entity);
+	public BusinessDtos.BusinessResponse create(@RequestBody BusinessDtos.BusinessRequest entity) {
+		return apiDtoMapper.toBusinessResponse(service.save(apiDtoMapper.toBusiness(entity)));
 	}
 
 	@GetMapping
-	public List<Business> getAll() {
-		return service.getAll();
+	public List<BusinessDtos.BusinessResponse> getAll() {
+		return service.getAll().stream().map(apiDtoMapper::toBusinessResponse).collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
-	public Optional<Business> getById(@PathVariable Long id) {
-		return service.getById(id);
+	public org.springframework.http.ResponseEntity<BusinessDtos.BusinessResponse> getById(@PathVariable Long id) {
+		return service.getById(id).map(apiDtoMapper::toBusinessResponse).map(org.springframework.http.ResponseEntity::ok)
+				.orElse(org.springframework.http.ResponseEntity.notFound().build());
 	}
 
 	@PutMapping("/{id}")
-	public Business update(@PathVariable Long id, @RequestBody Business entity) {
-		return service.update(id, entity);
+	public BusinessDtos.BusinessResponse update(@PathVariable Long id, @RequestBody BusinessDtos.BusinessRequest entity) {
+		return apiDtoMapper.toBusinessResponse(service.update(id, apiDtoMapper.toBusiness(entity)));
 	}
 
 	@DeleteMapping("/{id}")

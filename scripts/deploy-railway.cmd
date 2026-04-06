@@ -32,6 +32,7 @@ echo    SPRING_DATASOURCE_URL
 echo    SPRING_DATASOURCE_USERNAME
 echo    SPRING_DATASOURCE_PASSWORD
 echo    SPRING_JPA_HIBERNATE_DDL_AUTO=update
+echo    APP_MAPS_GOOGLE_API_KEY
 echo.
 echo Deploying current project to Railway...
 railway up

@@ -1,9 +1,8 @@
 package com.smartCity.Web.event;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,34 +13,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartCity.Web.event.EventService;
-import com.smartCity.Web.event.Event;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.event.EventDtos;
 
 @RestController
 @RequestMapping("/api/events")
 @CrossOrigin("*")
 public class EventController {
-	@Autowired
-	private EventService service;
+	private final EventService service;
+	private final ApiDtoMapper apiDtoMapper;
+
+	public EventController(EventService service, ApiDtoMapper apiDtoMapper) {
+		this.service = service;
+		this.apiDtoMapper = apiDtoMapper;
+	}
 
 	@PostMapping
-	public Event create(@RequestBody Event entity) {
-		return service.save(entity);
+	public EventDtos.EventResponse create(@RequestBody EventDtos.EventRequest entity) {
+		return apiDtoMapper.toEventResponse(service.save(apiDtoMapper.toEvent(entity)));
 	}
 
 	@GetMapping
-	public List<Event> getAll() {
-		return service.getAll();
+	public List<EventDtos.EventResponse> getAll() {
+		return service.getAll().stream().map(apiDtoMapper::toEventResponse).collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
-	public Optional<Event> getById(@PathVariable Long id) {
-		return service.getById(id);
+	public org.springframework.http.ResponseEntity<EventDtos.EventResponse> getById(@PathVariable Long id) {
+		return service.getById(id).map(apiDtoMapper::toEventResponse).map(org.springframework.http.ResponseEntity::ok)
+				.orElse(org.springframework.http.ResponseEntity.notFound().build());
 	}
 
 	@PutMapping("/{id}")
-	public Event update(@PathVariable Long id, @RequestBody Event entity) {
-		return service.update(id, entity);
+	public EventDtos.EventResponse update(@PathVariable Long id, @RequestBody EventDtos.EventRequest entity) {
+		return apiDtoMapper.toEventResponse(service.update(id, apiDtoMapper.toEvent(entity)));
 	}
 
 	@DeleteMapping("/{id}")

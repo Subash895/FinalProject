@@ -1,6 +1,24 @@
 /* ============================================================
    SMART CITY — forum.css
    ============================================================ */
+.forum-form-card {
+	padding: 1.4rem;
+	margin-bottom: 1.5rem;
+}
+
+.forum-form-card .form-title {
+	font-family: var(--font-display);
+	font-size: 1rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+}
+
+.forum-form-card .form-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1rem;
+}
+
 .forum-list {
 	display: flex;
 	flex-direction: column;

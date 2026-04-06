@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.smartCity.Web.forum.ForumPost;
-import com.smartCity.Web.forum.ForumPostService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.forum.ForumDtos;
 
 @RestController
 @RequestMapping("/api/forumposts")
@@ -14,31 +15,34 @@ import com.smartCity.Web.forum.ForumPostService;
 public class ForumPostController {
 
     private final ForumPostService service;
+    private final ApiDtoMapper apiDtoMapper;
 
-    public ForumPostController(ForumPostService service) {
+    public ForumPostController(ForumPostService service, ApiDtoMapper apiDtoMapper) {
         this.service = service;
+        this.apiDtoMapper = apiDtoMapper;
     }
 
     @PostMapping
-    public ResponseEntity<ForumPost> create(@RequestBody ForumPost post) {
-        return ResponseEntity.ok(service.create(post));
+    public ResponseEntity<ForumDtos.ForumPostResponse> create(@RequestBody ForumDtos.ForumPostRequest post) {
+        return ResponseEntity.ok(apiDtoMapper.toForumPostResponse(service.create(apiDtoMapper.toForumPost(post))));
     }
 
     @GetMapping
-    public ResponseEntity<List<ForumPost>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<ForumDtos.ForumPostResponse>> getAll() {
+        return ResponseEntity.ok(service.getAll().stream().map(apiDtoMapper::toForumPostResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ForumPost> getById(@PathVariable Long id) {
+    public ResponseEntity<ForumDtos.ForumPostResponse> getById(@PathVariable Long id) {
         return service.getById(id)
+                .map(apiDtoMapper::toForumPostResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ForumPost> update(@PathVariable Long id, @RequestBody ForumPost post) {
-        return ResponseEntity.ok(service.update(id, post));
+    public ResponseEntity<ForumDtos.ForumPostResponse> update(@PathVariable Long id, @RequestBody ForumDtos.ForumPostRequest post) {
+        return ResponseEntity.ok(apiDtoMapper.toForumPostResponse(service.update(id, apiDtoMapper.toForumPost(post))));
     }
 
     @DeleteMapping("/{id}")

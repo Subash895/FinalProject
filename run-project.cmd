@@ -3,6 +3,12 @@ setlocal
 
 pushd "%~dp0"
 
+if exist ".env" (
+  for /f "usebackq tokens=1,* delims==" %%A in (".env") do (
+    if not "%%A"=="" if /I not "%%A"=="REM" set "%%A=%%B"
+  )
+)
+
 if "%~1"=="" goto :menu
 
 if /I "%~1"=="publish-dockerhub" goto :publishdockerhub
@@ -21,16 +27,18 @@ echo 2. Run locally with H2
 echo 3. Run in Docker with MySQL
 echo 4. Stop Docker services
 echo 5. Git add, commit, and push
-echo 6. Exit
+echo 6. Deploy to Railway
+echo 7. Exit
 echo.
-set /p choice=Choose an option [1-6]: 
+set /p choice=Choose an option [1-7]: 
 
 if "%choice%"=="1" goto :publishdockerhub
 if "%choice%"=="2" goto :local
 if "%choice%"=="3" goto :docker
 if "%choice%"=="4" goto :stopdocker
 if "%choice%"=="5" goto :gitflow
-if "%choice%"=="6" goto :end
+if "%choice%"=="6" goto :deployrailway
+if "%choice%"=="7" goto :end
 
 echo.
 echo Invalid choice.
@@ -129,7 +137,14 @@ if /I "%RUN_COMMIT%"=="Y" (
 echo.
 set /p RUN_PUSH=Run git push ? [y/N]: 
 if /I "%RUN_PUSH%"=="Y" (
-  git push
+  echo.
+  echo Available local branches:
+  git branch
+  echo.
+  set "PUSH_BRANCH=main"
+  set /p INPUT_BRANCH=Enter branch to push [main]: 
+  if not "%INPUT_BRANCH%"=="" set "PUSH_BRANCH=%INPUT_BRANCH%"
+  git push origin %PUSH_BRANCH%
   if errorlevel 1 goto :gitfailed
 )
 
@@ -141,6 +156,38 @@ goto :end
 :gitfailed
 echo.
 echo Git command failed.
+pause
+goto :menu
+
+:deployrailway
+echo.
+if exist ".\tools\railway\railway.exe" (
+  set "RAILWAY_CLI=.\tools\railway\railway.exe"
+) else (
+  set "RAILWAY_CLI=railway"
+)
+
+echo Checking Railway login...
+%RAILWAY_CLI% whoami
+if errorlevel 1 (
+  echo Railway login is required.
+  pause
+  goto :menu
+)
+
+echo.
+echo Deploying current project to Railway...
+%RAILWAY_CLI% up -d
+if errorlevel 1 goto :railwayfailed
+
+echo.
+echo Railway deploy command finished.
+pause
+goto :end
+
+:railwayfailed
+echo.
+echo Railway deployment failed.
 pause
 goto :menu
 

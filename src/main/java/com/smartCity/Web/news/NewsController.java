@@ -1,40 +1,46 @@
 package com.smartCity.Web.news;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.smartCity.Web.news.News;
-import com.smartCity.Web.news.NewsService;
+import com.smartCity.Web.shared.ApiDtoMapper;
+import com.smartCity.Web.news.NewsDtos;
 
 @RestController
 @RequestMapping("/api/news")
 @CrossOrigin("*")
 public class NewsController {
 
-    @Autowired
-    private NewsService service;
+    private final NewsService service;
+    private final ApiDtoMapper apiDtoMapper;
+
+    public NewsController(NewsService service, ApiDtoMapper apiDtoMapper) {
+        this.service = service;
+        this.apiDtoMapper = apiDtoMapper;
+    }
 
     @PostMapping
-    public News create(@RequestBody News news) {
-        return service.createNews(news);
+    public NewsDtos.NewsResponse create(@RequestBody NewsDtos.NewsRequest news) {
+        return apiDtoMapper.toNewsResponse(service.createNews(apiDtoMapper.toNews(news)));
     }
 
     @GetMapping
-    public List<News> getAll() {
-        return service.getAllNews();
+    public List<NewsDtos.NewsResponse> getAll() {
+        return service.getAllNews().stream().map(apiDtoMapper::toNewsResponse).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public News getById(@PathVariable Long id) {
+    public NewsDtos.NewsResponse getById(@PathVariable Long id) {
         return service.getNewsById(id)
+                .map(apiDtoMapper::toNewsResponse)
                 .orElseThrow(() -> new RuntimeException("News not found with id: " + id));
     }
 
     @PutMapping("/{id}")
-    public News update(@PathVariable Long id, @RequestBody News news) {
-        return service.updateNews(id, news);
+    public NewsDtos.NewsResponse update(@PathVariable Long id, @RequestBody NewsDtos.NewsRequest news) {
+        return apiDtoMapper.toNewsResponse(service.updateNews(id, apiDtoMapper.toNews(news)));
     }
 
     @DeleteMapping("/{id}")
