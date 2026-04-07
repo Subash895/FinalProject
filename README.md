@@ -4,21 +4,7 @@ Spring Boot 3.3.2 application with static frontend pages and a MySQL database.
 
 ## Run locally
 
-### Option 1: Quick local run with H2
-
-This does not require MySQL.
-
-```powershell
-$env:SPRING_PROFILES_ACTIVE="local"
-.\mvnw.cmd spring-boot:run
-```
-
-Then open:
-
-- `http://localhost:8080`
-- `http://localhost:8080/h2-console`
-
-### Option 2: Local run with MySQL
+Local, Docker, and deployment now use the same MySQL-based configuration so behavior stays consistent across environments.
 
 Set these environment variables before starting the app:
 
@@ -28,10 +14,6 @@ Set these environment variables before starting the app:
 
 Then run:
 
-```bash
-./mvnw spring-boot:run
-```
-
 On Windows PowerShell:
 
 ```powershell
@@ -40,6 +22,16 @@ $env:SPRING_DATASOURCE_USERNAME="root"
 $env:SPRING_DATASOURCE_PASSWORD="your-password"
 .\mvnw.cmd spring-boot:run
 ```
+
+If you already have these values in `.env`, you can simply run:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Then open:
+
+- `http://localhost:8080`
 
 ## Docker
 
@@ -61,7 +53,7 @@ docker run -p 8080:8080 \
 
 ## Deployment Notes
 
-- The frontend now calls `/api` on the same host, so it works locally and after deployment.
+- The frontend now calls `/api` on the same host, so it works locally, in Docker, and after deployment.
 - Do not commit real database passwords to `application.properties`.
 - Cloud deployment needs both the app and a MySQL database.
 - GitHub Actions now runs `mvn test` on pushes and pull requests.

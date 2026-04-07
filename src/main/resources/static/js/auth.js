@@ -198,7 +198,6 @@ async function setupGoogleAuthButton(containerId, options = {}) {
 
     const role = typeof options.getRole === "function" ? options.getRole : () => "USER";
     const onError = typeof options.onError === "function" ? options.onError : () => {};
-    const mode = options.mode === "signup" ? "signup" : "signin";
 
     window.google.accounts.id.initialize({
         client_id: config.clientId,
@@ -219,13 +218,6 @@ async function setupGoogleAuthButton(containerId, options = {}) {
         text: options.buttonText || "continue_with",
         width: options.width || 360
     });
-
-    const helperText = document.createElement("p");
-    helperText.className = "google-auth-helper";
-    helperText.textContent = mode === "signup"
-        ? "Your account will be created automatically from your Google profile."
-        : "Use your Google account to sign in instantly.";
-    container.appendChild(helperText);
 
     return true;
 }

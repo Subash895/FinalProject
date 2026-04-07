@@ -65,21 +65,23 @@ function decodeHtml(value) {
     return textarea.value;
 }
 
-function reviewComposer(targetType, targetId) {
-    if (!canSubmitPublicReview()) {
-        return `<div class="review-note">Login to add a review.</div>`;
-    }
-
+function renderReviewControls(targetType, targetId, reviewCount) {
     return `
-        <div class="review-composer">
+        <div class="review-toolbar">
             <button
                 type="button"
-                class="review-toggle"
-                data-review-open
-                aria-label="Write review"
-                title="Write review">
-                ★
+                class="btn btn-secondary btn-sm"
+                data-review-comments
+                data-review-count="${reviewCount}">
+                Comments ${reviewCount ? `(${reviewCount})` : ""}
             </button>
+            ${canSubmitPublicReview() ? `
+                <button type="button" class="btn btn-primary btn-sm" data-review-add>
+                    Add
+                </button>
+            ` : ""}
+        </div>
+        ${canSubmitPublicReview() ? `
             <form class="review-form review-form-hidden" data-review-form data-target-type="${targetType}" data-target-id="${targetId}">
                 <div class="review-form-grid">
                     <label class="review-field">
@@ -98,11 +100,11 @@ function reviewComposer(targetType, targetId) {
                     </label>
                 </div>
                 <div class="review-form-actions">
-                    <button type="button" class="btn btn-secondary btn-sm" data-review-cancel>Cancel</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-review-cancel>Add Later</button>
                     <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
                 </div>
             </form>
-        </div>
+        ` : `<div class="review-note">Login to add a review.</div>`}
     `;
 }
 
@@ -152,16 +154,16 @@ function renderReviewSection(targetType, itemId, reviews) {
     return `
         <section class="review-section">
             <div class="review-summary">
-                <div>
+                <div class="review-summary-copy">
                     <h4>User Reviews</h4>
                     <p>${list.length ? `${list.length} review(s) • Average ${average}/5` : "No reviews yet."}</p>
                 </div>
                 <div class="review-summary-side">
                     ${average ? `<div class="review-average">${average}<span>/5</span></div>` : ""}
-                    ${reviewComposer(targetType, itemId)}
                 </div>
             </div>
-            <div class="review-list">
+            ${renderReviewControls(targetType, itemId, list.length)}
+            <div class="review-list review-list-hidden" data-review-list>
                 ${list.length ? list.map(renderReviewItem).join("") : `<div class="review-empty">Be the first user to write a review.</div>`}
             </div>
         </section>
@@ -169,18 +171,32 @@ function renderReviewSection(targetType, itemId, reviews) {
 }
 
 async function hydrateReviewForms(onSaved) {
-    const openButtons = Array.from(document.querySelectorAll("[data-review-open]"));
-    openButtons.forEach(button => {
+    const commentButtons = Array.from(document.querySelectorAll("[data-review-comments]"));
+    commentButtons.forEach(button => {
         button.addEventListener("click", () => {
-            const composer = button.closest(".review-composer");
-            const form = composer?.querySelector("[data-review-form]");
-            if (!composer || !form) {
+            const section = button.closest(".review-section");
+            const list = section?.querySelector("[data-review-list]");
+            if (!list) {
                 return;
             }
+            const isHidden = list.classList.toggle("review-list-hidden");
+            const suffix = Number(button.dataset.reviewCount || 0) > 0
+                ? ` (${button.dataset.reviewCount})`
+                : "";
+            button.textContent = isHidden ? `Comments${suffix}` : `Hide Comments${suffix}`;
+        });
+    });
 
-            composer.classList.add("review-composer-open");
+    const addButtons = Array.from(document.querySelectorAll("[data-review-add]"));
+    addButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const section = button.closest(".review-section");
+            const form = section?.querySelector("[data-review-form]");
+            if (!form) {
+                return;
+            }
             form.classList.remove("review-form-hidden");
-            button.classList.add("review-toggle-hidden");
+            button.disabled = true;
             form.querySelector("[data-review-comment]")?.focus();
         });
     });
@@ -189,16 +205,14 @@ async function hydrateReviewForms(onSaved) {
     cancelButtons.forEach(button => {
         button.addEventListener("click", () => {
             const form = button.closest("[data-review-form]");
-            const composer = button.closest(".review-composer");
-            const toggle = composer?.querySelector("[data-review-open]");
-            if (!form || !composer || !toggle) {
+            const section = button.closest(".review-section");
+            const addButton = section?.querySelector("[data-review-add]");
+            if (!form || !addButton) {
                 return;
             }
-
             form.classList.add("review-form-hidden");
             form.reset();
-            composer.classList.remove("review-composer-open");
-            toggle.classList.remove("review-toggle-hidden");
+            addButton.disabled = false;
         });
     });
 

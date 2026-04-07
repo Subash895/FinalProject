@@ -12,9 +12,9 @@ if exist ".env" (
 if "%~1"=="" goto :menu
 
 if /I "%~1"=="publish-dockerhub" goto :publishdockerhub
-if /I "%~1"=="local" goto :local
 if /I "%~1"=="docker" goto :docker
 if /I "%~1"=="stop-docker" goto :stopdocker
+if /I "%~1"=="railway" goto :deployrailway
 
 goto :menu
 
@@ -23,7 +23,7 @@ cls
 echo Smart City Runner
 echo.
 echo 1. Upload Docker image to Docker Hub
-echo 2. Run locally with H2
+echo 2. Run locally with MySQL
 echo 3. Run in Docker with MySQL
 echo 4. Stop Docker services
 echo 5. Git add, commit, and push
@@ -95,16 +95,27 @@ pause
 goto :menu
 
 :local
-set "SPRING_PROFILES_ACTIVE=local"
-set "APP_PORT=8080"
-for /f "delims=" %%A in ('powershell -NoProfile -Command "if (Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue) { 'busy' } else { 'free' }"') do set "PORT_STATE=%%A"
-if /I "%PORT_STATE%"=="busy" set "APP_PORT=8081"
-echo Starting Smart City locally with the local Spring profile on http://localhost:%APP_PORT%
-call mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--server.port=%APP_PORT%
+echo Starting Smart City locally on http://localhost:8080 using MySQL
+if "%SPRING_DATASOURCE_URL%"=="" (
+  echo.
+  echo SPRING_DATASOURCE_URL is not set.
+  echo Set database values in .env before starting the local app.
+  echo.
+  pause
+  goto :menu
+)
+.\mvnw.cmd spring-boot:run
 goto :end
 
 :docker
 echo Starting Smart City in Docker on http://localhost:8080 with MySQL
+if "%APP_AUTH_GOOGLE_CLIENT_ID%"=="" (
+  echo.
+  echo APP_AUTH_GOOGLE_CLIENT_ID is not set.
+  echo Google login and Google register will be hidden until it is configured.
+  echo Set it in .env before starting Docker.
+  echo.
+)
 docker compose up --build
 goto :end
 
@@ -177,6 +188,12 @@ if errorlevel 1 (
 
 echo.
 echo Deploying current project to Railway...
+if "%APP_AUTH_GOOGLE_CLIENT_ID%"=="" (
+  echo.
+  echo APP_AUTH_GOOGLE_CLIENT_ID is not set in the current environment.
+  echo Add APP_AUTH_GOOGLE_CLIENT_ID in Railway Variables so Google login appears after deploy.
+  echo.
+)
 %RAILWAY_CLI% up -d
 if errorlevel 1 goto :railwayfailed
 

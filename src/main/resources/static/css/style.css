@@ -365,20 +365,27 @@ select.form-control option:focus {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
+  width: 100%;
 }
 
 .review-summary {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.9rem;
+  width: 100%;
 }
 
 .review-summary-side {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.review-summary-copy {
+  min-width: 0;
 }
 
 .review-summary h4 {
@@ -426,37 +433,22 @@ select.form-control option:focus {
 
 .review-composer {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
-.review-toggle {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: var(--cyan-dim);
-  color: var(--text-primary);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.review-toggle:hover {
-  border-color: var(--cyan);
-  transform: translateY(-1px);
-}
-
-.review-toggle-hidden {
-  display: none;
+.review-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 .review-form {
-  width: min(100%, 420px);
-  margin-top: 0.75rem;
+  width: 100%;
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(255,255,255,0.03);
@@ -495,7 +487,11 @@ select.form-control option:focus {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 0.9rem;
+  margin-top: 0;
+}
+
+.review-list-hidden {
+  display: none;
 }
 
 .review-item {
@@ -503,6 +499,7 @@ select.form-control option:focus {
   border-radius: var(--radius-md);
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
+  width: 100%;
 }
 
 .review-actions {
@@ -678,10 +675,6 @@ select.form-control option:focus {
     align-items: flex-start;
   }
   .review-form-grid { grid-template-columns: 1fr; }
-  .review-composer,
-  .review-form {
-    width: 100%;
-  }
 }
 /* ── Nav logout ─────────────────────────────────────────────── */
 .navbar-nav a[style*="var(--red)"] {

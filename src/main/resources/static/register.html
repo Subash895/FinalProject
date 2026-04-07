@@ -36,7 +36,10 @@
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input class="form-control" id="password" type="password" placeholder="Minimum 8 characters" required>
+          <div class="password-field">
+            <input class="form-control" id="password" type="password" placeholder="Minimum 8 characters" required>
+            <button type="button" class="password-toggle" data-password-toggle data-target="password" aria-label="Show password" aria-pressed="false">Show</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Account Type</label>
@@ -69,10 +72,6 @@
       <div class="auth-divider"><span>or</span></div>
 
       <div class="google-auth-section">
-        <div class="google-auth-copy">
-          <p class="google-auth-title">Create account with Google</p>
-          <p class="google-auth-description">Choose your account type, then continue with Google. We will create your account automatically and sign you in.</p>
-        </div>
         <div id="registerGoogleError" class="auth-error"></div>
         <div id="registerGoogleButton" class="google-auth-button"></div>
       </div>
@@ -87,6 +86,50 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
+    const registerPasswordToggleButtons = Array.from(document.querySelectorAll("[data-password-toggle]"));
+
+    function setRegisterPasswordVisibility(input, button, visible) {
+      input.type = visible ? "text" : "password";
+      button.textContent = visible ? "Hide" : "Show";
+      button.setAttribute("aria-label", visible ? "Hide password" : "Show password");
+      button.setAttribute("aria-pressed", visible ? "true" : "false");
+    }
+
+    registerPasswordToggleButtons.forEach((button) => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) {
+        return;
+      }
+
+      let pinnedVisible = false;
+
+      button.addEventListener("pointerdown", () => {
+        if (!pinnedVisible) {
+          setRegisterPasswordVisibility(input, button, true);
+        }
+      });
+
+      ["pointerup", "pointerleave", "pointercancel"].forEach((eventName) => {
+        button.addEventListener(eventName, () => {
+          if (!pinnedVisible) {
+            setRegisterPasswordVisibility(input, button, false);
+          }
+        });
+      });
+
+      button.addEventListener("click", () => {
+        pinnedVisible = !pinnedVisible;
+        setRegisterPasswordVisibility(input, button, pinnedVisible);
+      });
+
+      input.addEventListener("blur", () => {
+        if (!pinnedVisible) {
+          setRegisterPasswordVisibility(input, button, false);
+        }
+      });
+    });
+
     if (isLoggedIn()) window.location.href = "index.html";
 
     document.getElementById("registerForm").addEventListener("submit", (event) => {

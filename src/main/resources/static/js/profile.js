@@ -51,6 +51,51 @@ function fillProfileForm(user) {
     document.getElementById("profilePasswordInput").value = "";
 }
 
+function setProfilePasswordVisibility(input, button, visible) {
+    input.type = visible ? "text" : "password";
+    button.textContent = visible ? "Hide" : "Show";
+    button.setAttribute("aria-label", visible ? "Hide password" : "Show password");
+    button.setAttribute("aria-pressed", visible ? "true" : "false");
+}
+
+function initializeProfilePasswordToggles() {
+    const toggleButtons = Array.from(document.querySelectorAll("[data-password-toggle]"));
+
+    toggleButtons.forEach((button) => {
+        const input = document.getElementById(button.dataset.target);
+        if (!input) {
+            return;
+        }
+
+        let pinnedVisible = false;
+
+        button.addEventListener("pointerdown", () => {
+            if (!pinnedVisible) {
+                setProfilePasswordVisibility(input, button, true);
+            }
+        });
+
+        ["pointerup", "pointerleave", "pointercancel"].forEach((eventName) => {
+            button.addEventListener(eventName, () => {
+                if (!pinnedVisible) {
+                    setProfilePasswordVisibility(input, button, false);
+                }
+            });
+        });
+
+        button.addEventListener("click", () => {
+            pinnedVisible = !pinnedVisible;
+            setProfilePasswordVisibility(input, button, pinnedVisible);
+        });
+
+        input.addEventListener("blur", () => {
+            if (!pinnedVisible) {
+                setProfilePasswordVisibility(input, button, false);
+            }
+        });
+    });
+}
+
 async function loadProfile() {
     const user = await apiRequest("/users/me");
     updateStoredUser(user);
@@ -99,6 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     applyRoleUI();
+    initializeProfilePasswordToggles();
     document.getElementById("profileForm").addEventListener("submit", saveProfile);
 
     try {
