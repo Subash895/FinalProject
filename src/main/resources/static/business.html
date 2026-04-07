@@ -45,12 +45,12 @@
             <input class="form-control" id="name" placeholder="e.g. Sunrise Bakery" required>
           </div>
           <div class="form-group">
-            <label for="category">Category</label>
-            <input class="form-control" id="category" placeholder="e.g. Food & Beverage" required>
-          </div>
-          <div class="form-group">
             <label for="address">Address</label>
             <input class="form-control" id="address" placeholder="e.g. 12 Main St, Bengaluru" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input class="form-control" id="description" placeholder="e.g. Fresh bakery, coffee, and snacks" required>
           </div>
         </div>
         <button type="submit" class="btn btn-primary">Add Business</button>
@@ -59,7 +59,10 @@
 
     <div class="section-header">
       <h2>All Businesses</h2>
-      <button id="loadBtn" class="btn btn-secondary">Refresh</button>
+      <div class="section-actions">
+        <input id="businessSearch" class="form-control" type="search" placeholder="Search by name, address, or description">
+        <button id="loadBtn" class="btn btn-secondary">Refresh</button>
+      </div>
     </div>
 
     <div id="list" class="card-list">
@@ -73,12 +76,13 @@
   <footer class="site-footer">Copyright 2025 MySmartCity - Business Directory</footer>
 
   <script src="js/api.js"></script>
+  <script src="js/reviews.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/business.js"></script>
   <script>
     applyRoleUI();
-    if (isUser()) document.getElementById("addBusinessSection").style.display = "";
+    if (getRole() === "BUSINESS") document.getElementById("addBusinessSection").style.display = "";
   </script>
 
 </body>

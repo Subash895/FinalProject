@@ -23,7 +23,26 @@ async function apiRequest(endpoint, method = "GET", data = null) {
 
     const res = await fetch(API_BASE + endpoint, options);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    if (!res.ok) {
+        let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+        const contentType = res.headers.get("content-type") || "";
+
+        if (contentType.includes("application/json")) {
+            try {
+                const payload = await res.json();
+                errorMessage = payload?.message || payload?.error || errorMessage;
+            } catch {
+            }
+        } else {
+            try {
+                const text = await res.text();
+                if (text) errorMessage = text;
+            } catch {
+            }
+        }
+
+        throw new Error(errorMessage);
+    }
 
     // DELETE often returns 204 No Content — don't try to parse JSON
     if (res.status === 204 || res.headers.get("content-length") === "0") return null;

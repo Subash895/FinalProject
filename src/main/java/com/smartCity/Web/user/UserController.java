@@ -4,8 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.smartCity.Web.auth.AuthDtos;
+import com.smartCity.Web.auth.JwtService;
+import com.smartCity.Web.auth.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.user.UserDtos;
 
@@ -16,10 +20,12 @@ public class UserController {
 
     private final UserService service;
     private final ApiDtoMapper apiDtoMapper;
+    private final JwtService jwtService;
 
-    public UserController(UserService service, ApiDtoMapper apiDtoMapper) {
+    public UserController(UserService service, ApiDtoMapper apiDtoMapper, JwtService jwtService) {
         this.service = service;
         this.apiDtoMapper = apiDtoMapper;
+        this.jwtService = jwtService;
     }
 
 
@@ -41,10 +47,24 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/me")
+    public UserDtos.UserResponse getProfile(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        return apiDtoMapper.toUserResponse(service.getProfile(principal.id()));
+    }
 
     @PutMapping("/{id}")
     public UserDtos.UserResponse update(@PathVariable Long id, @RequestBody UserDtos.UserRequest user) {
         return apiDtoMapper.toUserResponse(service.update(id, apiDtoMapper.toUser(user)));
+    }
+
+    @PutMapping("/me")
+    public AuthDtos.AuthResponse updateProfile(
+            @AuthenticationPrincipal JwtUserPrincipal principal,
+            @RequestBody UserDtos.ProfileUpdateRequest request) {
+        var user = apiDtoMapper.toUser(request);
+        var savedUser = service.updateProfile(principal.id(), user);
+        String token = jwtService.generateToken(savedUser);
+        return apiDtoMapper.toAuthResponse(token, savedUser);
     }
 
     @DeleteMapping("/{id}")

@@ -132,16 +132,22 @@ async function loadPlaces() {
 
     try {
         const places = await apiRequest(`/places${getFilterQuery()}`);
-        updateResultSummary(places?.length || 0);
-        syncPlaceMap(places || []);
+        const placesWithReviews = await Promise.all((places || []).map(async place => ({
+            ...place,
+            reviews: await loadReviews(REVIEW_TARGETS.place, place.id)
+        })));
 
-        if (!places || places.length === 0) {
+        updateResultSummary(placesWithReviews?.length || 0);
+        syncPlaceMap(placesWithReviews || []);
+
+        if (!placesWithReviews || placesWithReviews.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">PL</div><p>No places match the current filter.</p></div>';
             return;
         }
 
         container.className = "place-list";
-        container.innerHTML = places.map((place, index) => renderPlaceCard(place, index)).join("");
+        container.innerHTML = placesWithReviews.map((place, index) => renderPlaceCard(place, index)).join("");
+        hydrateReviewForms(loadPlaces);
     } catch {
         updateResultSummary(0);
         container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">NA</div><p>Cannot connect to server.</p></div>';
@@ -169,6 +175,7 @@ function renderPlaceCard(place, index) {
           ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editPlace(${place.id}, ${JSON.stringify(place)})'>Edit</button>` : ""}
           ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deletePlace(${place.id}, '${esc(place.name)}')">Delete</button>` : ""}
         </div>
+        ${renderReviewSection(REVIEW_TARGETS.place, place.id, place.reviews || [])}
       </article>`;
 }
 

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — Login</title>
+  <meta name="smartcity-google-client-id" content="500249091707-n65qual8q54mas4dillf804ccc41ogph.apps.googleusercontent.com">
+  <title>MySmartCity - Login</title>
   <link rel="icon" type="image/x-icon" href="images/subash.ico">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/auth.css">
@@ -11,15 +12,14 @@
 <body>
 
   <div class="auth-page">
-
     <a href="index.html" class="auth-logo">
-      <div class="logo-icon">🏙️</div>
+      <div class="logo-icon">SC</div>
       My<span>Smart</span>City
     </a>
 
     <div class="auth-card glass-card">
       <div class="auth-card-header">
-        <div class="auth-icon">🔐</div>
+        <div class="auth-icon">IN</div>
         <h1>Welcome back</h1>
         <p>Sign in to your city account</p>
       </div>
@@ -33,16 +33,63 @@
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input class="form-control" id="password" type="password" placeholder="••••••••" required>
+          <input class="form-control" id="password" type="password" placeholder="Enter your password" required>
         </div>
-        <button type="submit" class="btn-submit" id="loginBtn">Sign In →</button>
+        <button type="button" class="auth-link-button" id="forgotPasswordLink">Forgot password?</button>
+        <button type="submit" class="btn-submit" id="loginBtn">Sign In</button>
       </form>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <div class="google-auth-section">
+        <div class="google-auth-copy">
+          <p class="google-auth-title">Sign in with Google</p>
+          <p class="google-auth-description">Use your Google account to log in. If this is your first time, your account will be created automatically.</p>
+        </div>
+        <div id="loginGoogleError" class="auth-error"></div>
+        <div id="loginGoogleButton" class="google-auth-button"></div>
+      </div>
 
       <div class="auth-switch">
         Don't have an account? <a href="register.html">Create one</a>
       </div>
     </div>
 
+    <div class="auth-modal hidden" id="forgotPasswordModal">
+      <div class="auth-modal-card glass-card">
+        <div class="auth-modal-header">
+          <h2>Reset password</h2>
+          <button type="button" class="auth-modal-close" id="closeForgotPasswordModal">&times;</button>
+        </div>
+
+        <div id="forgotPasswordError" class="auth-error"></div>
+        <div id="forgotPasswordSuccess" class="auth-success"></div>
+
+        <form id="forgotPasswordRequestForm" class="auth-form">
+          <div class="form-group">
+            <label for="forgotEmail">Email Address</label>
+            <input class="form-control" id="forgotEmail" type="email" placeholder="you@example.com" required>
+          </div>
+          <button type="submit" class="btn-submit" id="sendOtpBtn">Send OTP</button>
+        </form>
+
+        <form id="resetPasswordForm" class="auth-form auth-subform">
+          <div class="otp-status-row">
+            <p class="otp-helper" id="otpHelperText">Request an OTP, then enter it here within 10 minutes.</p>
+            <p class="otp-timer hidden" id="otpTimer" aria-live="polite">10:00</p>
+          </div>
+          <div class="form-group">
+            <label for="resetOtp">OTP</label>
+            <input class="form-control" id="resetOtp" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="6-digit OTP" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input class="form-control" id="newPassword" type="password" placeholder="Minimum 8 characters" required>
+          </div>
+          <button type="submit" class="btn-submit" id="resetPasswordBtn">Update Password</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script src="js/api.js"></script>
@@ -51,24 +98,194 @@
   <script>
     if (isLoggedIn()) window.location.href = "index.html";
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById("loginError");
-      const btn   = document.getElementById("loginBtn");
-      errEl.classList.remove("show");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    const loginError = document.getElementById("loginError");
+    const loginGoogleError = document.getElementById("loginGoogleError");
+    const forgotPasswordModal = document.getElementById("forgotPasswordModal");
+    const forgotPasswordError = document.getElementById("forgotPasswordError");
+    const forgotPasswordSuccess = document.getElementById("forgotPasswordSuccess");
+    const forgotEmailInput = document.getElementById("forgotEmail");
+    const resetOtpInput = document.getElementById("resetOtp");
+    const newPasswordInput = document.getElementById("newPassword");
+    const resetPasswordButton = document.getElementById("resetPasswordBtn");
+    const otpTimerElement = document.getElementById("otpTimer");
+    const otpHelperText = document.getElementById("otpHelperText");
+    const OTP_DURATION_MS = 10 * 60 * 1000;
+    let otpExpiresAt = 0;
+    let otpTimerInterval = null;
+
+    function showMessage(element, message) {
+      element.textContent = message;
+      element.classList.add("show");
+    }
+
+    function clearMessage(element) {
+      element.textContent = "";
+      element.classList.remove("show");
+    }
+
+    function openForgotPasswordModal() {
+      clearMessage(forgotPasswordError);
+      clearMessage(forgotPasswordSuccess);
+      forgotEmailInput.value = document.getElementById("username").value.trim();
+      resetOtpInput.value = "";
+      newPasswordInput.value = "";
+      clearOtpTimer();
+      setResetFormEnabled(false);
+      forgotPasswordModal.classList.remove("hidden");
+    }
+
+    function closeForgotPasswordModal() {
+      clearOtpTimer();
+      forgotPasswordModal.classList.add("hidden");
+    }
+
+    function setResetFormEnabled(enabled) {
+      resetOtpInput.disabled = !enabled;
+      newPasswordInput.disabled = !enabled;
+      resetPasswordButton.disabled = !enabled;
+      otpHelperText.textContent = enabled
+        ? "Enter the 6-digit OTP from your email and choose a new password."
+        : "Request an OTP, then enter it here within 10 minutes.";
+    }
+
+    function clearOtpTimer() {
+      otpExpiresAt = 0;
+      if (otpTimerInterval) {
+        clearInterval(otpTimerInterval);
+        otpTimerInterval = null;
+      }
+      otpTimerElement.classList.add("hidden");
+      otpTimerElement.textContent = "10:00";
+    }
+
+    function formatTimeLeft(ms) {
+      const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function updateOtpTimer() {
+      const timeLeft = otpExpiresAt - Date.now();
+      if (timeLeft <= 0) {
+        clearOtpTimer();
+        setResetFormEnabled(false);
+        showMessage(forgotPasswordError, "OTP expired. Request a new OTP.");
+        return;
+      }
+
+      otpTimerElement.textContent = formatTimeLeft(timeLeft);
+    }
+
+    function startOtpTimer() {
+      clearOtpTimer();
+      otpExpiresAt = Date.now() + OTP_DURATION_MS;
+      otpTimerElement.classList.remove("hidden");
+      updateOtpTimer();
+      otpTimerInterval = setInterval(updateOtpTimer, 1000);
+    }
+
+    resetOtpInput.addEventListener("input", () => {
+      resetOtpInput.value = resetOtpInput.value.replace(/\D/g, "").slice(0, 6);
+    });
+
+    setResetFormEnabled(false);
+
+    document.getElementById("forgotPasswordLink").addEventListener("click", openForgotPasswordModal);
+    document.getElementById("closeForgotPasswordModal").addEventListener("click", closeForgotPasswordModal);
+    forgotPasswordModal.addEventListener("click", (event) => {
+      if (event.target === forgotPasswordModal) {
+        closeForgotPasswordModal();
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById("loginBtn");
+      clearMessage(loginError);
+      clearMessage(loginGoogleError);
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner"></span> Signing in...';
+
       try {
         await loginUser(
-          document.getElementById("username").value,
+          document.getElementById("username").value.trim(),
           document.getElementById("password").value
         );
-      } catch {
-        errEl.textContent = "Invalid credentials. Please try again.";
-        errEl.classList.add("show");
-        btn.disabled = false;
-        btn.innerHTML = "Sign In →";
+      } catch (error) {
+        showMessage(loginError, error.message || "Invalid credentials. Please try again.");
+        button.disabled = false;
+        button.textContent = "Sign In";
       }
+    });
+
+    document.getElementById("forgotPasswordRequestForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById("sendOtpBtn");
+      clearMessage(forgotPasswordError);
+      clearMessage(forgotPasswordSuccess);
+      button.disabled = true;
+      button.textContent = "Sending OTP...";
+
+      try {
+        await requestPasswordReset(forgotEmailInput.value.trim());
+        clearMessage(forgotPasswordError);
+        showMessage(forgotPasswordSuccess, "OTP sent to your email address. It will expire in 10 minutes.");
+        setResetFormEnabled(true);
+        startOtpTimer();
+        resetOtpInput.focus();
+      } catch (error) {
+        setResetFormEnabled(false);
+        clearOtpTimer();
+        showMessage(forgotPasswordError, error.message || "Failed to send OTP.");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send OTP";
+      }
+    });
+
+    document.getElementById("resetPasswordForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById("resetPasswordBtn");
+      clearMessage(forgotPasswordError);
+      clearMessage(forgotPasswordSuccess);
+      button.disabled = true;
+      button.textContent = "Updating...";
+
+      try {
+        if (!otpExpiresAt || otpExpiresAt <= Date.now()) {
+          throw new Error("OTP expired. Request a new OTP.");
+        }
+
+        await resetPasswordWithOtp(
+          forgotEmailInput.value.trim(),
+          resetOtpInput.value.trim(),
+          newPasswordInput.value
+        );
+        showMessage(forgotPasswordSuccess, "Password updated. You can sign in now.");
+        document.getElementById("password").value = "";
+        clearOtpTimer();
+        setResetFormEnabled(false);
+        resetOtpInput.value = "";
+        newPasswordInput.value = "";
+      } catch (error) {
+        showMessage(forgotPasswordError, error.message || "Failed to reset password.");
+      } finally {
+        if (!resetPasswordButton.disabled) {
+          button.disabled = false;
+        }
+        button.textContent = "Update Password";
+      }
+    });
+
+    setupGoogleAuthButton("loginGoogleButton", {
+      mode: "signin",
+      buttonText: "continue_with",
+      onError: (error) => {
+        showMessage(loginGoogleError, error.message || "Google sign-in failed.");
+      }
+    }).catch((error) => {
+      showMessage(loginGoogleError, error.message || "Google sign-in failed.");
     });
   </script>
 

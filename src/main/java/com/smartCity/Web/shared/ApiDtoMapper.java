@@ -27,6 +27,8 @@ import com.smartCity.Web.news.News;
 import com.smartCity.Web.news.NewsDtos;
 import com.smartCity.Web.place.Place;
 import com.smartCity.Web.place.PlaceDtos;
+import com.smartCity.Web.review.Review;
+import com.smartCity.Web.review.ReviewDtos;
 import com.smartCity.Web.subscription.Subscription;
 import com.smartCity.Web.subscription.SubscriptionDtos;
 import com.smartCity.Web.user.User;
@@ -65,6 +67,15 @@ public class ApiDtoMapper {
     }
 
     public User toUser(UserDtos.UserRequest request) {
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(request.password());
+        user.setRole(request.role());
+        return user;
+    }
+
+    public User toUser(UserDtos.ProfileUpdateRequest request) {
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
@@ -290,6 +301,18 @@ public class ApiDtoMapper {
         subscription.setEndDate(request.endDate());
         subscription.setPrice(request.price());
         return subscription;
+    }
+
+    public ReviewDtos.ReviewResponse toReviewResponse(Review review) {
+        return new ReviewDtos.ReviewResponse(
+                review.getId(),
+                toUserResponse(review.getUser()),
+                review.getTargetType(),
+                review.getTargetId(),
+                review.getRating(),
+                review.getComment(),
+                review.getCreatedAt(),
+                review.getUpdatedAt());
     }
 
     private City resolveCity(Long directId, Long nestedId) {

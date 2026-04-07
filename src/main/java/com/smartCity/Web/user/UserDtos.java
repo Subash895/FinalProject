@@ -10,6 +10,9 @@ public final class UserDtos {
     public record UserRequest(String name, String email, String password, Role role) {
     }
 
+    public record ProfileUpdateRequest(String name, String email, String password, Role role) {
+    }
+
     public record UserResponse(Long id, String name, String email, Role role) {
     }
 }

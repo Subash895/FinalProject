@@ -47,22 +47,27 @@ async function loadCities() {
 
     try {
         const cities = await apiRequest("/cities");
-        cityMapState.cities = cities || [];
+        const citiesWithReviews = await Promise.all((cities || []).map(async city => ({
+            ...city,
+            reviews: await loadReviews(REVIEW_TARGETS.city, city.id)
+        })));
+        cityMapState.cities = citiesWithReviews;
 
-        if (!cities || cities.length === 0) {
+        if (citiesWithReviews.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">CT</div><p>No cities yet. Add the first one.</p></div>';
             syncCityMap();
             return;
         }
 
         container.className = "city-list";
-        container.innerHTML = cities.map((city, index) => `
+        container.innerHTML = citiesWithReviews.map((city, index) => `
             <div class="city-card glass-card" style="animation-delay:${index * 0.05}s">
               <div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>
               <div class="city-info">
                 <h3>${city.name}</h3>
                 ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
                 <div class="city-country">${city.country || "Country not set"}</div>
+                ${renderReviewSection(REVIEW_TARGETS.city, city.id, city.reviews || [])}
               </div>
               <div class="city-actions">
                 <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
@@ -73,6 +78,7 @@ async function loadCities() {
         `).join("");
 
         syncCityMap();
+        hydrateReviewForms(loadCities);
     } catch {
         container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">NA</div><p>Cannot connect to server.</p></div>';
         setCityMapStatus("City data failed to load.");

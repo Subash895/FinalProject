@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySmartCity - Profile</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">SC</div>
+      My<span>Smart</span>City
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="city.html"><span class="nav-icon">🏛️</span>Cities</a></li>
+      <li><a href="business.html"><span class="nav-icon">💼</span>Business</a></li>
+      <li><a href="place.html"><span class="nav-icon">📍</span>Places</a></li>
+      <li><a href="forum.html"><span class="nav-icon">💬</span>Forum</a></li>
+      <li><a href="news.html"><span class="nav-icon">📰</span>News</a></li>
+      <li><a href="subscription.html"><span class="nav-icon">⭐</span>Subscribe</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">◾</span></button></li>
+    </ul>
+  </nav>
+
+  <main class="page-wrapper">
+    <section class="page-header">
+      <h1>Your <span class="highlight">Profile</span></h1>
+      <p>Manage your account details and keep your Smart City profile up to date.</p>
+      <div class="header-line"></div>
+    </section>
+
+    <section class="profile-grid">
+      <aside class="glass-card profile-summary">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <span class="badge badge-cyan" id="profileRoleBadge">USER</span>
+        <h2 id="profileName">Loading...</h2>
+        <p id="profileEmail">Please wait while we load your account.</p>
+        <div class="profile-meta">
+          <div>
+            <span>Account ID</span>
+            <strong id="profileId">-</strong>
+          </div>
+          <div>
+            <span>Access</span>
+            <strong id="profileRole">-</strong>
+          </div>
+        </div>
+      </aside>
+
+      <section class="glass-card form-card profile-form-card">
+        <div class="section-header">
+          <h2>Edit Account</h2>
+        </div>
+
+        <div id="profileError" class="profile-message profile-error"></div>
+        <div id="profileSuccess" class="profile-message profile-success"></div>
+
+        <form id="profileForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="profileNameInput">Full Name</label>
+              <input class="form-control" id="profileNameInput" type="text" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+              <label for="profileEmailInput">Email Address</label>
+              <input class="form-control" id="profileEmailInput" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="profileRoleInput">Account Type</label>
+              <input class="form-control" id="profileRoleInput" type="text" readonly>
+            </div>
+            <div class="form-group">
+              <label for="profilePasswordInput">New Password</label>
+              <input class="form-control" id="profilePasswordInput" type="password" placeholder="Leave blank to keep current password">
+            </div>
+          </div>
+
+          <p class="profile-note">Leave the password field empty if you do not want to change it.</p>
+
+          <div class="profile-actions">
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            <button type="submit" class="btn btn-primary" id="profileSaveBtn">Save Profile</button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

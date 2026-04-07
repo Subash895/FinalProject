@@ -2,12 +2,15 @@ package com.smartCity.Web.user;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.smartCity.Web.auth.GoogleIdTokenVerifier;
+import com.smartCity.Web.notification.EmailNotificationService;
 import com.smartCity.Web.user.Role;
 import com.smartCity.Web.user.User;
 import com.smartCity.Web.user.UserRepository;
@@ -16,14 +19,20 @@ import com.smartCity.Web.auth.GoogleIdTokenVerifier.VerifiedGoogleUser;
 @Service
 public class UserService {
 
+    private static final long RESET_OTP_TTL_MILLIS = 10 * 60 * 1000L;
+
     private final UserRepository repo;
     private final PasswordEncoder passwordEncoder;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
+    private final EmailNotificationService emailNotificationService;
+    private final ConcurrentMap<String, PasswordResetOtp> passwordResetOtps = new ConcurrentHashMap<>();
 
-    public UserService(UserRepository repo, PasswordEncoder passwordEncoder, GoogleIdTokenVerifier googleIdTokenVerifier) {
+    public UserService(UserRepository repo, PasswordEncoder passwordEncoder, GoogleIdTokenVerifier googleIdTokenVerifier,
+            EmailNotificationService emailNotificationService) {
         this.repo = repo;
         this.passwordEncoder = passwordEncoder;
         this.googleIdTokenVerifier = googleIdTokenVerifier;
+        this.emailNotificationService = emailNotificationService;
     }
 
     public User save(User entity) {
@@ -42,16 +51,7 @@ public class UserService {
         User existing = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        existing.setName(entity.getName());
-        existing.setEmail(entity.getEmail());
-
-        if (entity.getPassword() != null && !entity.getPassword().isEmpty()) {
-            existing.setPassword(passwordEncoder.encode(entity.getPassword()));
-        }
-
-        existing.setRole(entity.getRole());
-
-        return repo.save(existing);
+        return applyUserUpdates(existing, entity, true);
     }
 
     public void delete(Long id) {
@@ -83,6 +83,18 @@ public class UserService {
         return repo.save(user);
     }
 
+    public User getProfile(Long userId) {
+        return repo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateProfile(Long userId, User entity) {
+        User existing = repo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return applyUserUpdates(existing, entity, false);
+    }
+
     public User login(String email, String password) {
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -96,6 +108,52 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public void sendPasswordResetOtp(String email) {
+        if (!StringUtils.hasText(email)) {
+            throw new RuntimeException("Email is required");
+        }
+
+        User user = repo.findByEmail(email.trim())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!StringUtils.hasText(user.getPassword())) {
+            throw new RuntimeException("This account uses Google sign-in. Continue with Google.");
+        }
+
+        String otp = generateOtp();
+        passwordResetOtps.put(normalizeEmail(email), new PasswordResetOtp(passwordEncoder.encode(otp),
+                System.currentTimeMillis() + RESET_OTP_TTL_MILLIS));
+        emailNotificationService.sendPasswordResetOtp(user.getEmail(), user.getName(), otp);
+    }
+
+    public void resetPasswordWithOtp(String email, String otp, String newPassword) {
+        if (!StringUtils.hasText(email) || !StringUtils.hasText(otp) || !StringUtils.hasText(newPassword)) {
+            throw new RuntimeException("Email, OTP, and new password are required");
+        }
+
+        if (newPassword.trim().length() < 8) {
+            throw new RuntimeException("New password must be at least 8 characters");
+        }
+
+        String normalizedEmail = normalizeEmail(email);
+        User user = repo.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PasswordResetOtp storedOtp = passwordResetOtps.get(normalizedEmail);
+        if (storedOtp == null || storedOtp.expiresAt() < System.currentTimeMillis()) {
+            passwordResetOtps.remove(normalizedEmail);
+            throw new RuntimeException("OTP expired. Request a new one.");
+        }
+
+        if (!passwordEncoder.matches(otp.trim(), storedOtp.hashedOtp())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword.trim()));
+        repo.save(user);
+        passwordResetOtps.remove(normalizedEmail);
     }
 
     public User loginWithGoogle(String credential, Role requestedRole) {
@@ -147,8 +205,53 @@ public class UserService {
         return repo.save(user);
     }
 
+    private User applyUserUpdates(User existing, User entity, boolean allowAnyRole) {
+        if (!StringUtils.hasText(entity.getName())) {
+            throw new RuntimeException("Name is required");
+        }
+
+        if (!StringUtils.hasText(entity.getEmail())) {
+            throw new RuntimeException("Email is required");
+        }
+
+        repo.findByEmail(entity.getEmail())
+                .filter(user -> !user.getId().equals(existing.getId()))
+                .ifPresent(user -> {
+                    throw new RuntimeException("Email already exists");
+                });
+
+        existing.setName(entity.getName());
+        existing.setEmail(entity.getEmail());
+
+        if (StringUtils.hasText(entity.getPassword())) {
+            existing.setPassword(passwordEncoder.encode(entity.getPassword()));
+        }
+
+        if (entity.getRole() != null) {
+            if (!allowAnyRole && existing.getRole() == Role.ADMIN) {
+                existing.setRole(Role.ADMIN);
+            } else {
+                existing.setRole(allowAnyRole ? entity.getRole() : normalizeRole(entity.getRole()));
+            }
+        }
+
+        return repo.save(existing);
+    }
+
     private Role normalizeRole(Role role) {
         return role == Role.BUSINESS ? Role.BUSINESS : Role.USER;
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim();
+    }
+
+    private String generateOtp() {
+        int value = (int) (Math.random() * 900000) + 100000;
+        return String.valueOf(value);
+    }
+
+    private record PasswordResetOtp(String hashedOtp, long expiresAt) {
     }
 }
 

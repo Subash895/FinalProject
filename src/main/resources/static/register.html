@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySmartCity — Register</title>
+  <meta name="smartcity-google-client-id" content="500249091707-n65qual8q54mas4dillf804ccc41ogph.apps.googleusercontent.com">
+  <title>MySmartCity - Register</title>
   <link rel="icon" type="image/x-icon" href="images/subash.ico">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/auth.css">
@@ -11,15 +12,14 @@
 <body>
 
   <div class="auth-page">
-
     <a href="index.html" class="auth-logo">
-      <div class="logo-icon">🏙️</div>
+      <div class="logo-icon">SC</div>
       My<span>Smart</span>City
     </a>
 
     <div class="auth-card glass-card">
       <div class="auth-card-header">
-        <div class="auth-icon">🚀</div>
+        <div class="auth-icon">UP</div>
         <h1>Join SmartCity</h1>
         <p>Create your free account today</p>
       </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input class="form-control" id="password" type="password" placeholder="Min. 8 characters" required>
+          <input class="form-control" id="password" type="password" placeholder="Minimum 8 characters" required>
         </div>
         <div class="form-group">
           <label>Account Type</label>
@@ -45,53 +45,83 @@
             <label class="role-option">
               <input type="radio" name="role" value="USER" checked>
               <span class="role-card">
-                <span class="role-icon">👤</span>
+                <span class="role-icon">U</span>
                 <span class="role-info">
                   <span class="role-name">User</span>
-                  <span class="role-desc">View all data, add businesses &amp; comments</span>
+                  <span class="role-desc">View city data, comment, and add businesses</span>
                 </span>
               </span>
             </label>
             <label class="role-option">
               <input type="radio" name="role" value="BUSINESS">
               <span class="role-card">
-                <span class="role-icon">🏢</span>
+                <span class="role-icon">B</span>
                 <span class="role-info">
                   <span class="role-name">Business</span>
-                  <span class="role-desc">User + create forums &amp; manage own business</span>
+                  <span class="role-desc">Everything in User plus business and forum tools</span>
                 </span>
               </span>
             </label>
           </div>
         </div>
-        <button type="submit" class="btn-submit">Create Account →</button>
+        <button type="submit" class="btn-submit">Create Account</button>
       </form>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <div class="google-auth-section">
+        <div class="google-auth-copy">
+          <p class="google-auth-title">Create account with Google</p>
+          <p class="google-auth-description">Choose your account type, then continue with Google. We will create your account automatically and sign you in.</p>
+        </div>
+        <div id="registerGoogleError" class="auth-error"></div>
+        <div id="registerGoogleButton" class="google-auth-button"></div>
+      </div>
 
       <div class="auth-switch">
         Already have an account? <a href="login.html">Sign in</a>
       </div>
     </div>
-
   </div>
 
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.getElementById("registerForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById("registerError");
-      errEl.classList.remove("show");
+    if (isLoggedIn()) window.location.href = "index.html";
+
+    document.getElementById("registerForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const errorElement = document.getElementById("registerError");
+      errorElement.classList.remove("show");
       const role = document.querySelector('input[name="role"]:checked')?.value || "USER";
+
       registerUser(
-        document.getElementById("name").value,
-        document.getElementById("email").value,
+        document.getElementById("name").value.trim(),
+        document.getElementById("email").value.trim(),
         document.getElementById("password").value,
         role
-      ).catch(() => {
-        errEl.textContent = "Registration failed. Please try again.";
-        errEl.classList.add("show");
+      ).catch((error) => {
+        errorElement.textContent = error.message || "Registration failed. Please try again.";
+        errorElement.classList.add("show");
       });
+    });
+
+    function showRegisterGoogleError(message) {
+      const errorElement = document.getElementById("registerGoogleError");
+      errorElement.textContent = message;
+      errorElement.classList.add("show");
+    }
+
+    setupGoogleAuthButton("registerGoogleButton", {
+      mode: "signup",
+      buttonText: "signup_with",
+      getRole: () => document.querySelector('input[name="role"]:checked')?.value || "USER",
+      onError: (error) => {
+        showRegisterGoogleError(error.message || "Google sign-up failed.");
+      }
+    }).catch((error) => {
+      showRegisterGoogleError(error.message || "Google sign-up failed.");
     });
   </script>
 

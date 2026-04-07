@@ -116,7 +116,7 @@ function openDeleteModal({ itemName, onConfirm }) {
 
 /* ── Close ──────────────────────────────────────────────────── */
 function closeAnyModal() {
-    ["editModal", "deleteModal"].forEach(id => {
+    ["editModal", "deleteModal", "reviewComposeModal"].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.classList.remove("open"); setTimeout(() => el.remove(), 250); }
     });

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.smartCity.Web.comment.Comment;
 import com.smartCity.Web.forum.ForumPost;
+import com.smartCity.Web.notification.EmailNotificationService;
 import com.smartCity.Web.comment.CommentRepository;
 import com.smartCity.Web.forum.ForumPostRepository;
 
@@ -18,6 +19,9 @@ public class ForumService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private EmailNotificationService emailNotificationService;
 
     public ForumPost createPost(ForumPost post) {
         return postRepository.save(post);
@@ -41,7 +45,15 @@ public class ForumService {
     }
 
     public Comment addComment(Comment comment) {
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+        if (savedComment.getUser() != null) {
+            String targetLabel = savedComment.getPost() != null && savedComment.getPost().getTitle() != null
+                    ? "forum post \"" + savedComment.getPost().getTitle() + "\""
+                    : "the discussion";
+            emailNotificationService.sendCommentThankYou(savedComment.getUser().getEmail(),
+                    savedComment.getUser().getName(), targetLabel);
+        }
+        return savedComment;
     }
 
     public List<Comment> getAllComments() {

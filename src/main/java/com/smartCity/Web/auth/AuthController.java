@@ -69,6 +69,26 @@ public class AuthController {
 		}
 	}
 
+	@PostMapping("/forgot-password")
+	public ResponseEntity<?> forgotPassword(@RequestBody AuthDtos.ForgotPasswordRequest request) {
+		try {
+			userService.sendPasswordResetOtp(request.email());
+			return ResponseEntity.ok("OTP sent to your email");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Forgot password failed: " + e.getMessage());
+		}
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<?> resetPassword(@RequestBody AuthDtos.ResetPasswordRequest request) {
+		try {
+			userService.resetPasswordWithOtp(request.email(), request.otp(), request.newPassword());
+			return ResponseEntity.ok("Password updated successfully");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Reset password failed: " + e.getMessage());
+		}
+	}
+
 	@GetMapping("/google/config")
 	public ResponseEntity<GoogleAuthConfigResponse> googleConfig() {
 		boolean enabled = userService.isGoogleAuthEnabled();
