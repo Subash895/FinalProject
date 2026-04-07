@@ -3,22 +3,20 @@
    ============================================================ */
 
 function getUser() { try { return JSON.parse(localStorage.getItem("user")); } catch { return null; } }
+function getToken() { return localStorage.getItem("token"); }
 function getRole() { return getUser()?.role || null; }
 function isAdmin() { return getRole() === "ADMIN"; }
 function isUser() { return ["USER", "ADMIN", "BUSINESS"].includes(getRole()); }
 function isBusiness() { return ["BUSINESS", "ADMIN"].includes(getRole()); }
 function isNormalUser() { return getRole() === "USER"; }
 function getUserId() { return getUser()?.id || null; }
-function isLoggedIn() { return !!getUser(); }
+function isLoggedIn() { return !!getUser() && !!getToken(); }
 
 let googleAuthConfigPromise = null;
 let googleIdentityScriptPromise = null;
 
 function getGoogleClientIdFallback() {
-    return window.SMARTCITY_GOOGLE_CLIENT_ID ||
-        document.querySelector('meta[name="smartcity-google-client-id"]')?.content ||
-        localStorage.getItem("smartcity.googleClientId") ||
-        "";
+    return window.SMARTCITY_GOOGLE_CLIENT_ID || "";
 }
 
 function getUserInitials(user) {
@@ -70,6 +68,12 @@ function logout() {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     window.location.href = "login.html";
+}
+
+function clearStaleSession() {
+    if (getUser() && !getToken()) {
+        localStorage.removeItem("user");
+    }
 }
 
 function applyRoleUI() {
@@ -225,3 +229,5 @@ async function setupGoogleAuthButton(containerId, options = {}) {
 
     return true;
 }
+
+clearStaleSession();

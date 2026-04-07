@@ -3,6 +3,8 @@ package com.smartCity.Web.review;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import com.smartCity.Web.user.UserRepository;
 
 @Service
 public class ReviewService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
@@ -147,27 +151,31 @@ public class ReviewService {
     }
 
     private void sendReviewEmails(Review review) {
-        User reviewer = review.getUser();
-        if (reviewer != null) {
-            emailNotificationService.sendCommentThankYou(reviewer.getEmail(), reviewer.getName(),
-                    describeTarget(review));
-        }
+        try {
+            User reviewer = review.getUser();
+            if (reviewer != null) {
+                emailNotificationService.sendCommentThankYou(reviewer.getEmail(), reviewer.getName(),
+                        describeTarget(review));
+            }
 
-        if (review.getTargetType() != ReviewTargetType.BUSINESS) {
-            return;
-        }
+            if (review.getTargetType() != ReviewTargetType.BUSINESS) {
+                return;
+            }
 
-        Business business = businessRepository.findById(review.getTargetId()).orElse(null);
-        if (business == null || business.getOwner() == null || reviewer == null) {
-            return;
-        }
+            Business business = businessRepository.findById(review.getTargetId()).orElse(null);
+            if (business == null || business.getOwner() == null || reviewer == null) {
+                return;
+            }
 
-        emailNotificationService.sendBusinessCommentNotification(
-                business.getOwner().getEmail(),
-                business.getOwner().getName(),
-                business.getName(),
-                reviewer.getName(),
-                review.getComment());
+            emailNotificationService.sendBusinessCommentNotification(
+                    business.getOwner().getEmail(),
+                    business.getOwner().getName(),
+                    business.getName(),
+                    reviewer.getName(),
+                    review.getComment());
+        } catch (Exception ex) {
+            log.warn("Review notification email skipped: {}", ex.getMessage());
+        }
     }
 
     private String describeTarget(Review review) {
