@@ -11,30 +11,30 @@ import com.smartCity.Web.event.EventRepository;
 @Service
 public class EventService {
 
-    private final EventRepository repo;
+  private final EventRepository repo;
 
-    public EventService(EventRepository repo) {
-        this.repo = repo;
-    }
+  public EventService(EventRepository repo) {
+    this.repo = repo;
+  }
 
-    public Event save(Event entity) {
-        return repo.save(entity);
-    }
+  public Event save(Event entity) {
+    return repo.save(entity);
+  }
 
-    public List<Event> getAll() {
-        return repo.findAll();
-    }
+  public List<Event> getAll() {
+    return repo.findAll();
+  }
 
-    public Optional<Event> getById(Long id) {
-        return repo.findById(id);
-    }
+  public Optional<Event> getById(Long id) {
+    return repo.findById(id);
+  }
 
-    public Event update(Long id, Event entity) {
-        entity.setId(id);   // ✅ now works
-        return repo.save(entity);
-    }
+  public Event update(Long id, Event entity) {
+    entity.setId(id); // ✅ now works
+    return repo.save(entity);
+  }
 
-    public void delete(Long id) {
-        repo.deleteById(id);
-    }
+  public void delete(Long id) {
+    repo.deleteById(id);
+  }
 }

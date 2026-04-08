@@ -7,20 +7,24 @@ import com.smartCity.Web.user.UserDtos.UserResponse;
 
 public final class CommentDtos {
 
-    private CommentDtos() {
-    }
+  private CommentDtos() {}
 
-    public record PostRef(Long id) {
-    }
+  public record PostRef(Long id) {}
 
-    public record UserRef(Long id) {
-    }
+  public record UserRef(Long id) {}
 
-    public record CommentRequest(Long postId, PostRef post, Long userId, UserRef user, String content,
-            LocalDateTime createdAt) {
-    }
+  public record CommentRequest(
+      Long postId,
+      PostRef post,
+      Long userId,
+      UserRef user,
+      String content,
+      LocalDateTime createdAt) {}
 
-    public record CommentResponse(Long id, ForumPostResponse post, UserResponse user, String content,
-            LocalDateTime createdAt) {
-    }
+  public record CommentResponse(
+      Long id,
+      ForumPostResponse post,
+      UserResponse user,
+      String content,
+      LocalDateTime createdAt) {}
 }

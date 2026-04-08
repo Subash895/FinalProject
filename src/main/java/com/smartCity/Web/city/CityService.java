@@ -11,27 +11,26 @@ import com.smartCity.Web.city.CityRepository;
 
 @Service
 public class CityService {
-	@Autowired
-	private CityRepository repo;
+  @Autowired private CityRepository repo;
 
-	public City save(City entity) {
-		return repo.save(entity);
-	}
+  public City save(City entity) {
+    return repo.save(entity);
+  }
 
-	public List<City> getAll() {
-		return repo.findAll();
-	}
+  public List<City> getAll() {
+    return repo.findAll();
+  }
 
-	public Optional<City> getById(Long id) {
-		return repo.findById(id);
-	}
+  public Optional<City> getById(Long id) {
+    return repo.findById(id);
+  }
 
-	public City update(Long id, City entity) {
-		entity.setId(id);
-		return repo.save(entity);
-	}
+  public City update(Long id, City entity) {
+    entity.setId(id);
+    return repo.save(entity);
+  }
 
-	public void delete(Long id) {
-		repo.deleteById(id);
-	}
+  public void delete(Long id) {
+    repo.deleteById(id);
+  }
 }

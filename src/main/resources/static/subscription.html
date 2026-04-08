@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/Subscription.css">
 </head>
+
 <body>
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -60,7 +62,7 @@
           <li>City history access</li>
           <li>Priority support</li>
         </ul>
-        <button class="btn btn-primary" onclick="document.getElementById('subForm').scrollIntoView({behavior:'smooth'})">Subscribe Now</button>
+        <button class="btn btn-primary" type="button" data-plan-button data-plan-type="PRO">Subscribe Now</button>
       </div>
 
       <div class="plan-card glass-card">
@@ -74,8 +76,14 @@
           <li>Bulk city data access</li>
           <li>Dedicated support</li>
         </ul>
-        <button class="btn btn-secondary" onclick="document.getElementById('subForm').scrollIntoView({behavior:'smooth'})">Contact Us</button>
+        <button class="btn btn-secondary" type="button" data-plan-button data-plan-type="ENTERPRISE">Choose Enterprise</button>
       </div>
+    </div>
+
+    <div class="glass-card payment-note" id="paymentNote">
+      <div class="payment-note-title">Paid Plans</div>
+      <p>Login first, then choose Pro or Enterprise to open Razorpay checkout in your browser.</p>
+      <p id="paymentStatusText">Payment status will appear here while the checkout is processing.</p>
     </div>
 
     <div class="glass-card form-card" id="subForm" style="display:none">
@@ -117,6 +125,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="js/subscription.js"></script>
   <script>
     applyRoleUI();
@@ -124,6 +133,8 @@
       document.getElementById("subForm").style.display = "";
       document.getElementById("subscriptionAdminNote").style.display = "none";
     }
+
   </script>
 </body>
+
 </html>

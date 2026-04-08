@@ -147,9 +147,9 @@ function renderReviewItem(review) {
 
 function renderReviewSection(targetType, itemId, reviews) {
     const list = Array.isArray(reviews) ? reviews : [];
-    const average = list.length
-        ? (list.reduce((sum, review) => sum + (review.rating || 0), 0) / list.length).toFixed(1)
-        : null;
+    const average = list.length ?
+        (list.reduce((sum, review) => sum + (review.rating || 0), 0) / list.length).toFixed(1) :
+        null;
 
     return `
         <section class="review-section">
@@ -180,9 +180,9 @@ async function hydrateReviewForms(onSaved) {
                 return;
             }
             const isHidden = list.classList.toggle("review-list-hidden");
-            const suffix = Number(button.dataset.reviewCount || 0) > 0
-                ? ` (${button.dataset.reviewCount})`
-                : "";
+            const suffix = Number(button.dataset.reviewCount || 0) > 0 ?
+                ` (${button.dataset.reviewCount})` :
+                "";
             button.textContent = isHidden ? `Comments${suffix}` : `Hide Comments${suffix}`;
         });
     });
@@ -247,9 +247,17 @@ async function hydrateReviewForms(onSaved) {
         button.addEventListener("click", () => {
             openEditModal({
                 title: "Edit Review",
-                fields: [
-                    { key: "rating", label: "Rating", placeholder: "1 to 5", type: "number" },
-                    { key: "comment", label: "Comment", placeholder: "Update your comment" }
+                fields: [{
+                        key: "rating",
+                        label: "Rating",
+                        placeholder: "1 to 5",
+                        type: "number"
+                    },
+                    {
+                        key: "comment",
+                        label: "Comment",
+                        placeholder: "Update your comment"
+                    }
                 ],
                 values: {
                     rating: button.dataset.reviewRating,

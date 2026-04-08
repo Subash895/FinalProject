@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/auth.css">
 </head>
+
 <body>
 
   <div class="auth-page">
@@ -199,9 +201,9 @@
       resetOtpInput.disabled = !enabled;
       newPasswordInput.disabled = !enabled;
       resetPasswordButton.disabled = !enabled;
-      otpHelperText.textContent = enabled
-        ? "Enter the 6-digit OTP from your email and choose a new password."
-        : "Request an OTP, then enter it here within 10 minutes.";
+      otpHelperText.textContent = enabled ?
+        "Enter the 6-digit OTP from your email and choose a new password." :
+        "Request an OTP, then enter it here within 10 minutes.";
     }
 
     function completeResetFlow(email) {
@@ -354,7 +356,9 @@
     }).catch((error) => {
       showMessage(loginGoogleError, error.message || "Google sign-in failed.");
     });
+
   </script>
 
 </body>
+
 </html>

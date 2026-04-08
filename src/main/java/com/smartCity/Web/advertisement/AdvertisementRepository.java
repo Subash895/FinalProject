@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.smartCity.Web.advertisement.Advertisement;
 
 @Repository
-public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
-}
-
+public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/city.css">
 </head>
+
 <body>
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -72,6 +74,22 @@
       <button id="loadBtn" class="btn btn-secondary">Refresh</button>
     </div>
 
+    <div id="cityHistoryPanel" class="glass-card city-history-panel" hidden>
+      <div class="section-header city-history-header">
+        <div>
+          <h2 id="cityHistoryTitle">City History</h2>
+          <p id="cityHistoryMeta" class="city-history-meta">Select a city to load its history.</p>
+        </div>
+        <button id="closeHistoryBtn" class="btn btn-secondary btn-sm" type="button">Close</button>
+      </div>
+      <div id="cityHistoryList" class="city-history-list">
+        <div class="empty-state glass-card">
+          <div class="empty-icon">HS</div>
+          <p>Select a city to view its history</p>
+        </div>
+      </div>
+    </div>
+
     <div id="list" class="card-list">
       <div class="empty-state glass-card">
         <div class="empty-icon">CT</div>
@@ -92,6 +110,8 @@
   <script>
     applyRoleUI();
     if (isAdmin()) document.getElementById("addCitySection").style.display = "";
+
   </script>
 </body>
+
 </html>

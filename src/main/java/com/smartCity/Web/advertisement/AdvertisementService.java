@@ -11,14 +11,13 @@ import com.smartCity.Web.advertisement.AdvertisementRepository;
 @Service
 public class AdvertisementService {
 
-    @Autowired
-    private AdvertisementRepository advertisementRepository;
+  @Autowired private AdvertisementRepository advertisementRepository;
 
-    public Advertisement createAdvertisement(Advertisement ad) {
-        return advertisementRepository.save(ad);
-    }
+  public Advertisement createAdvertisement(Advertisement ad) {
+    return advertisementRepository.save(ad);
+  }
 
-    public List<Advertisement> getAllAdvertisements() {
-        return advertisementRepository.findAll();
-    }
+  public List<Advertisement> getAllAdvertisements() {
+    return advertisementRepository.findAll();
+  }
 }

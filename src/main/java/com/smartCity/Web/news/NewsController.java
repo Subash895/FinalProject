@@ -13,39 +13,42 @@ import com.smartCity.Web.news.NewsDtos;
 @CrossOrigin("*")
 public class NewsController {
 
-    private final NewsService service;
-    private final ApiDtoMapper apiDtoMapper;
+  private final NewsService service;
+  private final ApiDtoMapper apiDtoMapper;
 
-    public NewsController(NewsService service, ApiDtoMapper apiDtoMapper) {
-        this.service = service;
-        this.apiDtoMapper = apiDtoMapper;
-    }
+  public NewsController(NewsService service, ApiDtoMapper apiDtoMapper) {
+    this.service = service;
+    this.apiDtoMapper = apiDtoMapper;
+  }
 
-    @PostMapping
-    public NewsDtos.NewsResponse create(@RequestBody NewsDtos.NewsRequest news) {
-        return apiDtoMapper.toNewsResponse(service.createNews(apiDtoMapper.toNews(news)));
-    }
+  @PostMapping
+  public NewsDtos.NewsResponse create(@RequestBody NewsDtos.NewsRequest news) {
+    return apiDtoMapper.toNewsResponse(service.createNews(apiDtoMapper.toNews(news)));
+  }
 
-    @GetMapping
-    public List<NewsDtos.NewsResponse> getAll() {
-        return service.getAllNews().stream().map(apiDtoMapper::toNewsResponse).collect(Collectors.toList());
-    }
+  @GetMapping
+  public List<NewsDtos.NewsResponse> getAll() {
+    return service.getAllNews().stream()
+        .map(apiDtoMapper::toNewsResponse)
+        .collect(Collectors.toList());
+  }
 
-    @GetMapping("/{id}")
-    public NewsDtos.NewsResponse getById(@PathVariable Long id) {
-        return service.getNewsById(id)
-                .map(apiDtoMapper::toNewsResponse)
-                .orElseThrow(() -> new RuntimeException("News not found with id: " + id));
-    }
+  @GetMapping("/{id}")
+  public NewsDtos.NewsResponse getById(@PathVariable Long id) {
+    return service
+        .getNewsById(id)
+        .map(apiDtoMapper::toNewsResponse)
+        .orElseThrow(() -> new RuntimeException("News not found with id: " + id));
+  }
 
-    @PutMapping("/{id}")
-    public NewsDtos.NewsResponse update(@PathVariable Long id, @RequestBody NewsDtos.NewsRequest news) {
-        return apiDtoMapper.toNewsResponse(service.updateNews(id, apiDtoMapper.toNews(news)));
-    }
+  @PutMapping("/{id}")
+  public NewsDtos.NewsResponse update(
+      @PathVariable Long id, @RequestBody NewsDtos.NewsRequest news) {
+    return apiDtoMapper.toNewsResponse(service.updateNews(id, apiDtoMapper.toNews(news)));
+  }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteNews(id);
-    }
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    service.deleteNews(id);
+  }
 }
-

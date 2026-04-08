@@ -7,6 +7,5 @@ import com.smartCity.Web.comment.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-	void deleteByPostId(Long postId);
+  void deleteByPostId(Long postId);
 }
-

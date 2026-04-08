@@ -2,89 +2,89 @@
    SMART CITY — business.css
    ============================================================ */
 .business-form-card {
-	padding: 1.4rem;
-	margin-bottom: 1.5rem;
+    padding: 1.4rem;
+    margin-bottom: 1.5rem;
 }
 
 .business-form-card .form-title {
-	font-family: var(--font-display);
-	font-size: 1rem;
-	font-weight: 700;
-	margin-bottom: 1rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
 }
 
 .business-form-card .form-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
 }
 
 .business-card {
-	padding: 1.5rem;
-	border-radius: var(--radius-md);
-	background: var(--bg-card);
-	border: 1px solid var(--border);
-	transition: var(--transition);
-	animation: fadeInUp 0.4s ease both;
-	position: relative;
-	overflow: hidden;
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    animation: fadeInUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
 }
 
 .business-card::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 3px;
-	height: 100%;
-	background: linear-gradient(180deg, var(--cyan), var(--purple));
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--cyan), var(--purple));
 }
 
 .business-card:hover {
-	border-color: var(--border-glow);
-	transform: translateY(-3px);
-	box-shadow: var(--shadow-glow);
-	background: var(--bg-card-hover);
+    border-color: var(--border-glow);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+    background: var(--bg-card-hover);
 }
 
 .business-card .card-tag {
-	display: inline-block;
-	padding: 3px 10px;
-	border-radius: 20px;
-	font-size: 0.7rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	background: var(--cyan-dim);
-	color: var(--cyan);
-	margin-bottom: 0.6rem;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    margin-bottom: 0.6rem;
 }
 
 .business-card h3 {
-	font-family: var(--font-display);
-	font-size: 1rem;
-	font-weight: 700;
-	margin-bottom: 0.6rem;
-	padding-left: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    padding-left: 0.75rem;
 }
 
 .biz-meta {
-	display: flex;
-	flex-direction: column;
-	gap: 0.3rem;
-	padding-left: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-left: 0.75rem;
 }
 
 .biz-meta span {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	font-size: 0.83rem;
-	color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.83rem;
+    color: var(--text-secondary);
 }
 
 .meta-icon {
-	font-size: 0.78rem;
-	color: var(--cyan);
-	opacity: 0.8;
+    font-size: 0.78rem;
+    color: var(--cyan);
+    opacity: 0.8;
 }

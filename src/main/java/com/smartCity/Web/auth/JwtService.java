@@ -16,36 +16,36 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    private final Key signingKey;
-    private final long expirationMs;
+  private final Key signingKey;
+  private final long expirationMs;
 
-    public JwtService(
-            @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.expiration-ms}") long expirationMs) {
-        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = expirationMs;
-    }
+  public JwtService(
+      @Value("${app.jwt.secret}") String secret,
+      @Value("${app.jwt.expiration-ms}") long expirationMs) {
+    this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    this.expirationMs = expirationMs;
+  }
 
-    public String generateToken(User user) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+  public String generateToken(User user) {
+    Date now = new Date();
+    Date expiry = new Date(now.getTime() + expirationMs);
 
-        return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("userId", user.getId())
-                .claim("name", user.getName())
-                .claim("role", user.getRole().name())
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(signingKey)
-                .compact();
-    }
+    return Jwts.builder()
+        .subject(user.getEmail())
+        .claim("userId", user.getId())
+        .claim("name", user.getName())
+        .claim("role", user.getRole().name())
+        .issuedAt(now)
+        .expiration(expiry)
+        .signWith(signingKey)
+        .compact();
+  }
 
-    public Claims parse(String token) {
-        return Jwts.parser()
-                .verifyWith((javax.crypto.SecretKey) signingKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
+  public Claims parse(String token) {
+    return Jwts.parser()
+        .verifyWith((javax.crypto.SecretKey) signingKey)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
+  }
 }

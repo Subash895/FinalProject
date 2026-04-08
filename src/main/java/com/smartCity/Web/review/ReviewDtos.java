@@ -6,13 +6,18 @@ import com.smartCity.Web.user.UserDtos.UserResponse;
 
 public final class ReviewDtos {
 
-    private ReviewDtos() {
-    }
+  private ReviewDtos() {}
 
-    public record ReviewRequest(ReviewTargetType targetType, Long targetId, Integer rating, String comment) {
-    }
+  public record ReviewRequest(
+      ReviewTargetType targetType, Long targetId, Integer rating, String comment) {}
 
-    public record ReviewResponse(Long id, UserResponse user, ReviewTargetType targetType, Long targetId, Integer rating,
-            String comment, LocalDateTime createdAt, LocalDateTime updatedAt) {
-    }
+  public record ReviewResponse(
+      Long id,
+      UserResponse user,
+      ReviewTargetType targetType,
+      Long targetId,
+      Integer rating,
+      String comment,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {}
 }

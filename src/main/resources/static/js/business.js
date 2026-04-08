@@ -2,7 +2,9 @@
    SMART CITY - business.js
    ============================================================ */
 
-function esc(s) { return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+function esc(s) {
+    return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
 
 function getBusinessSearchQuery() {
     return document.getElementById("businessSearch")?.value.trim() || "";
@@ -84,19 +86,40 @@ async function loadBusinesses() {
 function editBusiness(id, b) {
     openEditModal({
         title: "Edit Business",
-        fields: [
-            { key: "name", label: "Business Name", placeholder: "e.g. Sunrise Bakery" },
-            { key: "address", label: "Address", placeholder: "e.g. 12 Main St" },
-            { key: "description", label: "Description", placeholder: "e.g. Fresh bakery, coffee, and snacks" }
+        fields: [{
+                key: "name",
+                label: "Business Name",
+                placeholder: "e.g. Sunrise Bakery"
+            },
+            {
+                key: "address",
+                label: "Address",
+                placeholder: "e.g. 12 Main St"
+            },
+            {
+                key: "description",
+                label: "Description",
+                placeholder: "e.g. Fresh bakery, coffee, and snacks"
+            }
         ],
-        values: { name: b.name, address: b.address, description: b.description },
-        onSave: async (data) => { await apiRequest(`/businesses/${id}`, "PUT", data); await loadBusinesses(); }
+        values: {
+            name: b.name,
+            address: b.address,
+            description: b.description
+        },
+        onSave: async (data) => {
+            await apiRequest(`/businesses/${id}`, "PUT", data);
+            await loadBusinesses();
+        }
     });
 }
 
 function deleteBusiness(id, name) {
     openDeleteModal({
         itemName: name,
-        onConfirm: async () => { await apiRequest(`/businesses/${id}`, "DELETE"); await loadBusinesses(); }
+        onConfirm: async () => {
+            await apiRequest(`/businesses/${id}`, "DELETE");
+            await loadBusinesses();
+        }
     });
 }

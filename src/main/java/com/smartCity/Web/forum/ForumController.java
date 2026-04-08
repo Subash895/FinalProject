@@ -1,6 +1,5 @@
 package com.smartCity.Web.forum;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,47 +21,53 @@ import com.smartCity.Web.comment.CommentDtos;
 @RequestMapping("/api/forum")
 @CrossOrigin(origins = "*")
 public class ForumController {
-    private final ForumService forumService;
-    private final ApiDtoMapper apiDtoMapper;
+  private final ForumService forumService;
+  private final ApiDtoMapper apiDtoMapper;
 
-    public ForumController(ForumService forumService, ApiDtoMapper apiDtoMapper) {
-        this.forumService = forumService;
-        this.apiDtoMapper = apiDtoMapper;
-    }
+  public ForumController(ForumService forumService, ApiDtoMapper apiDtoMapper) {
+    this.forumService = forumService;
+    this.apiDtoMapper = apiDtoMapper;
+  }
 
-    @PostMapping("/post")
-    public ForumDtos.ForumPostResponse createPost(@RequestBody ForumDtos.ForumPostRequest post) {
-        return apiDtoMapper.toForumPostResponse(forumService.createPost(apiDtoMapper.toForumPost(post)));
-    }
+  @PostMapping("/post")
+  public ForumDtos.ForumPostResponse createPost(@RequestBody ForumDtos.ForumPostRequest post) {
+    return apiDtoMapper.toForumPostResponse(
+        forumService.createPost(apiDtoMapper.toForumPost(post)));
+  }
 
-    @GetMapping("/posts")
-    public List<ForumDtos.ForumPostResponse> getAllPosts() {
-        return forumService.getAllPosts().stream().map(apiDtoMapper::toForumPostResponse).collect(Collectors.toList());
-    }
+  @GetMapping("/posts")
+  public List<ForumDtos.ForumPostResponse> getAllPosts() {
+    return forumService.getAllPosts().stream()
+        .map(apiDtoMapper::toForumPostResponse)
+        .collect(Collectors.toList());
+  }
 
-    @GetMapping("/posts/{id}")
-    public ForumDtos.ForumPostResponse getPostById(@PathVariable Long id) {
-        return apiDtoMapper.toForumPostResponse(forumService.getPostById(id));
-    }
+  @GetMapping("/posts/{id}")
+  public ForumDtos.ForumPostResponse getPostById(@PathVariable Long id) {
+    return apiDtoMapper.toForumPostResponse(forumService.getPostById(id));
+  }
 
-    @PutMapping("/posts/{id}")
-    public ForumDtos.ForumPostResponse updatePost(@PathVariable Long id, @RequestBody ForumDtos.ForumPostRequest post) {
-        return apiDtoMapper.toForumPostResponse(forumService.updatePost(id, apiDtoMapper.toForumPost(post)));
-    }
+  @PutMapping("/posts/{id}")
+  public ForumDtos.ForumPostResponse updatePost(
+      @PathVariable Long id, @RequestBody ForumDtos.ForumPostRequest post) {
+    return apiDtoMapper.toForumPostResponse(
+        forumService.updatePost(id, apiDtoMapper.toForumPost(post)));
+  }
 
-    @PostMapping("/comment")
-    public CommentDtos.CommentResponse addComment(@RequestBody CommentDtos.CommentRequest comment) {
-        return apiDtoMapper.toCommentResponse(forumService.addComment(apiDtoMapper.toComment(comment)));
-    }
+  @PostMapping("/comment")
+  public CommentDtos.CommentResponse addComment(@RequestBody CommentDtos.CommentRequest comment) {
+    return apiDtoMapper.toCommentResponse(forumService.addComment(apiDtoMapper.toComment(comment)));
+  }
 
-    @GetMapping("/comments")
-    public List<CommentDtos.CommentResponse> getAllComments() {
-        return forumService.getAllComments().stream().map(apiDtoMapper::toCommentResponse).collect(Collectors.toList());
-    }
+  @GetMapping("/comments")
+  public List<CommentDtos.CommentResponse> getAllComments() {
+    return forumService.getAllComments().stream()
+        .map(apiDtoMapper::toCommentResponse)
+        .collect(Collectors.toList());
+  }
 
-    @DeleteMapping("/posts/{id}")
-    public void deletePost(@PathVariable Long id) {
-        forumService.deletePost(id);
-    }
+  @DeleteMapping("/posts/{id}")
+  public void deletePost(@PathVariable Long id) {
+    forumService.deletePost(id);
+  }
 }
-

@@ -20,36 +20,56 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-	}
+  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+  }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-	@Bean
-	public AuthenticationEntryPoint authenticationEntryPoint() {
-		return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-	}
+  @Bean
+  public AuthenticationEntryPoint authenticationEntryPoint() {
+    return (request, response, authException) ->
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+  }
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/", "/index.html", "/*.html", "/css/**", "/js/**", "/error").permitAll()
-						.requestMatchers("/api/auth/**", "/api/config/public").permitAll()
-						.requestMatchers("/api/users/me").authenticated()
-						.requestMatchers("/api/users/**").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-						.requestMatchers("/api/**").authenticated()
-						.anyRequest().permitAll())
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-		return http.build();
-	}
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/", "/index.html", "/*.html", "/css/**", "/js/**", "/error")
+                    .permitAll()
+                    .requestMatchers("/api/auth/**", "/api/config/public")
+                    .permitAll()
+                    .requestMatchers("/api/payments/webhook")
+                    .permitAll()
+                    .requestMatchers("/api/users/me")
+                    .authenticated()
+                    .requestMatchers(
+                        "/api/subscriptions/checkout",
+                        "/api/subscriptions/confirm",
+                        "/api/subscriptions/failure",
+                        "/api/subscriptions/my")
+                    .authenticated()
+                    .requestMatchers("/api/subscriptions/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/api/users/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/**")
+                    .permitAll()
+                    .requestMatchers("/api/**")
+                    .authenticated()
+                    .anyRequest()
+                    .permitAll())
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 }

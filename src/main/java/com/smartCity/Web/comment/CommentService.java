@@ -11,13 +11,26 @@ import com.smartCity.Web.comment.CommentRepository;
 
 @Service
 public class CommentService {
-    @Autowired private CommentRepository repo;
-    public Comment save(Comment entity) { return repo.save(entity); }
-    public List<Comment> getAll() { return repo.findAll(); }
-    public Optional<Comment> getById(Long id) { return repo.findById(id); }
-    public Comment update(Long id, Comment entity) {
-        entity.setId(id);
-        return repo.save(entity);
-    }
-    public void delete(Long id) { repo.deleteById(id); }
+  @Autowired private CommentRepository repo;
+
+  public Comment save(Comment entity) {
+    return repo.save(entity);
+  }
+
+  public List<Comment> getAll() {
+    return repo.findAll();
+  }
+
+  public Optional<Comment> getById(Long id) {
+    return repo.findById(id);
+  }
+
+  public Comment update(Long id, Comment entity) {
+    entity.setId(id);
+    return repo.save(entity);
+  }
+
+  public void delete(Long id) {
+    repo.deleteById(id);
+  }
 }

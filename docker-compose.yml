@@ -5,6 +5,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Subbu@895
       MYSQL_DATABASE: smartcity_minimal
+    ports:
+      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pSubbu@895"]
       interval: 10s

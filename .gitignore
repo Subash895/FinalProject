@@ -42,3 +42,7 @@ data/
 non_deployment_files/
 local-run.out
 local-run.err
+startup-local.log
+startup-local.out.log
+startup-local.err.log
+spring-boot.log

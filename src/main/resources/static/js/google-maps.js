@@ -14,7 +14,9 @@ async function fetchPublicConfig() {
     return publicConfigPromise;
 }
 
-async function loadGoogleMapsApi({ libraries = [] } = {}) {
+async function loadGoogleMapsApi({
+    libraries = []
+} = {}) {
     if (window.google?.maps) {
         return window.google.maps;
     }

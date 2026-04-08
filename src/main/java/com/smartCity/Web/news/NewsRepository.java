@@ -7,4 +7,3 @@ import com.smartCity.Web.news.News;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {}
-

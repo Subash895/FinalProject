@@ -6,14 +6,16 @@ const API_BASE =
     window.SMARTCITY_API_BASE ||
     document.querySelector('meta[name="smartcity-api-base"]')?.content ||
     localStorage.getItem("smartcity.apiBase") ||
-    (window.location.origin && window.location.origin !== "null"
-        ? `${window.location.origin}/api`
-        : "http://localhost:8080/api");
+    (window.location.origin && window.location.origin !== "null" ?
+        `${window.location.origin}/api` :
+        "http://localhost:8080/api");
 
 async function apiRequest(endpoint, method = "GET", data = null) {
     const options = {
         method,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+            "Content-Type": "application/json"
+        }
     };
 
     const token = localStorage.getItem("token");
@@ -31,14 +33,12 @@ async function apiRequest(endpoint, method = "GET", data = null) {
             try {
                 const payload = await res.json();
                 errorMessage = payload?.message || payload?.error || errorMessage;
-            } catch {
-            }
+            } catch {}
         } else {
             try {
                 const text = await res.text();
                 if (text) errorMessage = text;
-            } catch {
-            }
+            } catch {}
         }
 
         throw new Error(errorMessage);

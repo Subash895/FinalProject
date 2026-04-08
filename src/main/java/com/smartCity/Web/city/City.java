@@ -6,52 +6,51 @@ import jakarta.persistence.*;
 @Table(name = "cities")
 public class City {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-	private String name;
-	private String state;
-	private String country;
+  private String name;
+  private String state;
+  private String country;
 
-	public City() {
-	}
+  public City() {}
 
-	public City(String name, String state, String country) {
-		this.name = name;
-		this.state = state;
-		this.country = country;
-	}
+  public City(String name, String state, String country) {
+    this.name = name;
+    this.state = state;
+    this.country = country;
+  }
 
-	public Long getId() {
-		return id;
-	}
+  public Long getId() {
+    return id;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public String getState() {
-		return state;
-	}
+  public String getState() {
+    return state;
+  }
 
-	public void setState(String state) {
-		this.state = state;
-	}
+  public void setState(String state) {
+    this.state = state;
+  }
 
-	public String getCountry() {
-		return country;
-	}
+  public String getCountry() {
+    return country;
+  }
 
-	public void setCountry(String country) {
-		this.country = country;
-	}
+  public void setCountry(String country) {
+    this.country = country;
+  }
 }

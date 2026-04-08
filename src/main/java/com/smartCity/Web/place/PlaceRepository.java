@@ -9,8 +9,9 @@ import com.smartCity.Web.place.Place;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
-    List<Place> findByCityId(Long cityId);
-    List<Place> findByCategoryContainingIgnoreCase(String category);
-    List<Place> findByLocationContainingIgnoreCase(String location);
-}
+  List<Place> findByCityId(Long cityId);
 
+  List<Place> findByCategoryContainingIgnoreCase(String category);
+
+  List<Place> findByLocationContainingIgnoreCase(String location);
+}

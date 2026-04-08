@@ -11,28 +11,28 @@ import com.smartCity.Web.marketrate.MarketRateRepository;
 @Service
 public class MarketRateService {
 
-	@Autowired
-	private MarketRateRepository repository;
+  @Autowired private MarketRateRepository repository;
 
-	public MarketRate createMarketRate(MarketRate rate) {
-		return repository.save(rate);
-	}
+  public MarketRate createMarketRate(MarketRate rate) {
+    return repository.save(rate);
+  }
 
-	public MarketRate updateMarketRate(int id, MarketRate rate) {
+  public MarketRate updateMarketRate(int id, MarketRate rate) {
 
-		MarketRate existing = repository.findById(id)
-				.orElseThrow(() -> new RuntimeException("MarketRate not found with id: " + id));
-		existing.setProductName(rate.getProductName());
-		existing.setPrice(rate.getPrice());
-		existing.setUnit(rate.getUnit());
-		if (rate.getPriceDate() != null) {
-			existing.setPriceDate(rate.getPriceDate());
-		}
-		return repository.save(existing);
-	}
+    MarketRate existing =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("MarketRate not found with id: " + id));
+    existing.setProductName(rate.getProductName());
+    existing.setPrice(rate.getPrice());
+    existing.setUnit(rate.getUnit());
+    if (rate.getPriceDate() != null) {
+      existing.setPriceDate(rate.getPriceDate());
+    }
+    return repository.save(existing);
+  }
 
-	public List<MarketRate> getAllMarketRates() {
-		return repository.findAll();
-	}
+  public List<MarketRate> getAllMarketRates() {
+    return repository.findAll();
+  }
 }
-

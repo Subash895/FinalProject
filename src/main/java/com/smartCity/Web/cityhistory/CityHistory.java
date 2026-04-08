@@ -8,57 +8,56 @@ import jakarta.persistence.*;
 @Table(name = "city_histories")
 public class CityHistory {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "city_id")
-	private City city;
+  @ManyToOne
+  @JoinColumn(name = "city_id")
+  private City city;
 
-	private String title;
+  private String title;
 
-	@Column(columnDefinition = "TEXT")
-	private String content;
+  @Column(columnDefinition = "TEXT")
+  private String content;
 
-	public CityHistory() {
-	}
+  public CityHistory() {}
 
-	public CityHistory(City city, String title, String content) {
-		this.city = city;
-		this.title = title;
-		this.content = content;
-	}
+  public CityHistory(City city, String title, String content) {
+    this.city = city;
+    this.title = title;
+    this.content = content;
+  }
 
-	public Long getId() {
-		return id;
-	}
+  public Long getId() {
+    return id;
+  }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	public City getCity() {
-		return city;
-	}
+  public City getCity() {
+    return city;
+  }
 
-	public void setCity(City city) {
-		this.city = city;
-	}
+  public void setCity(City city) {
+    this.city = city;
+  }
 
-	public String getTitle() {
-		return title;
-	}
+  public String getTitle() {
+    return title;
+  }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-	public String getContent() {
-		return content;
-	}
+  public String getContent() {
+    return content;
+  }
 
-	public void setContent(String content) {
-		this.content = content;
-	}
+  public void setContent(String content) {
+    this.content = content;
+  }
 }

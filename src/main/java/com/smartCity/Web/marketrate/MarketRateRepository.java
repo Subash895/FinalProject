@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.smartCity.Web.marketrate.MarketRate;
 
 @Repository
-public interface MarketRateRepository extends JpaRepository<MarketRate, Integer> {
-}
-
+public interface MarketRateRepository extends JpaRepository<MarketRate, Integer> {}

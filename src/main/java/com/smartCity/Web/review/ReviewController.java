@@ -21,34 +21,39 @@ import com.smartCity.Web.shared.ApiDtoMapper;
 @CrossOrigin("*")
 public class ReviewController {
 
-    private final ReviewService reviewService;
-    private final ApiDtoMapper apiDtoMapper;
+  private final ReviewService reviewService;
+  private final ApiDtoMapper apiDtoMapper;
 
-    public ReviewController(ReviewService reviewService, ApiDtoMapper apiDtoMapper) {
-        this.reviewService = reviewService;
-        this.apiDtoMapper = apiDtoMapper;
-    }
+  public ReviewController(ReviewService reviewService, ApiDtoMapper apiDtoMapper) {
+    this.reviewService = reviewService;
+    this.apiDtoMapper = apiDtoMapper;
+  }
 
-    @GetMapping
-    public List<ReviewDtos.ReviewResponse> getReviews(@RequestParam ReviewTargetType targetType,
-            @RequestParam Long targetId) {
-        return reviewService.getReviews(targetType, targetId).stream().map(apiDtoMapper::toReviewResponse).toList();
-    }
+  @GetMapping
+  public List<ReviewDtos.ReviewResponse> getReviews(
+      @RequestParam ReviewTargetType targetType, @RequestParam Long targetId) {
+    return reviewService.getReviews(targetType, targetId).stream()
+        .map(apiDtoMapper::toReviewResponse)
+        .toList();
+  }
 
-    @PostMapping
-    public ReviewDtos.ReviewResponse createOrUpdate(@RequestBody ReviewDtos.ReviewRequest request,
-            Authentication authentication) {
-        return apiDtoMapper.toReviewResponse(reviewService.createOrUpdateReview(request, authentication));
-    }
+  @PostMapping
+  public ReviewDtos.ReviewResponse createOrUpdate(
+      @RequestBody ReviewDtos.ReviewRequest request, Authentication authentication) {
+    return apiDtoMapper.toReviewResponse(
+        reviewService.createOrUpdateReview(request, authentication));
+  }
 
-    @PutMapping("/{id}")
-    public ReviewDtos.ReviewResponse update(@PathVariable Long id, @RequestBody ReviewDtos.ReviewRequest request,
-            Authentication authentication) {
-        return apiDtoMapper.toReviewResponse(reviewService.updateReview(id, request, authentication));
-    }
+  @PutMapping("/{id}")
+  public ReviewDtos.ReviewResponse update(
+      @PathVariable Long id,
+      @RequestBody ReviewDtos.ReviewRequest request,
+      Authentication authentication) {
+    return apiDtoMapper.toReviewResponse(reviewService.updateReview(id, request, authentication));
+  }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id, Authentication authentication) {
-        reviewService.deleteReview(id, authentication);
-    }
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id, Authentication authentication) {
+    reviewService.deleteReview(id, authentication);
+  }
 }

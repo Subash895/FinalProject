@@ -9,8 +9,7 @@ import com.smartCity.Web.business.Business;
 
 @Repository
 public interface BusinessRepository extends JpaRepository<Business, Long> {
-    List<Business> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrAddressContainingIgnoreCase(
-            String nameQuery,
-            String descriptionQuery,
-            String addressQuery);
+  List<Business>
+      findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrAddressContainingIgnoreCase(
+          String nameQuery, String descriptionQuery, String addressQuery);
 }

@@ -8,26 +8,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class CityHistoryService {
 
-    @Autowired
-    private CityHistoryRepository repository;
+  @Autowired private CityHistoryRepository repository;
 
-    public CityHistory createCityHistory(CityHistory history) {
-        return repository.save(history);
-    }
+  public CityHistory createCityHistory(CityHistory history) {
+    return repository.save(history);
+  }
 
-    public List<CityHistory> getAllCityHistory() {
-        return repository.findAll();
-    }
+  public List<CityHistory> getAllCityHistory() {
+    return repository.findAll();
+  }
 
-    public CityHistory updateCityHistory(Long id, CityHistory history) {
+  public List<CityHistory> getCityHistoryByCity(Long cityId, String cityName) {
+    return repository.findByCityIdAndCityNameIgnoreCaseOrderByIdAsc(cityId, cityName);
+  }
 
-        CityHistory existing = repository.findById(id)
+  public CityHistory updateCityHistory(Long id, CityHistory history) {
+
+    CityHistory existing =
+        repository
+            .findById(id)
             .orElseThrow(() -> new RuntimeException("CityHistory not found with id: " + id));
-        existing.setTitle(history.getTitle());
-        existing.setContent(history.getContent());
-        existing.setCity(history.getCity());
+    existing.setTitle(history.getTitle());
+    existing.setContent(history.getContent());
+    existing.setCity(history.getCity());
 
-        return repository.save(existing);
-    }
-	
+    return repository.save(existing);
+  }
 }

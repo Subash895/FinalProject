@@ -11,14 +11,20 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin("*")
 public class PublicConfigController {
 
-	@Value("${app.maps.google-api-key:}")
-	private String googleMapsApiKey;
+  @Value("${app.maps.google-api-key:}")
+  private String googleMapsApiKey;
 
-	@GetMapping("/public")
-	public PublicConfigResponse getPublicConfig() {
-		return new PublicConfigResponse(googleMapsApiKey);
-	}
+  @Value("${app.payments.razorpay.enabled:false}")
+  private boolean razorpayEnabled;
 
-	public record PublicConfigResponse(String googleMapsApiKey) {
-	}
+  @Value("${app.payments.razorpay.key-id:}")
+  private String razorpayKeyId;
+
+  @GetMapping("/public")
+  public PublicConfigResponse getPublicConfig() {
+    return new PublicConfigResponse(googleMapsApiKey, razorpayEnabled, razorpayKeyId);
+  }
+
+  public record PublicConfigResponse(
+      String googleMapsApiKey, boolean razorpayEnabled, String razorpayKeyId) {}
 }

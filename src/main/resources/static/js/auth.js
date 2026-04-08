@@ -2,15 +2,45 @@
    SMART CITY - auth.js  (Login, Register, Session UI)
    ============================================================ */
 
-function getUser() { try { return JSON.parse(localStorage.getItem("user")); } catch { return null; } }
-function getToken() { return localStorage.getItem("token"); }
-function getRole() { return getUser()?.role || null; }
-function isAdmin() { return getRole() === "ADMIN"; }
-function isUser() { return ["USER", "ADMIN", "BUSINESS"].includes(getRole()); }
-function isBusiness() { return ["BUSINESS", "ADMIN"].includes(getRole()); }
-function isNormalUser() { return getRole() === "USER"; }
-function getUserId() { return getUser()?.id || null; }
-function isLoggedIn() { return !!getUser() && !!getToken(); }
+function getUser() {
+    try {
+        return JSON.parse(localStorage.getItem("user"));
+    } catch {
+        return null;
+    }
+}
+
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+function getRole() {
+    return getUser()?.role || null;
+}
+
+function isAdmin() {
+    return getRole() === "ADMIN";
+}
+
+function isUser() {
+    return ["USER", "ADMIN", "BUSINESS"].includes(getRole());
+}
+
+function isBusiness() {
+    return ["BUSINESS", "ADMIN"].includes(getRole());
+}
+
+function isNormalUser() {
+    return getRole() === "USER";
+}
+
+function getUserId() {
+    return getUser()?.id || null;
+}
+
+function isLoggedIn() {
+    return !!getUser() && !!getToken();
+}
 
 let googleAuthConfigPromise = null;
 let googleIdentityScriptPromise = null;
@@ -96,7 +126,10 @@ function applyRoleUI() {
 }
 
 async function loginUser(email, password) {
-    const res = await apiRequest("/auth/login", "POST", { email, password });
+    const res = await apiRequest("/auth/login", "POST", {
+        email,
+        password
+    });
     if (res && (res.token || res.id)) {
         storeSession(res);
         window.location.href = "index.html";
@@ -108,7 +141,12 @@ async function loginUser(email, password) {
 
 async function registerUser(name, email, password, role) {
     const safeRole = role === "BUSINESS" ? "BUSINESS" : "USER";
-    const res = await apiRequest("/auth/register", "POST", { name, email, password, role: safeRole });
+    const res = await apiRequest("/auth/register", "POST", {
+        name,
+        email,
+        password,
+        role: safeRole
+    });
     if (res && (res.id || res.token)) {
         window.location.href = "login.html";
         return;
@@ -118,16 +156,25 @@ async function registerUser(name, email, password, role) {
 }
 
 async function requestPasswordReset(email) {
-    return apiRequest("/auth/forgot-password", "POST", { email });
+    return apiRequest("/auth/forgot-password", "POST", {
+        email
+    });
 }
 
 async function resetPasswordWithOtp(email, otp, newPassword) {
-    return apiRequest("/auth/reset-password", "POST", { email, otp, newPassword });
+    return apiRequest("/auth/reset-password", "POST", {
+        email,
+        otp,
+        newPassword
+    });
 }
 
 async function loginWithGoogleCredential(credential, role = "USER") {
     const safeRole = role === "BUSINESS" ? "BUSINESS" : "USER";
-    const res = await apiRequest("/auth/google", "POST", { credential, role: safeRole });
+    const res = await apiRequest("/auth/google", "POST", {
+        credential,
+        role: safeRole
+    });
     if (res && (res.token || res.id)) {
         storeSession(res);
         window.location.href = "index.html";
@@ -142,7 +189,13 @@ async function getGoogleAuthConfig() {
         googleAuthConfigPromise = apiRequest("/auth/google/config")
             .catch(() => {
                 const fallbackClientId = getGoogleClientIdFallback();
-                return fallbackClientId ? { enabled: true, clientId: fallbackClientId } : { enabled: false, clientId: null };
+                return fallbackClientId ? {
+                    enabled: true,
+                    clientId: fallbackClientId
+                } : {
+                    enabled: false,
+                    clientId: null
+                };
             });
     }
 
@@ -158,8 +211,12 @@ async function loadGoogleIdentityScript() {
         googleIdentityScriptPromise = new Promise((resolve, reject) => {
             const existingScript = document.querySelector('script[data-google-identity="true"]');
             if (existingScript) {
-                existingScript.addEventListener("load", () => resolve(window.google), { once: true });
-                existingScript.addEventListener("error", () => reject(new Error("Failed to load Google sign-in.")), { once: true });
+                existingScript.addEventListener("load", () => resolve(window.google), {
+                    once: true
+                });
+                existingScript.addEventListener("error", () => reject(new Error("Failed to load Google sign-in.")), {
+                    once: true
+                });
                 return;
             }
 

@@ -10,6 +10,5 @@ import com.smartCity.Web.user.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	Optional<User> findByEmail(String email);
+  Optional<User> findByEmail(String email);
 }
-

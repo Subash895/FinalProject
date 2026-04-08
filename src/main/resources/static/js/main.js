@@ -11,7 +11,11 @@ function showToast(message, type = "success") {
         container.className = "toast-container";
         document.body.appendChild(container);
     }
-    const icons = { success: "✅", error: "❌", info: "ℹ️" };
+    const icons = {
+        success: "✅",
+        error: "❌",
+        info: "ℹ️"
+    };
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || "ℹ️"}</span><span>${message}</span>`;
@@ -23,7 +27,12 @@ function showToast(message, type = "success") {
 }
 
 /* ── Edit Modal ─────────────────────────────────────────────── */
-function openEditModal({ title, fields, values, onSave }) {
+function openEditModal({
+    title,
+    fields,
+    values,
+    onSave
+}) {
     closeAnyModal();
 
     const overlay = document.createElement("div");
@@ -54,11 +63,15 @@ function openEditModal({ title, fields, values, onSave }) {
 
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("open"));
-    overlay.addEventListener("click", e => { if (e.target === overlay) closeAnyModal(); });
+    overlay.addEventListener("click", e => {
+        if (e.target === overlay) closeAnyModal();
+    });
 
     document.getElementById("editSaveBtn").addEventListener("click", async () => {
         const payload = {};
-        fields.forEach(f => { payload[f.key] = document.getElementById(`edit_${f.key}`).value.trim(); });
+        fields.forEach(f => {
+            payload[f.key] = document.getElementById(`edit_${f.key}`).value.trim();
+        });
 
         const btn = document.getElementById("editSaveBtn");
         btn.disabled = true;
@@ -76,7 +89,10 @@ function openEditModal({ title, fields, values, onSave }) {
 }
 
 /* ── Delete Confirm Modal ───────────────────────────────────── */
-function openDeleteModal({ itemName, onConfirm }) {
+function openDeleteModal({
+    itemName,
+    onConfirm
+}) {
     closeAnyModal();
 
     const overlay = document.createElement("div");
@@ -96,7 +112,9 @@ function openDeleteModal({ itemName, onConfirm }) {
 
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("open"));
-    overlay.addEventListener("click", e => { if (e.target === overlay) closeAnyModal(); });
+    overlay.addEventListener("click", e => {
+        if (e.target === overlay) closeAnyModal();
+    });
 
     document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
         const btn = document.getElementById("confirmDeleteBtn");
@@ -118,11 +136,16 @@ function openDeleteModal({ itemName, onConfirm }) {
 function closeAnyModal() {
     ["editModal", "deleteModal", "reviewComposeModal"].forEach(id => {
         const el = document.getElementById(id);
-        if (el) { el.classList.remove("open"); setTimeout(() => el.remove(), 250); }
+        if (el) {
+            el.classList.remove("open");
+            setTimeout(() => el.remove(), 250);
+        }
     });
 }
 
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeAnyModal(); });
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeAnyModal();
+});
 
 const THEME_STORAGE_KEY = "smartcity.theme";
 

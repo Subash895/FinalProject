@@ -2,7 +2,9 @@
    SMART CITY — forum.js  (Full CRUD)
    ============================================================ */
 
-function esc(s) { return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+function esc(s) {
+    return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("forumForm")?.addEventListener("submit", async (e) => {
@@ -12,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = '<span class="spinner"></span> Posting...';
         try {
             await apiRequest("/forumposts", "POST", {
-                title:   document.getElementById("title").value.trim(),
+                title: document.getElementById("title").value.trim(),
                 content: document.getElementById("content").value.trim()
             });
             e.target.reset();
@@ -45,7 +47,7 @@ async function loadPosts() {
         container.className = "forum-list";
         container.innerHTML = data.map((p, i) => {
             // Edit and Delete: ADMIN only
-            const canEdit   = isAdmin();
+            const canEdit = isAdmin();
             const canDelete = isAdmin();
             return `
       <div class="forum-post-card glass-card" style="animation-delay:${i * 0.05}s">
@@ -73,18 +75,34 @@ async function loadPosts() {
 function editPost(id, p) {
     openEditModal({
         title: "Edit Post",
-        fields: [
-            { key: "title",   label: "Title",   placeholder: "Post title" },
-            { key: "content", label: "Content", placeholder: "Post content" }
+        fields: [{
+                key: "title",
+                label: "Title",
+                placeholder: "Post title"
+            },
+            {
+                key: "content",
+                label: "Content",
+                placeholder: "Post content"
+            }
         ],
-        values: { title: p.title, content: p.content },
-        onSave: async (data) => { await apiRequest(`/forumposts/${id}`, "PUT", data); await loadPosts(); }
+        values: {
+            title: p.title,
+            content: p.content
+        },
+        onSave: async (data) => {
+            await apiRequest(`/forumposts/${id}`, "PUT", data);
+            await loadPosts();
+        }
     });
 }
 
 function deletePost(id, title) {
     openDeleteModal({
         itemName: title,
-        onConfirm: async () => { await apiRequest(`/forumposts/${id}`, "DELETE"); await loadPosts(); }
+        onConfirm: async () => {
+            await apiRequest(`/forumposts/${id}`, "DELETE");
+            await loadPosts();
+        }
     });
 }

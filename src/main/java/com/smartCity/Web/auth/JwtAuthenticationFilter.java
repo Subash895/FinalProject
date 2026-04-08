@@ -20,44 +20,42 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+  private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
-        this.jwtService = jwtService;
+  public JwtAuthenticationFilter(JwtService jwtService) {
+    this.jwtService = jwtService;
+  }
+
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    String header = request.getHeader("Authorization");
+
+    if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+      filterChain.doFilter(request, response);
+      return;
     }
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
+    String token = header.substring(7);
 
-        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    try {
+      Claims claims = jwtService.parse(token);
+      String role = claims.get("role", String.class);
+      String email = claims.getSubject();
+      Long userId = claims.get("userId", Long.class);
+      String name = claims.get("name", String.class);
 
-        String token = header.substring(7);
-
-        try {
-            Claims claims = jwtService.parse(token);
-            String role = claims.get("role", String.class);
-            String email = claims.getSubject();
-            Long userId = claims.get("userId", Long.class);
-            String name = claims.get("name", String.class);
-
-            JwtUserPrincipal principal = new JwtUserPrincipal(userId, name, email, role);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    principal,
-                    null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception ex) {
-            SecurityContextHolder.clearContext();
-        }
-
-        filterChain.doFilter(request, response);
+      JwtUserPrincipal principal = new JwtUserPrincipal(userId, name, email, role);
+      UsernamePasswordAuthenticationToken authentication =
+          new UsernamePasswordAuthenticationToken(
+              principal, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+      authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+    } catch (Exception ex) {
+      SecurityContextHolder.clearContext();
     }
+
+    filterChain.doFilter(request, response);
+  }
 }

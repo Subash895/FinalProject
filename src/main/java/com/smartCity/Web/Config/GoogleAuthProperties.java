@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.auth")
 public class GoogleAuthProperties {
 
-	private String googleClientId;
+  private String googleClientId;
 
-	public String getGoogleClientId() {
-		return googleClientId;
-	}
+  public String getGoogleClientId() {
+    return googleClientId;
+  }
 
-	public void setGoogleClientId(String googleClientId) {
-		this.googleClientId = googleClientId;
-	}
+  public void setGoogleClientId(String googleClientId) {
+    this.googleClientId = googleClientId;
+  }
 }

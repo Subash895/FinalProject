@@ -61,9 +61,9 @@ function updateResultSummary(count) {
         filters.push(`location "${placeState.location}"`);
     }
 
-    summary.textContent = filters.length === 0
-        ? `Showing all places (${count})`
-        : `Showing ${count} place(s) for ${filters.join(" and ")}`;
+    summary.textContent = filters.length === 0 ?
+        `Showing all places (${count})` :
+        `Showing ${count} place(s) for ${filters.join(" and ")}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -90,7 +90,9 @@ async function createPlace(event) {
         const coordinates = await resolvePlaceCoordinates(locationInput, city);
 
         await apiRequest("/places", "POST", {
-            city: cityId ? { id: cityId } : null,
+            city: cityId ? {
+                id: cityId
+            } : null,
             name: document.getElementById("name").value.trim(),
             category: document.getElementById("category").value.trim(),
             location: locationInput,
@@ -182,11 +184,26 @@ function renderPlaceCard(place, index) {
 function editPlace(id, place) {
     openEditModal({
         title: "Edit Place",
-        fields: [
-            { key: "name", label: "Place Name", placeholder: "e.g. Cubbon Park" },
-            { key: "category", label: "Category", placeholder: "e.g. Park" },
-            { key: "location", label: "Location", placeholder: "Search address or landmark" },
-            { key: "description", label: "Description", placeholder: "Short place description" }
+        fields: [{
+                key: "name",
+                label: "Place Name",
+                placeholder: "e.g. Cubbon Park"
+            },
+            {
+                key: "category",
+                label: "Category",
+                placeholder: "e.g. Park"
+            },
+            {
+                key: "location",
+                label: "Location",
+                placeholder: "Search address or landmark"
+            },
+            {
+                key: "description",
+                label: "Description",
+                placeholder: "Short place description"
+            }
         ],
         values: {
             name: place.name,
@@ -264,7 +281,10 @@ async function resolvePlaceCoordinates(location, city) {
         return null;
     }
 
-    placeState.selectedCoordinates = { lat: coordinates.lat, lng: coordinates.lng };
+    placeState.selectedCoordinates = {
+        lat: coordinates.lat,
+        lng: coordinates.lng
+    };
     focusMapOnCoordinates(placeState.selectedCoordinates, coordinates.label || address);
     return placeState.selectedCoordinates;
 }
@@ -309,7 +329,9 @@ function syncPlaceMap(places) {
     });
 
     if (count > 0) {
-        placeState.map.fitBounds(bounds, { padding: [24, 24] });
+        placeState.map.fitBounds(bounds, {
+            padding: [24, 24]
+        });
         if (count === 1) {
             placeState.map.setZoom(14);
         }

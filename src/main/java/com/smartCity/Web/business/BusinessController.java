@@ -26,47 +26,54 @@ import org.springframework.http.HttpStatus;
 @RequestMapping("/api/businesses")
 @CrossOrigin("*")
 public class BusinessController {
-	private final BusinessService service;
-	private final ApiDtoMapper apiDtoMapper;
+  private final BusinessService service;
+  private final ApiDtoMapper apiDtoMapper;
 
-	public BusinessController(BusinessService service, ApiDtoMapper apiDtoMapper) {
-		this.service = service;
-		this.apiDtoMapper = apiDtoMapper;
-	}
+  public BusinessController(BusinessService service, ApiDtoMapper apiDtoMapper) {
+    this.service = service;
+    this.apiDtoMapper = apiDtoMapper;
+  }
 
-	@PostMapping
-	public BusinessDtos.BusinessResponse create(
-			@RequestBody BusinessDtos.BusinessRequest entity,
-			@AuthenticationPrincipal JwtUserPrincipal principal) {
-		if (principal == null) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
-		}
+  @PostMapping
+  public BusinessDtos.BusinessResponse create(
+      @RequestBody BusinessDtos.BusinessRequest entity,
+      @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+    }
 
-		try {
-			return apiDtoMapper.toBusinessResponse(service.save(apiDtoMapper.toBusiness(entity), principal.id()));
-		} catch (RuntimeException ex) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage(), ex);
-		}
-	}
+    try {
+      return apiDtoMapper.toBusinessResponse(
+          service.save(apiDtoMapper.toBusiness(entity), principal.id()));
+    } catch (RuntimeException ex) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage(), ex);
+    }
+  }
 
-	@GetMapping
-	public List<BusinessDtos.BusinessResponse> getAll(@RequestParam(required = false) String q) {
-		return service.getAll(q).stream().map(apiDtoMapper::toBusinessResponse).collect(Collectors.toList());
-	}
+  @GetMapping
+  public List<BusinessDtos.BusinessResponse> getAll(@RequestParam(required = false) String q) {
+    return service.getAll(q).stream()
+        .map(apiDtoMapper::toBusinessResponse)
+        .collect(Collectors.toList());
+  }
 
-	@GetMapping("/{id}")
-	public ResponseEntity<BusinessDtos.BusinessResponse> getById(@PathVariable Long id) {
-		return service.getById(id).map(apiDtoMapper::toBusinessResponse).map(ResponseEntity::ok)
-				.orElse(ResponseEntity.notFound().build());
-	}
+  @GetMapping("/{id}")
+  public ResponseEntity<BusinessDtos.BusinessResponse> getById(@PathVariable Long id) {
+    return service
+        .getById(id)
+        .map(apiDtoMapper::toBusinessResponse)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
 
-	@PutMapping("/{id}")
-	public BusinessDtos.BusinessResponse update(@PathVariable Long id, @RequestBody BusinessDtos.BusinessRequest entity) {
-		return apiDtoMapper.toBusinessResponse(service.update(id, apiDtoMapper.toBusiness(entity)));
-	}
+  @PutMapping("/{id}")
+  public BusinessDtos.BusinessResponse update(
+      @PathVariable Long id, @RequestBody BusinessDtos.BusinessRequest entity) {
+    return apiDtoMapper.toBusinessResponse(service.update(id, apiDtoMapper.toBusiness(entity)));
+  }
 
-	@DeleteMapping("/{id}")
-	public void delete(@PathVariable Long id) {
-		service.delete(id);
-	}
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    service.delete(id);
+  }
 }

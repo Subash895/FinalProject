@@ -2,7 +2,9 @@
    SMART CITY - news.js
    ============================================================ */
 
-function esc(s) { return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+function esc(s) {
+    return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
 
 function newsTimestamp(news) {
     return formatReviewDate(news.createdAt);
@@ -76,18 +78,34 @@ async function loadNews() {
 function editNews(id, n) {
     openEditModal({
         title: "Edit Article",
-        fields: [
-            { key: "title", label: "Headline", placeholder: "Article headline" },
-            { key: "content", label: "Content", placeholder: "Story content" }
+        fields: [{
+                key: "title",
+                label: "Headline",
+                placeholder: "Article headline"
+            },
+            {
+                key: "content",
+                label: "Content",
+                placeholder: "Story content"
+            }
         ],
-        values: { title: n.title, content: n.content },
-        onSave: async (data) => { await apiRequest(`/news/${id}`, "PUT", data); await loadNews(); }
+        values: {
+            title: n.title,
+            content: n.content
+        },
+        onSave: async (data) => {
+            await apiRequest(`/news/${id}`, "PUT", data);
+            await loadNews();
+        }
     });
 }
 
 function deleteNews(id, title) {
     openDeleteModal({
         itemName: title,
-        onConfirm: async () => { await apiRequest(`/news/${id}`, "DELETE"); await loadNews(); }
+        onConfirm: async () => {
+            await apiRequest(`/news/${id}`, "DELETE");
+            await loadNews();
+        }
     });
 }

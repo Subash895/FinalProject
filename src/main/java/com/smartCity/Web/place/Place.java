@@ -14,97 +14,104 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "places")
 public class Place {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "city_id")
-    private City city;
-    private String name;
-    @Column(columnDefinition = "TEXT")
-    private String description;
-    private String category;
-    private String location;
-    private Double latitude;
-    private Double longitude;
+  @ManyToOne
+  @JoinColumn(name = "city_id")
+  private City city;
 
-    public Place() {
-    }
+  private String name;
 
-    public Place(City city, String name, String description, String category, String location, Double latitude,
-            Double longitude) {
-        this.city = city;
-        this.name = name;
-        this.description = description;
-        this.category = category;
-        this.location = location;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
+  @Column(columnDefinition = "TEXT")
+  private String description;
 
-    public Long getId() {
-        return id;
-    }
+  private String category;
+  private String location;
+  private Double latitude;
+  private Double longitude;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public Place() {}
 
-    public City getCity() {
-        return city;
-    }
+  public Place(
+      City city,
+      String name,
+      String description,
+      String category,
+      String location,
+      Double latitude,
+      Double longitude) {
+    this.city = city;
+    this.name = name;
+    this.description = description;
+    this.category = category;
+    this.location = location;
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
 
-    public void setCity(City city) {
-        this.city = city;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public City getCity() {
+    return city;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setCity(City city) {
+    this.city = city;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getCategory() {
-        return category;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getLocation() {
-        return location;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+  public String getCategory() {
+    return category;
+  }
 
-    public Double getLatitude() {
-        return latitude;
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
+  public String getLocation() {
+    return location;
+  }
 
-    public Double getLongitude() {
-        return longitude;
-    }
+  public void setLocation(String location) {
+    this.location = location;
+  }
 
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
+  public Double getLatitude() {
+    return latitude;
+  }
+
+  public void setLatitude(Double latitude) {
+    this.latitude = latitude;
+  }
+
+  public Double getLongitude() {
+    return longitude;
+  }
+
+  public void setLongitude(Double longitude) {
+    this.longitude = longitude;
+  }
 }
-
