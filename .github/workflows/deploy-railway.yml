@@ -1,0 +1,36 @@
+name: Deploy to Railway
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_SERVICE_ID: 86adf3be-dc84-4933-919e-d368cf294885
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Verify Railway token
+        run: |
+          if [ -z "${RAILWAY_TOKEN}" ]; then
+            echo "Missing RAILWAY_TOKEN GitHub secret."
+            exit 1
+          fi
+
+      - name: Deploy
+        run: railway up --service=${RAILWAY_SERVICE_ID} --ci
