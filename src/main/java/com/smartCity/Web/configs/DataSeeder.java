@@ -1,4 +1,7 @@
 package com.smartCity.Web.config;
+//admin@smartcity.local
+//user@smartcity.local
+//business@smartcity.local
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -90,6 +93,9 @@ public class DataSeeder implements CommandLineRunner {
   @Override
   @Transactional
   public void run(String... args) {
+    //admin@smartcity.local
+    //user@smartcity.local
+    //business@smartcity.local
     User admin = ensureUser("Admin", "admin@smartcity.local", Role.ADMIN);
     User user = ensureUser("Demo User", "user@smartcity.local", Role.USER);
     User businessman = ensureUser("Demo Businessman", "business@smartcity.local", Role.BUSINESS);
