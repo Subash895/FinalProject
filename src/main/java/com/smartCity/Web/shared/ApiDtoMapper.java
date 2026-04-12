@@ -102,7 +102,12 @@ public class ApiDtoMapper {
       return null;
     }
     return new CityDtos.CityResponse(
-        city.getId(), city.getName(), city.getState(), city.getCountry());
+        city.getId(),
+        city.getName(),
+        city.getState(),
+        city.getCountry(),
+        city.getLatitude(),
+        city.getLongitude());
   }
 
   public City toCity(CityDtos.CityRequest request) {
@@ -110,6 +115,8 @@ public class ApiDtoMapper {
     city.setName(request.name());
     city.setState(request.state());
     city.setCountry(request.country());
+    city.setLatitude(request.latitude());
+    city.setLongitude(request.longitude());
     return city;
   }
 

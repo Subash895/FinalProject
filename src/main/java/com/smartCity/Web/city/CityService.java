@@ -40,8 +40,15 @@ public class CityService {
   }
 
   public City update(Long id, City entity) {
-    entity.setId(id);
-    return repo.save(entity);
+    City existing =
+        repo.findById(id).orElseThrow(() -> new RuntimeException("City not found with id: " + id));
+
+    existing.setName(entity.getName());
+    existing.setState(entity.getState());
+    existing.setCountry(entity.getCountry());
+    existing.setLatitude(entity.getLatitude());
+    existing.setLongitude(entity.getLongitude());
+    return repo.save(existing);
   }
 
   @Transactional

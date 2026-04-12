@@ -40,11 +40,11 @@
     </div>
 
     <div id="addCitySection" class="glass-card city-form-card" style="display:none">
-      <div class="form-title">Add a City</div>
+      <div class="form-title" id="cityFormTitle">Add a City</div>
       <form id="cityForm">
         <div class="location-field-actions location-field-actions-spaced">
           <button type="button" id="cityCurrentLocationBtn" class="btn btn-secondary btn-sm">Use Current Location</button>
-          <span id="cityLocationStatus" class="location-status">Detect your city, state, and country automatically.</span>
+          <span id="cityLocationStatus" class="location-status">Detect your city automatically or click the map to fill city, state, and country.</span>
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -61,12 +61,15 @@
             <input class="form-control" id="country" placeholder="e.g. India" required>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Add City</button>
+        <div class="city-form-actions">
+          <button type="submit" class="btn btn-primary" id="citySubmitBtn">Add City</button>
+          <button type="button" class="btn btn-secondary" id="cityCancelEditBtn" style="display:none">Cancel</button>
+        </div>
       </form>
     </div>
 
     <div id="addCityHistorySection" class="glass-card city-form-card" style="display:none">
-      <div class="form-title">Add City History</div>
+      <div class="form-title" id="cityHistoryFormTitle">Add City History</div>
       <form id="cityHistoryForm">
         <div class="form-grid city-history-form-grid">
           <div class="form-group">
@@ -86,6 +89,7 @@
         </div>
         <div class="city-history-form-actions">
           <button id="saveHistoryBtn" class="btn btn-primary" type="submit">Save History</button>
+          <button id="cancelHistoryEditBtn" class="btn btn-secondary" type="button" style="display:none">Cancel</button>
         </div>
       </form>
     </div>

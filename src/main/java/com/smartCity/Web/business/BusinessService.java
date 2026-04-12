@@ -31,8 +31,8 @@ public class BusinessService {
             .findById(authenticatedUserId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    if (owner.getRole() != Role.BUSINESS) {
-      throw new RuntimeException("Only business users can add businesses");
+    if (owner.getRole() != Role.BUSINESS && owner.getRole() != Role.ADMIN) {
+      throw new RuntimeException("Only business users or admins can add businesses");
     }
 
     entity.setId(null);

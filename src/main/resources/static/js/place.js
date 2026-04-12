@@ -21,7 +21,9 @@ const placeState = {
     markers: [],
     selectedCoordinates: null,
     searchResults: [],
-    searchToken: 0
+    searchToken: 0,
+    selectionMarker: null,
+    userLocation: getSavedUserLocation()
 };
 
 function getPlaceBadge(category = "") {
@@ -180,10 +182,20 @@ async function loadPlaces() {
     container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
 
     try {
+        if (!placeState.userLocation) {
+            placeState.userLocation = await getUserLocation().catch(() => null);
+        }
+
         const places = await apiRequest(`/places${getFilterQuery()}`);
         const placesWithReviews = await Promise.all((places || []).map(async place => ({
             ...place,
-            reviews: await loadReviews(REVIEW_TARGETS.place, place.id)
+            reviews: await loadReviews(REVIEW_TARGETS.place, place.id),
+            distanceKm: placeState.userLocation && place.latitude != null && place.longitude != null ?
+                haversineDistanceKm(placeState.userLocation, {
+                    lat: place.latitude,
+                    lng: place.longitude
+                }) :
+                null
         })));
 
         updateResultSummary(placesWithReviews?.length || 0);
@@ -215,6 +227,7 @@ function renderPlaceCard(place, index) {
             </div>
             <div class="place-city">City: ${place.city?.name || "Not linked"}</div>
             <div class="place-loc">Location: ${place.location || "Not provided"}</div>
+            ${place.distanceKm != null ? `<div class="place-distance">${formatDistanceKm(place.distanceKm)}</div>` : ""}
             ${place.description ? `<p class="place-desc">${place.description}</p>` : ""}
             ${place.latitude && place.longitude ? `<p class="place-desc"><a href="https://www.openstreetmap.org/?mlat=${place.latitude}&mlon=${place.longitude}#map=16/${place.latitude}/${place.longitude}" target="_blank" rel="noopener noreferrer">Open in OpenStreetMap</a></p>` : ""}
           </div>
@@ -318,7 +331,8 @@ async function initPlaceMap() {
             center: OSM_DEFAULT_CENTER,
             zoom: 5
         });
-        setPlaceMapStatus("Map ready. Search a location or click a place marker.");
+        placeState.map.on("click", handlePlaceMapClick);
+        setPlaceMapStatus("Map ready. Click the map to fill a location, search an address, or click a place marker.");
     } catch (error) {
         console.error(error);
         setPlaceMapStatus("OpenStreetMap could not be loaded.");
@@ -559,17 +573,117 @@ function focusMapOnCoordinates(coords, label) {
 
     placeState.map.panTo(coords);
     placeState.map.setZoom(14);
+    showPlaceSelectionMarker(coords, label);
     setPlaceMapStatus(`Focused on ${label}.`);
 }
 
-function focusPlaceOnMap(placeId) {
-    const marker = placeState.markers.find(item => item.placeId === placeId);
+function showPlaceSelectionMarker(coords, label) {
+    if (!placeState.map || !coords) {
+        return;
+    }
+
+    if (!placeState.selectionMarker) {
+        placeState.selectionMarker = L.marker([coords.lat, coords.lng], {
+            title: label || "Selected place"
+        }).addTo(placeState.map);
+    } else {
+        placeState.selectionMarker.setLatLng([coords.lat, coords.lng]);
+        placeState.selectionMarker.options.title = label || "Selected place";
+    }
+
+    if (label) {
+        placeState.selectionMarker.bindPopup(label);
+    }
+}
+
+async function handlePlaceMapClick(event) {
+    const lat = event?.latlng?.lat;
+    const lng = event?.latlng?.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return;
+    }
+
+    const locationInput = document.getElementById("location");
+    const citySelect = document.getElementById("cityId");
+    if (!locationInput) {
+        return;
+    }
+
+    setPlaceLocationStatus("Reading place details from the selected map point...");
+
+    try {
+        const result = await reverseGeocodeWithOpenStreetMap(lat, lng);
+        const label = result?.displayName || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+        locationInput.value = label;
+        placeState.selectedCoordinates = { lat, lng };
+        placeState.searchResults = [];
+        renderPlaceSearchResults();
+
+        const cityId = resolveCurrentLocationCityId(result?.address || {});
+        if (citySelect && cityId) {
+            citySelect.value = String(cityId);
+        }
+
+        focusMapOnCoordinates({ lat, lng }, label);
+        setPlaceLocationStatus(cityId ? "Place and city filled from the selected map point." : "Place filled from the selected map point.");
+    } catch (error) {
+        setPlaceLocationStatus(error.message || "Failed to read place details from the map point.");
+        showToast(error.message || "Failed to read place details from the map point.", "error");
+    }
+}
+
+async function ensurePlaceMarker(placeId) {
+    const place = await apiRequest(`/places/${placeId}`);
+    if (!place || !placeState.map) {
+        return null;
+    }
+
+    const existingMarker = placeState.markers.find(item => item.placeId === placeId);
+    if (existingMarker) {
+        return existingMarker;
+    }
+
+    let coords = null;
+    if (place.latitude != null && place.longitude != null) {
+        coords = {
+            lat: place.latitude,
+            lng: place.longitude
+        };
+    } else {
+        coords = await geocodePlaceLocation(place.location, place.city);
+    }
+
+    if (!coords) {
+        return null;
+    }
+
+    const marker = L.marker([coords.lat, coords.lng], {
+        title: place.name
+    }).addTo(placeState.map);
+    marker.placeId = place.id;
+    marker.bindPopup(`
+            <div style="min-width:200px">
+                <strong>${place.name}</strong><br>
+                ${place.city?.name ? `${place.city.name}<br>` : ""}
+                ${place.location || ""}
+            </div>
+        `);
+    placeState.markers.push(marker);
+    return marker;
+}
+
+async function focusPlaceOnMap(placeId) {
+    setPlaceMapStatus("Locating place on the map...");
+    const marker = await ensurePlaceMarker(placeId);
     if (!marker) {
-        showToast("This place does not have coordinates yet.", "info");
+        showToast("Place location could not be resolved.", "error");
+        setPlaceMapStatus("Place location could not be resolved.");
         return;
     }
 
     placeState.map.panTo(marker.getLatLng());
     placeState.map.setZoom(14);
     marker.openPopup();
+    setPlaceMapStatus("Focused on selected place.");
 }

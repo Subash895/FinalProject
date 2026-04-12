@@ -28,9 +28,15 @@ public class City {
   @Column(unique = true)
   private String country;
 
-  public City(String name, String state, String country) {
+  private Double latitude;
+
+  private Double longitude;
+
+  public City(String name, String state, String country, Double latitude, Double longitude) {
     this.name = name;
     this.state = state;
     this.country = country;
+    this.latitude = latitude;
+    this.longitude = longitude;
   }
 }

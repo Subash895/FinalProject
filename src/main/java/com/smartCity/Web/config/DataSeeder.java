@@ -156,7 +156,7 @@ public class DataSeeder implements CommandLineRunner {
       return cityRepository.findAll().get(0);
     }
 
-    return cityRepository.save(new City("Mysuru", "Karnataka", "India"));
+    return cityRepository.save(new City("Mysuru", "Karnataka", "India", null, null));
   }
 
   private void ensureCategory() {

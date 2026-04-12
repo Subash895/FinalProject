@@ -37,4 +37,8 @@ public class CityHistoryService {
 
     return repository.save(existing);
   }
+
+  public void deleteCityHistory(Long id) {
+    repository.deleteById(id);
+  }
 }

@@ -1,20 +1,18 @@
 /**
  * Client-side behavior for the forum page, including event handling and API calls.
  */
-/* ============================================================
-   SMART CITY â€” forum.js  (Full CRUD)
-   ============================================================ */
 
 function esc(s) {
     return String(s || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("forumForm")?.addEventListener("submit", async (e) => {
+    document.getElementById("forumForm")?.addEventListener("submit", async e => {
         e.preventDefault();
         const btn = e.target.querySelector("button[type=submit]");
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Posting...';
+
         try {
             await apiRequest("/forumposts", "POST", {
                 title: document.getElementById("title").value.trim(),
@@ -38,18 +36,21 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadPosts() {
     const container = document.getElementById("list");
     container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+
     try {
         const data = await apiRequest("/forumposts");
         const countEl = document.getElementById("postCount");
-        if (countEl) countEl.textContent = data?.length ?? 0;
+        if (countEl) {
+            countEl.textContent = data?.length ?? 0;
+        }
 
         if (!data || data.length === 0) {
-            container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">ðŸ’¬</span><p>No posts yet. Start the conversation!</p></div>`;
+            container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">FM</span><p>No posts yet. Start the conversation!</p></div>`;
             return;
         }
+
         container.className = "forum-list";
         container.innerHTML = data.map((p, i) => {
-            // Edit and Delete: ADMIN only
             const canEdit = isAdmin();
             const canDelete = isAdmin();
             return `
@@ -60,18 +61,18 @@ async function loadPosts() {
         </div>
         <div class="post-content">${p.content}</div>
         <div class="post-footer">
-          <span>ðŸ’¬ Community</span>
+          <span>Community</span>
           <span class="sep"></span>
-          <span>ðŸ“… Recently posted</span>
+          <span>Recently posted</span>
           <div class="post-btns">
-            ${canEdit   ? `<button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>âœï¸ Edit</button>` : ""}
-            ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">ðŸ—‘ï¸ Delete</button>` : ""}
+            ${canEdit ? `<button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>Edit</button>` : ""}
+            ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">Delete</button>` : ""}
           </div>
         </div>
       </div>`;
         }).join("");
     } catch {
-        container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">âš ï¸</span><p>Cannot connect to server.</p></div>`;
+        container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">ER</span><p>Cannot connect to server.</p></div>`;
     }
 }
 
@@ -93,7 +94,7 @@ function editPost(id, p) {
             title: p.title,
             content: p.content
         },
-        onSave: async (data) => {
+        onSave: async data => {
             await apiRequest(`/forumposts/${id}`, "PUT", data);
             await loadPosts();
         }

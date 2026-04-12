@@ -52,7 +52,7 @@ function formatSubscriptionStatus(subscription) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("subscriptionForm")?.addEventListener("submit", async (event) => {
+    document.getElementById("subscriptionForm")?.addEventListener("submit", async event => {
         event.preventDefault();
         if (!requireAdminAction()) {
             return;
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("loadBtn")?.addEventListener("click", loadSubs);
-    document.querySelectorAll("[data-plan-button]").forEach((button) => {
+    document.querySelectorAll("[data-plan-button]").forEach(button => {
         button.addEventListener("click", () => startPaidCheckout(button.dataset.planType, button));
     });
     if (!isLoggedIn()) {
@@ -107,7 +107,7 @@ async function loadSubs() {
       <div class="sub-card glass-card" style="animation-delay:${index * 0.04}s">
         <div>
           <div class="sub-email">${subscription.email}</div>
-          <div class="sub-type">${subscription.type || "Standard"} Plan â€¢ ${formatSubscriptionStatus(subscription)}</div>
+          <div class="sub-type">${subscription.type || "Standard"} Plan - ${formatSubscriptionStatus(subscription)}</div>
         </div>
         <div class="sub-actions">
           <span class="badge ${getPlanBadge(subscription.status || subscription.type)}">${formatSubscriptionStatus(subscription)}</span>
@@ -146,7 +146,7 @@ async function startPaidCheckout(planType, button) {
             order_id: checkout.orderId,
             name: "MySmartCity",
             description: `${checkout.planType} plan purchase`,
-            handler: async (response) => {
+            handler: async response => {
                 try {
                     await apiRequest("/subscriptions/confirm", "POST", {
                         localSubscriptionId: checkout.localSubscriptionId,
@@ -177,7 +177,7 @@ async function startPaidCheckout(planType, button) {
         };
 
         const razorpay = new window.Razorpay(options);
-        razorpay.on("payment.failed", async (event) => {
+        razorpay.on("payment.failed", async event => {
             const details = event.error || {};
             try {
                 await apiRequest("/subscriptions/failure", "POST", {
@@ -231,7 +231,7 @@ function editSub(id, subscription) {
             email: subscription.email,
             type: subscription.type
         },
-        onSave: async (data) => {
+        onSave: async data => {
             await apiRequest(`/subscriptions/${id}`, "PUT", data);
             await loadSubs();
         }

@@ -1,11 +1,7 @@
 /**
  * Shared frontend bootstrapping logic used across multiple static pages.
  */
-/* ============================================================
-   SMART CITY â€” modal.js  (Shared modal & toast â€” load first)
-   ============================================================ */
 
-/* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function showToast(message, type = "success") {
     let container = document.getElementById("toastContainer");
     if (!container) {
@@ -14,22 +10,24 @@ function showToast(message, type = "success") {
         container.className = "toast-container";
         document.body.appendChild(container);
     }
+
     const icons = {
-        success: "âœ…",
-        error: "âŒ",
-        info: "â„¹ï¸"
+        success: "OK",
+        error: "ERR",
+        info: "INFO"
     };
+
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${icons[type] || "â„¹ï¸"}</span><span>${message}</span>`;
+    toast.innerHTML = `<span>${icons[type] || "INFO"}</span><span>${message}</span>`;
     container.appendChild(toast);
+
     setTimeout(() => {
         toast.style.animation = "toastOut 0.3s ease forwards";
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-/* â”€â”€ Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openEditModal({
     title,
     fields,
@@ -45,17 +43,17 @@ function openEditModal({
     overlay.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">âœï¸ ${title}</div>
-        <button class="modal-close" onclick="closeAnyModal()">âœ•</button>
+        <div class="modal-title">${title}</div>
+        <button class="modal-close" onclick="closeAnyModal()">X</button>
       </div>
       <div class="modal-body">
         ${fields.map(f => `
           <div class="form-group">
             <label>${f.label}</label>
             <input class="form-control" id="edit_${f.key}"
-              type="${f.type || 'text'}"
-              placeholder="${f.placeholder || ''}"
-              value="${String(values[f.key] || '').replace(/"/g, '&quot;')}">
+              type="${f.type || "text"}"
+              placeholder="${f.placeholder || ""}"
+              value="${String(values[f.key] || "").replace(/"/g, "&quot;")}">
           </div>`).join("")}
       </div>
       <div class="modal-footer">
@@ -67,7 +65,9 @@ function openEditModal({
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("open"));
     overlay.addEventListener("click", e => {
-        if (e.target === overlay) closeAnyModal();
+        if (e.target === overlay) {
+            closeAnyModal();
+        }
     });
 
     document.getElementById("editSaveBtn").addEventListener("click", async () => {
@@ -79,6 +79,7 @@ function openEditModal({
         const btn = document.getElementById("editSaveBtn");
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Saving...';
+
         try {
             await onSave(payload);
             closeAnyModal();
@@ -91,7 +92,6 @@ function openEditModal({
     });
 }
 
-/* â”€â”€ Delete Confirm Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openDeleteModal({
     itemName,
     onConfirm
@@ -104,7 +104,7 @@ function openDeleteModal({
 
     overlay.innerHTML = `
     <div class="modal confirm-modal">
-      <span class="confirm-icon">ðŸ—‘ï¸</span>
+      <span class="confirm-icon">DEL</span>
       <h3>Delete this item?</h3>
       <p>You're about to permanently delete <strong style="color:var(--text-primary)">"${itemName}"</strong>.</p>
       <div class="modal-footer">
@@ -116,13 +116,16 @@ function openDeleteModal({
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add("open"));
     overlay.addEventListener("click", e => {
-        if (e.target === overlay) closeAnyModal();
+        if (e.target === overlay) {
+            closeAnyModal();
+        }
     });
 
     document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
         const btn = document.getElementById("confirmDeleteBtn");
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Deleting...';
+
         try {
             await onConfirm();
             closeAnyModal();
@@ -135,7 +138,6 @@ function openDeleteModal({
     });
 }
 
-/* â”€â”€ Close â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function closeAnyModal() {
     ["editModal", "deleteModal", "reviewComposeModal"].forEach(id => {
         const el = document.getElementById(id);
@@ -147,7 +149,9 @@ function closeAnyModal() {
 }
 
 document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeAnyModal();
+    if (e.key === "Escape") {
+        closeAnyModal();
+    }
 });
 
 const THEME_STORAGE_KEY = "smartcity.theme";
