@@ -3,15 +3,13 @@ package com.smartCity.Web.place;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.smartCity.Web.place.Place;
-import com.smartCity.Web.place.PlaceRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class PlaceService {
-  @Autowired private PlaceRepository repo;
+  private final PlaceRepository repo;
 
   public Place save(Place entity) {
     return repo.save(entity);

@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.shared.ApiDtoMapper;
 
+/**
+ * Exposes REST endpoints for Review operations.
+ */
 @RestController
 @RequestMapping("/api/reviews")
 @CrossOrigin("*")

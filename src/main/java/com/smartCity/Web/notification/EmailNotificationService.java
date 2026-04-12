@@ -9,6 +9,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Sends email notifications triggered by application events.
+ */
 @Service
 public class EmailNotificationService {
 

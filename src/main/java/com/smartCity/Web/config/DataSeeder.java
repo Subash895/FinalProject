@@ -39,6 +39,9 @@ import com.smartCity.Web.user.Role;
 import com.smartCity.Web.user.User;
 import com.smartCity.Web.user.UserRepository;
 
+/**
+ * Seeds baseline application data so local and fresh environments start with usable records.
+ */
 @Component
 public class DataSeeder implements CommandLineRunner {
 

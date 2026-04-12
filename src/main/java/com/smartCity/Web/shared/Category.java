@@ -2,6 +2,9 @@ package com.smartCity.Web.shared;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a reusable category that can be attached to other domain records.
+ */
 @Entity
 @Table(name = "categories")
 public class Category {

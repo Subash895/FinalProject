@@ -2,6 +2,9 @@ package com.smartCity.Web.business;
 
 import com.smartCity.Web.user.UserDtos.UserResponse;
 
+/**
+ * Groups the request and response DTOs used by the Business API.
+ */
 public final class BusinessDtos {
 
   private BusinessDtos() {}

@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Coordinates the business rules for Subscription features before data is stored or returned.
+ */
 @Service
 public class SubscriptionService {
   private static final String PROVIDER = "RAZORPAY";

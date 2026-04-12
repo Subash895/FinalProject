@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the subscription page, including event handling and API calls.
+ */
 const PLAN_BADGE = {
     free: "badge-green",
     pro: "badge-cyan",
@@ -104,7 +107,7 @@ async function loadSubs() {
       <div class="sub-card glass-card" style="animation-delay:${index * 0.04}s">
         <div>
           <div class="sub-email">${subscription.email}</div>
-          <div class="sub-type">${subscription.type || "Standard"} Plan • ${formatSubscriptionStatus(subscription)}</div>
+          <div class="sub-type">${subscription.type || "Standard"} Plan â€¢ ${formatSubscriptionStatus(subscription)}</div>
         </div>
         <div class="sub-actions">
           <span class="badge ${getPlanBadge(subscription.status || subscription.type)}">${formatSubscriptionStatus(subscription)}</span>

@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the place page, including event handling and API calls.
+ */
 const PLACE_BADGES = {
     park: "PK",
     museum: "MU",
@@ -16,7 +19,9 @@ const placeState = {
     cities: [],
     map: null,
     markers: [],
-    selectedCoordinates: null
+    selectedCoordinates: null,
+    searchResults: [],
+    searchToken: 0
 };
 
 function getPlaceBadge(category = "") {
@@ -70,11 +75,45 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("placeForm")?.addEventListener("submit", createPlace);
     document.getElementById("filterForm")?.addEventListener("submit", applyFilters);
     document.getElementById("clearFiltersBtn")?.addEventListener("click", clearFilters);
+    document.getElementById("placeCurrentLocationBtn")?.addEventListener("click", fillPlaceFromCurrentLocation);
     document.getElementById("loadBtn")?.addEventListener("click", loadPlaces);
+    attachPlaceSearchHandlers();
     loadCitiesForSelect();
     initPlaceMap();
     loadPlaces();
 });
+
+function setPlaceLocationStatus(message) {
+    const status = document.getElementById("placeLocationStatus");
+    if (status) {
+        status.textContent = message;
+    }
+}
+
+
+function attachPlaceSearchHandlers() {
+    const locationInput = document.getElementById("location");
+    const citySelect = document.getElementById("cityId");
+    if (!locationInput) {
+        return;
+    }
+
+    const scheduleSearch = debounce(() => {
+        searchPlaceLocation(locationInput.value.trim());
+    }, 350);
+
+    locationInput.addEventListener("input", () => {
+        placeState.selectedCoordinates = null;
+        scheduleSearch();
+    });
+
+    citySelect?.addEventListener("change", () => {
+        placeState.selectedCoordinates = null;
+        if (locationInput.value.trim()) {
+            scheduleSearch();
+        }
+    });
+}
 
 async function createPlace(event) {
     event.preventDefault();
@@ -105,12 +144,20 @@ async function createPlace(event) {
         placeState.selectedCoordinates = null;
         showToast("Place added.", "success");
         await loadPlaces();
-    } catch {
-        showToast("Failed to add place.", "error");
+    } catch (error) {
+        showToast(error.message || "Failed to add place.", "error");
     } finally {
         button.disabled = false;
         button.textContent = "Add Place";
     }
+}
+
+function debounce(callback, delay) {
+    let timeoutId = null;
+    return (...args) => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => callback(...args), delay);
+    };
 }
 
 function applyFilters(event) {
@@ -212,10 +259,29 @@ function editPlace(id, place) {
             description: place.description
         },
         onSave: async (data) => {
-            await apiRequest(`/places/${id}`, "PUT", data);
+            const coordinates = data.location && data.location !== place.location ?
+                await geocodePlaceLocation(data.location, place.city) :
+                {
+                    lat: place.latitude,
+                    lng: place.longitude
+                };
+
+            await apiRequest(`/places/${id}`, "PUT", {
+                ...data,
+                city: place.city ? {
+                    id: place.city.id
+                } : null,
+                latitude: coordinates?.lat ?? null,
+                longitude: coordinates?.lng ?? null
+            });
             await loadPlaces();
         }
     });
+}
+
+async function geocodePlaceLocation(location, city) {
+    const address = [location, city?.name, city?.state, city?.country].filter(Boolean).join(", ");
+    return geocodeWithOpenStreetMap(address);
 }
 
 function deletePlace(id, name) {
@@ -275,8 +341,7 @@ async function resolvePlaceCoordinates(location, city) {
         return null;
     }
 
-    const address = [location, city?.name, city?.state, city?.country].filter(Boolean).join(", ");
-    const coordinates = await geocodeWithOpenStreetMap(address);
+    const coordinates = await geocodePlaceLocation(location, city);
     if (!coordinates) {
         return null;
     }
@@ -285,8 +350,154 @@ async function resolvePlaceCoordinates(location, city) {
         lat: coordinates.lat,
         lng: coordinates.lng
     };
-    focusMapOnCoordinates(placeState.selectedCoordinates, coordinates.label || address);
+    focusMapOnCoordinates(placeState.selectedCoordinates, coordinates.label || location);
     return placeState.selectedCoordinates;
+}
+
+async function searchPlaceLocation(rawLocation) {
+    const resultsContainer = document.getElementById("placeSearchResults");
+    if (!resultsContainer) {
+        return;
+    }
+
+    const cityId = Number(document.getElementById("cityId")?.value);
+    const city = placeState.cities.find(item => item.id === cityId);
+    const query = [rawLocation, city?.name, city?.state, city?.country].filter(Boolean).join(", ");
+
+    if (!rawLocation || rawLocation.length < 3) {
+        placeState.searchResults = [];
+        renderPlaceSearchResults();
+        setPlaceMapStatus("Type at least 3 letters to search for a location.");
+        return;
+    }
+
+    const currentToken = ++placeState.searchToken;
+
+    try {
+        setPlaceMapStatus(`Searching map for "${rawLocation}"...`);
+        const results = await searchWithOpenStreetMap(query, {
+            limit: 5
+        });
+
+        if (currentToken !== placeState.searchToken) {
+            return;
+        }
+
+        placeState.searchResults = results || [];
+        renderPlaceSearchResults();
+
+        if (!placeState.searchResults.length) {
+            setPlaceMapStatus(`No matching location found for "${rawLocation}".`);
+            return;
+        }
+
+        focusMapOnCoordinates(placeState.searchResults[0], placeState.searchResults[0].displayName || rawLocation);
+    } catch (error) {
+        console.error(error);
+        if (currentToken !== placeState.searchToken) {
+            return;
+        }
+        placeState.searchResults = [];
+        renderPlaceSearchResults();
+        setPlaceMapStatus("Location search failed.");
+    }
+}
+
+function renderPlaceSearchResults() {
+    const container = document.getElementById("placeSearchResults");
+    if (!container) {
+        return;
+    }
+
+    if (!placeState.searchResults.length) {
+        container.hidden = true;
+        container.innerHTML = "";
+        return;
+    }
+
+    container.hidden = false;
+    container.innerHTML = placeState.searchResults.map((result, index) => `
+        <button type="button" class="map-search-option" onclick="selectPlaceSearchResult(${index})">
+            ${result.name || "Suggested location"}
+            <small>${result.displayName || ""}</small>
+        </button>
+    `).join("");
+}
+
+function resolveCurrentLocationCityId(address = {}) {
+    const cityName = address.city || address.town || address.village || address.municipality || "";
+    const state = address.state || address.region || address.county || "";
+    const country = address.country || "";
+
+    const matchedCity = placeState.cities.find(city =>
+        String(city.name || "").trim().toLowerCase() === cityName.trim().toLowerCase() &&
+        String(city.country || "").trim().toLowerCase() === country.trim().toLowerCase() &&
+        (!state || String(city.state || "").trim().toLowerCase() === state.trim().toLowerCase())
+    );
+
+    return matchedCity?.id || null;
+}
+
+async function fillPlaceFromCurrentLocation() {
+    const button = document.getElementById("placeCurrentLocationBtn");
+    const locationInput = document.getElementById("location");
+    const citySelect = document.getElementById("cityId");
+    if (!button || !locationInput) {
+        return;
+    }
+
+    button.disabled = true;
+    setPlaceLocationStatus("Getting your current position...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        setPlaceLocationStatus("Resolving location from map data...");
+        const result = await reverseGeocodeWithOpenStreetMap(coords.lat, coords.lng);
+        const label = result?.displayName || `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`;
+
+        locationInput.value = label;
+        placeState.selectedCoordinates = {
+            lat: coords.lat,
+            lng: coords.lng
+        };
+
+        const cityId = resolveCurrentLocationCityId(result?.address || {});
+        if (citySelect && cityId) {
+            citySelect.value = String(cityId);
+        }
+
+        placeState.searchResults = [];
+        renderPlaceSearchResults();
+        focusMapOnCoordinates(placeState.selectedCoordinates, label);
+        setPlaceLocationStatus(cityId ? "Current location applied and matching city selected." : "Current location applied.");
+    } catch (error) {
+        setPlaceLocationStatus(error.message || "Failed to use current location.");
+        showToast(error.message || "Failed to use current location.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+
+function selectPlaceSearchResult(index) {
+    const result = placeState.searchResults[index];
+    if (!result) {
+        return;
+    }
+
+    const locationInput = document.getElementById("location");
+    if (locationInput) {
+        locationInput.value = result.displayName || result.name || locationInput.value;
+    }
+
+    placeState.selectedCoordinates = {
+        lat: result.lat,
+        lng: result.lng
+    };
+    placeState.searchResults = [];
+    renderPlaceSearchResults();
+    focusMapOnCoordinates(placeState.selectedCoordinates, result.displayName || result.name || "selected location");
 }
 
 function syncPlaceMap(places) {

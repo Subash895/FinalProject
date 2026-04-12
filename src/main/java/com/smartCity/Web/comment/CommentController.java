@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.comment.CommentDtos;
 
+/**
+ * Exposes REST endpoints for Comment operations.
+ */
 @RestController
 @RequestMapping("/api/comments")
 @CrossOrigin("*")

@@ -36,6 +36,9 @@ import com.smartCity.Web.user.UserRepository;
 import com.smartCity.Web.user.UserDtos;
 import com.smartCity.Web.auth.AuthDtos;
 
+/**
+ * Centralizes conversions between database entities and API request or response DTOs.
+ */
 @Component
 public class ApiDtoMapper {
 
@@ -337,22 +340,38 @@ public class ApiDtoMapper {
 
   private City resolveCity(Long directId, Long nestedId) {
     Long id = resolveId(directId, nestedId);
-    return id == null ? null : cityRepository.getReferenceById(id);
+    return id == null
+        ? null
+        : cityRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("City not found with id: " + id));
   }
 
   private User resolveUser(Long directId, Long nestedId) {
     Long id = resolveId(directId, nestedId);
-    return id == null ? null : userRepository.getReferenceById(id);
+    return id == null
+        ? null
+        : userRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
   }
 
   private Business resolveBusiness(Long directId, Long nestedId) {
     Long id = resolveId(directId, nestedId);
-    return id == null ? null : businessRepository.getReferenceById(id);
+    return id == null
+        ? null
+        : businessRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Business not found with id: " + id));
   }
 
   private ForumPost resolveForumPost(Long directId, Long nestedId) {
     Long id = resolveId(directId, nestedId);
-    return id == null ? null : forumPostRepository.getReferenceById(id);
+    return id == null
+        ? null
+        : forumPostRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Forum post not found with id: " + id));
   }
 
   private Long resolveId(Long directId, Long nestedId) {

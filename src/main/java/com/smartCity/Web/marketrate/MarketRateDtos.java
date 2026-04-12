@@ -2,6 +2,9 @@ package com.smartCity.Web.marketrate;
 
 import java.time.LocalDate;
 
+/**
+ * Groups the request and response DTOs used by the Market Rate API.
+ */
 public final class MarketRateDtos {
 
   private MarketRateDtos() {}

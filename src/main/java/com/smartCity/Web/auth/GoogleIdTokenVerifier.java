@@ -16,6 +16,9 @@ import org.springframework.util.StringUtils;
 
 import com.smartCity.Web.config.GoogleAuthProperties;
 
+/**
+ * Validates Google ID tokens and extracts the user details needed by the authentication flow.
+ */
 @Service
 public class GoogleIdTokenVerifier {
 

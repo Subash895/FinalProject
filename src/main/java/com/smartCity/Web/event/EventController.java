@@ -3,6 +3,7 @@ package com.smartCity.Web.event;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,19 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.shared.ApiDtoMapper;
-import com.smartCity.Web.event.EventDtos;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/events")
 @CrossOrigin("*")
+@RequiredArgsConstructor
 public class EventController {
   private final EventService service;
   private final ApiDtoMapper apiDtoMapper;
-
-  public EventController(EventService service, ApiDtoMapper apiDtoMapper) {
-    this.service = service;
-    this.apiDtoMapper = apiDtoMapper;
-  }
 
   @PostMapping
   public EventDtos.EventResponse create(@RequestBody EventDtos.EventRequest entity) {
@@ -41,13 +38,12 @@ public class EventController {
   }
 
   @GetMapping("/{id}")
-  public org.springframework.http.ResponseEntity<EventDtos.EventResponse> getById(
-      @PathVariable Long id) {
+  public ResponseEntity<EventDtos.EventResponse> getById(@PathVariable Long id) {
     return service
         .getById(id)
         .map(apiDtoMapper::toEventResponse)
-        .map(org.springframework.http.ResponseEntity::ok)
-        .orElse(org.springframework.http.ResponseEntity.notFound().build());
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}")

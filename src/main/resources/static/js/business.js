@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the business page, including event handling and API calls.
+ */
 /* ============================================================
    SMART CITY - business.js
    ============================================================ */
@@ -33,10 +36,49 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    document.getElementById("businessCurrentLocationBtn")?.addEventListener("click", fillBusinessAddressFromCurrentLocation);
     document.getElementById("loadBtn")?.addEventListener("click", loadBusinesses);
     document.getElementById("businessSearch")?.addEventListener("input", loadBusinesses);
     loadBusinesses();
 });
+
+function setBusinessLocationStatus(message) {
+    const status = document.getElementById("businessLocationStatus");
+    if (status) {
+        status.textContent = message;
+    }
+}
+
+async function fillBusinessAddressFromCurrentLocation() {
+    const button = document.getElementById("businessCurrentLocationBtn");
+    const addressInput = document.getElementById("address");
+    if (!button || !addressInput) {
+        return;
+    }
+
+    button.disabled = true;
+    setBusinessLocationStatus("Getting your current position...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        setBusinessLocationStatus("Resolving address from map data...");
+        const place = await reverseGeocodeWithOpenStreetMap(coords.lat, coords.lng);
+        const address = place?.displayName || "";
+
+        if (!address) {
+            throw new Error("No address match found for your current location.");
+        }
+
+        addressInput.value = address;
+        setBusinessLocationStatus("Current location address applied.");
+    } catch (error) {
+        setBusinessLocationStatus(error.message || "Failed to use current location.");
+        showToast(error.message || "Failed to use current location.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
 
 async function loadBusinesses() {
     const container = document.getElementById("list");

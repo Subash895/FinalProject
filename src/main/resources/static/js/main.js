@@ -1,8 +1,11 @@
+/**
+ * Shared frontend bootstrapping logic used across multiple static pages.
+ */
 /* ============================================================
-   SMART CITY — modal.js  (Shared modal & toast — load first)
+   SMART CITY â€” modal.js  (Shared modal & toast â€” load first)
    ============================================================ */
 
-/* ── Toast ──────────────────────────────────────────────────── */
+/* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function showToast(message, type = "success") {
     let container = document.getElementById("toastContainer");
     if (!container) {
@@ -12,13 +15,13 @@ function showToast(message, type = "success") {
         document.body.appendChild(container);
     }
     const icons = {
-        success: "✅",
-        error: "❌",
-        info: "ℹ️"
+        success: "âœ…",
+        error: "âŒ",
+        info: "â„¹ï¸"
     };
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${icons[type] || "ℹ️"}</span><span>${message}</span>`;
+    toast.innerHTML = `<span>${icons[type] || "â„¹ï¸"}</span><span>${message}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
         toast.style.animation = "toastOut 0.3s ease forwards";
@@ -26,7 +29,7 @@ function showToast(message, type = "success") {
     }, 3000);
 }
 
-/* ── Edit Modal ─────────────────────────────────────────────── */
+/* â”€â”€ Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openEditModal({
     title,
     fields,
@@ -42,8 +45,8 @@ function openEditModal({
     overlay.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">✏️ ${title}</div>
-        <button class="modal-close" onclick="closeAnyModal()">✕</button>
+        <div class="modal-title">âœï¸ ${title}</div>
+        <button class="modal-close" onclick="closeAnyModal()">âœ•</button>
       </div>
       <div class="modal-body">
         ${fields.map(f => `
@@ -88,7 +91,7 @@ function openEditModal({
     });
 }
 
-/* ── Delete Confirm Modal ───────────────────────────────────── */
+/* â”€â”€ Delete Confirm Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openDeleteModal({
     itemName,
     onConfirm
@@ -101,7 +104,7 @@ function openDeleteModal({
 
     overlay.innerHTML = `
     <div class="modal confirm-modal">
-      <span class="confirm-icon">🗑️</span>
+      <span class="confirm-icon">ðŸ—‘ï¸</span>
       <h3>Delete this item?</h3>
       <p>You're about to permanently delete <strong style="color:var(--text-primary)">"${itemName}"</strong>.</p>
       <div class="modal-footer">
@@ -132,7 +135,7 @@ function openDeleteModal({
     });
 }
 
-/* ── Close ──────────────────────────────────────────────────── */
+/* â”€â”€ Close â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function closeAnyModal() {
     ["editModal", "deleteModal", "reviewComposeModal"].forEach(id => {
         const el = document.getElementById(id);
@@ -155,7 +158,7 @@ function getThemePreference() {
 
 function updateThemeToggleIcon() {
     document.querySelectorAll(".nav-theme-toggle .theme-icon").forEach(icon => {
-        icon.textContent = getThemePreference() === "light" ? "☀" : "☾";
+        icon.textContent = getThemePreference() === "light" ? "\u2600" : "\u263E";
     });
 }
 

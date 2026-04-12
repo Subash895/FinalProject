@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the profile page, including event handling and API calls.
+ */
 /* ============================================================
    SMART CITY - profile.js
    ============================================================ */

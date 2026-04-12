@@ -1,5 +1,8 @@
+/**
+ * Client-side behavior for the forum page, including event handling and API calls.
+ */
 /* ============================================================
-   SMART CITY — forum.js  (Full CRUD)
+   SMART CITY â€” forum.js  (Full CRUD)
    ============================================================ */
 
 function esc(s) {
@@ -41,7 +44,7 @@ async function loadPosts() {
         if (countEl) countEl.textContent = data?.length ?? 0;
 
         if (!data || data.length === 0) {
-            container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">💬</span><p>No posts yet. Start the conversation!</p></div>`;
+            container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">ðŸ’¬</span><p>No posts yet. Start the conversation!</p></div>`;
             return;
         }
         container.className = "forum-list";
@@ -57,18 +60,18 @@ async function loadPosts() {
         </div>
         <div class="post-content">${p.content}</div>
         <div class="post-footer">
-          <span>💬 Community</span>
+          <span>ðŸ’¬ Community</span>
           <span class="sep"></span>
-          <span>📅 Recently posted</span>
+          <span>ðŸ“… Recently posted</span>
           <div class="post-btns">
-            ${canEdit   ? `<button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>✏️ Edit</button>` : ""}
-            ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">🗑️ Delete</button>` : ""}
+            ${canEdit   ? `<button class="btn btn-edit btn-sm" onclick='editPost(${p.id}, ${JSON.stringify(p)})'>âœï¸ Edit</button>` : ""}
+            ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deletePost(${p.id}, '${esc(p.title)}')">ðŸ—‘ï¸ Delete</button>` : ""}
           </div>
         </div>
       </div>`;
         }).join("");
     } catch {
-        container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">⚠️</span><p>Cannot connect to server.</p></div>`;
+        container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">âš ï¸</span><p>Cannot connect to server.</p></div>`;
     }
 }
 

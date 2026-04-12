@@ -3,9 +3,15 @@ package com.smartCity.Web.cityhistory;
 import com.smartCity.Web.city.City;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "city_histories")
+@Getter
+@Setter
+@NoArgsConstructor
 public class CityHistory {
 
   @Id
@@ -21,43 +27,9 @@ public class CityHistory {
   @Column(columnDefinition = "TEXT")
   private String content;
 
-  public CityHistory() {}
-
   public CityHistory(City city, String title, String content) {
     this.city = city;
     this.title = title;
-    this.content = content;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public City getCity() {
-    return city;
-  }
-
-  public void setCity(City city) {
-    this.city = city;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getContent() {
-    return content;
-  }
-
-  public void setContent(String content) {
     this.content = content;
   }
 }

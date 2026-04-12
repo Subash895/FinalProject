@@ -5,28 +5,31 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.auth.AuthDtos;
 import com.smartCity.Web.auth.JwtService;
 import com.smartCity.Web.auth.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
-import com.smartCity.Web.user.UserDtos;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin("*")
+@RequiredArgsConstructor
 public class UserController {
 
   private final UserService service;
   private final ApiDtoMapper apiDtoMapper;
   private final JwtService jwtService;
-
-  public UserController(UserService service, ApiDtoMapper apiDtoMapper, JwtService jwtService) {
-    this.service = service;
-    this.apiDtoMapper = apiDtoMapper;
-    this.jwtService = jwtService;
-  }
 
   @PostMapping
   public UserDtos.UserResponse create(@RequestBody UserDtos.UserRequest user) {
@@ -62,10 +65,8 @@ public class UserController {
   public AuthDtos.AuthResponse updateProfile(
       @AuthenticationPrincipal JwtUserPrincipal principal,
       @RequestBody UserDtos.ProfileUpdateRequest request) {
-    var user = apiDtoMapper.toUser(request);
-    var savedUser = service.updateProfile(principal.id(), user);
-    String token = jwtService.generateToken(savedUser);
-    return apiDtoMapper.toAuthResponse(token, savedUser);
+    var savedUser = service.updateProfile(principal.id(), apiDtoMapper.toUser(request));
+    return apiDtoMapper.toAuthResponse(jwtService.generateToken(savedUser), savedUser);
   }
 
   @DeleteMapping("/{id}")

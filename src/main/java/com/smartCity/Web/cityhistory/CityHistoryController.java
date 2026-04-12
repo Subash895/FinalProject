@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.cityhistory.CityHistoryDtos;
 
+/**
+ * Exposes REST endpoints for City History operations.
+ */
 @RestController
 @RequestMapping("/api/cityhistory")
 @CrossOrigin("*")

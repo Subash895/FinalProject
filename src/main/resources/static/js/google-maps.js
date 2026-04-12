@@ -1,3 +1,6 @@
+/**
+ * Google Maps helpers used by pages that support address or location selection.
+ */
 let googleMapsApiPromise;
 let publicConfigPromise;
 

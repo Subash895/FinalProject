@@ -1,3 +1,6 @@
+/**
+ * Styles for the city page and its reusable UI sections.
+ */
 .city-form-card,
 .city-map-card,
 .city-history-panel {
@@ -16,6 +19,54 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
+}
+
+.location-field-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.location-field-actions-spaced {
+    margin-bottom: 1rem;
+}
+
+.location-status {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.map-search-results {
+    margin-top: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.map-search-option {
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.map-search-option:hover,
+.map-search-option:focus-visible {
+    border-color: var(--border-glow);
+    background: rgba(0, 255, 255, 0.08);
+    outline: none;
+}
+
+.map-search-option small {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--text-secondary);
 }
 
 .city-map-header {
@@ -136,6 +187,20 @@
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+}
+
+.city-history-form-grid {
+    margin-bottom: 1rem;
+}
+
+.city-history-textarea {
+    min-height: 140px;
+}
+
+.city-history-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
 }
 
 .city-history-item {

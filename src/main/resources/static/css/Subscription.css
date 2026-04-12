@@ -1,5 +1,8 @@
+/**
+ * Styles for the Subscription page and its reusable UI sections.
+ */
 /* ============================================================
-   SMART CITY — subscription.css
+   SMART CITY â€” subscription.css
    ============================================================ */
 .plans-grid {
     display: grid;
@@ -84,7 +87,7 @@
 }
 
 .plan-features li::before {
-    content: '✓';
+    content: '\2713';
     color: var(--green);
     font-weight: 700;
     flex-shrink: 0;

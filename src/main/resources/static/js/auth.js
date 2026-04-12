@@ -1,3 +1,6 @@
+/**
+ * Client-side authentication logic for login, registration, Google sign-in, and password reset flows.
+ */
 /* ============================================================
    SMART CITY - auth.js  (Login, Register, Session UI)
    ============================================================ */

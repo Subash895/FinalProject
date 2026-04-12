@@ -1,35 +1,24 @@
 package com.smartCity.Web.forum;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import com.smartCity.Web.forum.ForumPost;
 import com.smartCity.Web.comment.CommentRepository;
-import com.smartCity.Web.forum.ForumPostRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ForumPostService {
 
   private final ForumPostRepository repository;
   private final CommentRepository commentRepository;
 
-  public ForumPostService(ForumPostRepository repository, CommentRepository commentRepository) {
-    this.repository = repository;
-    this.commentRepository = commentRepository;
-  }
-
   public ForumPost create(ForumPost post) {
-
-    if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
-      throw new RuntimeException("Title required");
-    }
-
-    if (post.getContent() == null || post.getContent().trim().isEmpty()) {
-      throw new RuntimeException("Content required");
-    }
-
+    validate(post);
+    post.setTitle(post.getTitle().trim());
+    post.setContent(post.getContent().trim());
     return repository.save(post);
   }
 

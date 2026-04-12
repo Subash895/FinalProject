@@ -1,5 +1,8 @@
 package com.smartCity.Web.city;
 
+/**
+ * Groups the request and response DTOs used by the City API.
+ */
 public final class CityDtos {
 
   private CityDtos() {}

@@ -21,6 +21,9 @@ import com.smartCity.Web.user.Role;
 import com.smartCity.Web.user.User;
 import com.smartCity.Web.user.UserRepository;
 
+/**
+ * Coordinates the business rules for Review features before data is stored or returned.
+ */
 @Service
 public class ReviewService {
 

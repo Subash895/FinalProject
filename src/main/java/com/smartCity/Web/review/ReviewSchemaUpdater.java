@@ -9,6 +9,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+/**
+ * Applies review-table adjustments needed to keep older schemas compatible with the current code.
+ */
 @Component
 public class ReviewSchemaUpdater implements ApplicationRunner {
 

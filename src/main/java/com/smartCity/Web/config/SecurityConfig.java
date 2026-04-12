@@ -16,6 +16,9 @@ import com.smartCity.Web.auth.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Defines the Spring Security rules, authentication flow, and endpoint access policy.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -62,6 +65,12 @@ public class SecurityConfig {
                     .requestMatchers("/api/subscriptions/**")
                     .hasRole("ADMIN")
                     .requestMatchers("/api/users/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/cities/**", "/api/places/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/cities/**", "/api/places/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/cities/**", "/api/places/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/**")
                     .permitAll()

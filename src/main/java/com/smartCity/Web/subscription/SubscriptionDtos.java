@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import com.smartCity.Web.user.UserDtos.UserResponse;
 
+/**
+ * Groups the request and response DTOs used by the Subscription API.
+ */
 public final class SubscriptionDtos {
 
   private SubscriptionDtos() {}

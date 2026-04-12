@@ -1,5 +1,8 @@
 package com.smartCity.Web.forum;
 
+/**
+ * Groups the request and response DTOs used by the Forum API.
+ */
 public final class ForumDtos {
 
   private ForumDtos() {}

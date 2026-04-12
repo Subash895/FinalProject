@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.advertisement.AdvertisementDtos;
 
+/**
+ * Exposes REST endpoints for Advertisement operations.
+ */
 @RestController
 @RequestMapping("/api/advertisements")
 @CrossOrigin("*")

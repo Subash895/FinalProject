@@ -1,5 +1,8 @@
+/**
+ * Styles for the business page and its reusable UI sections.
+ */
 /* ============================================================
-   SMART CITY — business.css
+   SMART CITY â€” business.css
    ============================================================ */
 .business-form-card {
     padding: 1.4rem;
@@ -17,6 +20,19 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
+}
+
+.location-field-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+}
+
+.location-status {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
 }
 
 .business-card {
