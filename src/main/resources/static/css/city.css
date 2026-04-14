@@ -201,6 +201,30 @@
     min-width: 0;
 }
 
+.city-card-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.city-inline-edit {
+    width: 100%;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.city-inline-edit[hidden] {
+    display: none;
+}
+
+.city-inline-edit-form {
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+}
+
 .city-inline-history {
     width: 100%;
     margin-top: 1rem;
@@ -300,6 +324,10 @@
 
 @media (max-width: 768px) {
     .city-card {
+        flex-direction: column;
+    }
+
+    .city-card-main {
         flex-direction: column;
     }
 
