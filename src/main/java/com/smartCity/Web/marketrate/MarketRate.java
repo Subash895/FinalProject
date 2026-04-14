@@ -8,6 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Represents the Market Rate part of the Smart City application.
+ */
 @Entity
 @Table(name = "market_rates")
 public class MarketRate {

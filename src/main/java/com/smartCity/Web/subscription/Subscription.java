@@ -17,6 +17,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+/**
+ * Represents a subscription purchase and its current billing status.
+ */
 @Entity
 @Table(name = "subscriptions")
 public class Subscription {

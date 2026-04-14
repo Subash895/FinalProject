@@ -20,6 +20,9 @@ import com.smartCity.Web.auth.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.subscription.SubscriptionDtos;
 
+/**
+ * Exposes REST endpoints for Subscription operations.
+ */
 @RestController
 @CrossOrigin("*")
 public class SubscriptionController {

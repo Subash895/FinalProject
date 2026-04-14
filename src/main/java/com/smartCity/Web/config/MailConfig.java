@@ -12,6 +12,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.StringUtils;
 
+/**
+ * Registers the mail-related beans used to send application emails.
+ */
 @Configuration
 public class MailConfig {
 

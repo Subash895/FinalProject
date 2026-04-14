@@ -3,6 +3,9 @@ package com.smartCity.Web.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+
+// * Binds Razorpay configuration values used during subscription checkout.
+
 @Component
 @ConfigurationProperties(prefix = "app.payments.razorpay")
 public class RazorpayProperties {

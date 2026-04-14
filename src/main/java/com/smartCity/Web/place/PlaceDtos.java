@@ -2,6 +2,9 @@ package com.smartCity.Web.place;
 
 import com.smartCity.Web.city.CityDtos.CityResponse;
 
+/**
+ * Groups the request and response DTOs used by the Place API.
+ */
 public final class PlaceDtos {
 
   private PlaceDtos() {}

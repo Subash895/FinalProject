@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the business page, including event handling and API calls.
+ */
 /* ============================================================
    SMART CITY - business.js
    ============================================================ */
@@ -9,6 +12,10 @@ function esc(s) {
 function getBusinessSearchQuery() {
     return document.getElementById("businessSearch")?.value.trim() || "";
 }
+
+const businessState = {
+    userLocation: getSavedUserLocation()
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("businessForm")?.addEventListener("submit", async (e) => {
@@ -33,16 +40,59 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    document.getElementById("businessCurrentLocationBtn")?.addEventListener("click", fillBusinessAddressFromCurrentLocation);
     document.getElementById("loadBtn")?.addEventListener("click", loadBusinesses);
     document.getElementById("businessSearch")?.addEventListener("input", loadBusinesses);
     loadBusinesses();
 });
+
+function setBusinessLocationStatus(message) {
+    const status = document.getElementById("businessLocationStatus");
+    if (status) {
+        status.textContent = message;
+    }
+}
+
+async function fillBusinessAddressFromCurrentLocation() {
+    const button = document.getElementById("businessCurrentLocationBtn");
+    const addressInput = document.getElementById("address");
+    if (!button || !addressInput) {
+        return;
+    }
+
+    button.disabled = true;
+    setBusinessLocationStatus("Getting your current position...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        setBusinessLocationStatus("Resolving address from map data...");
+        const place = await reverseGeocodeWithOpenStreetMap(coords.lat, coords.lng);
+        const address = place?.displayName || "";
+
+        if (!address) {
+            throw new Error("No address match found for your current location.");
+        }
+
+        addressInput.value = address;
+        setBusinessLocationStatus("Current location address applied.");
+    } catch (error) {
+        setBusinessLocationStatus(error.message || "Failed to use current location.");
+        showToast(error.message || "Failed to use current location.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
 
 async function loadBusinesses() {
     const container = document.getElementById("list");
     container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
 
     try {
+        if (!businessState.userLocation) {
+            businessState.userLocation = await getUserLocation().catch(() => null);
+        }
+
         const query = getBusinessSearchQuery();
         const endpoint = query ? `/businesses?q=${encodeURIComponent(query)}` : "/businesses";
         const data = await apiRequest(endpoint);
@@ -51,10 +101,16 @@ async function loadBusinesses() {
             return;
         }
 
-        const businessesWithReviews = await Promise.all(data.map(async business => ({
-            ...business,
-            reviews: await loadReviews(REVIEW_TARGETS.business, business.id)
-        })));
+        const businessesWithReviews = await Promise.all(data.map(async business => {
+            const coordinates = business.address ? await geocodeWithOpenStreetMap(business.address).catch(() => null) : null;
+            return {
+                ...business,
+                reviews: await loadReviews(REVIEW_TARGETS.business, business.id),
+                distanceKm: businessState.userLocation && coordinates ?
+                    haversineDistanceKm(businessState.userLocation, coordinates) :
+                    null
+            };
+        }));
 
         container.className = "card-list";
         container.innerHTML = businessesWithReviews.map((b, i) => {
@@ -69,6 +125,7 @@ async function loadBusinesses() {
           <span><span class="meta-icon">Address</span>${b.address || "-"}</span>
           <span><span class="meta-icon">About</span>${b.description || "-"}</span>
         </div>
+        ${b.distanceKm != null ? `<div class="business-distance">${formatDistanceKm(b.distanceKm)}</div>` : ""}
         <div class="card-actions">
           ${canEdit ? `<button class="btn btn-edit btn-sm" onclick='editBusiness(${b.id}, ${JSON.stringify(b)})'>Edit</button>` : ""}
           ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deleteBusiness(${b.id}, '${esc(b.name)}')">Delete</button>` : ""}

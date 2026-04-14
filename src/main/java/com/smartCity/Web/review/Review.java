@@ -15,6 +15,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * Represents a user review attached to a supported target such as a place or city.
+ */
 @Entity
 @Table(name = "review_entries")
 public class Review {

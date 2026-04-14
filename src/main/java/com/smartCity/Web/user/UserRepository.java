@@ -5,8 +5,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.smartCity.Web.user.User;
-
+/**
+ * Provides database access methods for User records.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 

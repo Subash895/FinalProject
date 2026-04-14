@@ -3,16 +3,14 @@ package com.smartCity.Web.news;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.smartCity.Web.news.News;
-import com.smartCity.Web.news.NewsRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class NewsService {
 
-  @Autowired private NewsRepository repository;
+  private final NewsRepository repository;
 
   public News createNews(News news) {
     return repository.save(news);

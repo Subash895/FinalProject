@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import com.smartCity.Web.marketrate.MarketRate;
 import com.smartCity.Web.marketrate.MarketRateRepository;
 
+/**
+ * Coordinates the business rules for Market Rate features before data is stored or returned.
+ */
 @Service
 public class MarketRateService {
 

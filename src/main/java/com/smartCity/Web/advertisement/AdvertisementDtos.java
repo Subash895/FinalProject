@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import com.smartCity.Web.business.BusinessDtos.BusinessResponse;
 
+/**
+ * Groups the request and response DTOs used by the Advertisement API.
+ */
 public final class AdvertisementDtos {
 
   private AdvertisementDtos() {}

@@ -1,3 +1,6 @@
+/**
+ * Client-side review helpers for loading, rendering, and submitting user reviews.
+ */
 const REVIEW_TARGETS = {
     business: "BUSINESS",
     place: "PLACE",
@@ -28,7 +31,7 @@ async function removeReview(reviewId) {
 
 function reviewStars(rating) {
     const safeRating = Math.max(0, Math.min(5, Number(rating) || 0));
-    return "★★★★★".slice(0, safeRating) + "☆☆☆☆☆".slice(0, 5 - safeRating);
+    return "*****".slice(0, safeRating) + ".....".slice(0, 5 - safeRating);
 }
 
 function formatReviewDate(value) {
@@ -156,7 +159,7 @@ function renderReviewSection(targetType, itemId, reviews) {
             <div class="review-summary">
                 <div class="review-summary-copy">
                     <h4>User Reviews</h4>
-                    <p>${list.length ? `${list.length} review(s) • Average ${average}/5` : "No reviews yet."}</p>
+                    <p>${list.length ? `${list.length} review(s) - Average ${average}/5` : "No reviews yet."}</p>
                 </div>
                 <div class="review-summary-side">
                     ${average ? `<div class="review-average">${average}<span>/5</span></div>` : ""}

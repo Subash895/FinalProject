@@ -16,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Wraps the Razorpay HTTP integration used to create and confirm subscription orders.
+ */
 @Component
 public class RazorpayClient {
   private static final String API_BASE = "https://api.razorpay.com/v1";

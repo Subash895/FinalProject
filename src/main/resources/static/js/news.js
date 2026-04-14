@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the news page, including event handling and API calls.
+ */
 /* ============================================================
    SMART CITY - news.js
    ============================================================ */

@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+//Exposes public configuration values that the frontend can safely read at runtime.
+
 @RestController
 @RequestMapping("/api/config")
 @CrossOrigin("*")

@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import com.smartCity.Web.forum.ForumDtos.ForumPostResponse;
 import com.smartCity.Web.user.UserDtos.UserResponse;
 
+/**
+ * Groups the request and response DTOs used by the Comment API.
+ */
 public final class CommentDtos {
 
   private CommentDtos() {}

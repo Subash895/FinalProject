@@ -2,6 +2,9 @@ package com.smartCity.Web.auth;
 
 import com.smartCity.Web.user.Role;
 
+/**
+ * Groups the request and response DTOs used by the Auth API.
+ */
 public final class AuthDtos {
 
   private AuthDtos() {}

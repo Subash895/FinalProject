@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import com.smartCity.Web.city.CityDtos.CityResponse;
 
+/**
+ * Groups the request and response DTOs used by the News API.
+ */
 public final class NewsDtos {
 
   private NewsDtos() {}

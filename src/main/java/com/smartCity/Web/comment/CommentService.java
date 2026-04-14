@@ -3,18 +3,29 @@ package com.smartCity.Web.comment;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.smartCity.Web.comment.Comment;
-import com.smartCity.Web.comment.CommentRepository;
+import com.smartCity.Web.notification.EmailNotificationService;
+import lombok.RequiredArgsConstructor;
 
+/**
+ * Coordinates the business rules for Comment features before data is stored or returned.
+ */
 @Service
+@RequiredArgsConstructor
 public class CommentService {
-  @Autowired private CommentRepository repo;
+  private final CommentRepository repo;
+  private final EmailNotificationService emailNotificationService;
 
   public Comment save(Comment entity) {
-    return repo.save(entity);
+    Comment savedComment = repo.save(entity);
+    if (savedComment.getUser() != null) {
+      emailNotificationService.sendCommentThankYou(
+          savedComment.getUser().getEmail(),
+          savedComment.getUser().getName(),
+          resolveTargetLabel(savedComment));
+    }
+    return savedComment;
   }
 
   public List<Comment> getAll() {
@@ -32,5 +43,12 @@ public class CommentService {
 
   public void delete(Long id) {
     repo.deleteById(id);
+  }
+
+  private String resolveTargetLabel(Comment comment) {
+    if (comment.getPost() != null && comment.getPost().getTitle() != null) {
+      return "forum post \"" + comment.getPost().getTitle() + "\"";
+    }
+    return "the discussion";
   }
 }

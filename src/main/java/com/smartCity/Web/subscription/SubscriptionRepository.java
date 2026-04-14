@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import com.smartCity.Web.subscription.Subscription;
 
+/**
+ * Provides database access methods for Subscription records.
+ */
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
   List<Subscription> findByEmail(String email);

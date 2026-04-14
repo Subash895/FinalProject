@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.marketrate.MarketRateDtos;
 
+/**
+ * Exposes REST endpoints for Market Rate operations.
+ */
 @RestController
 @RequestMapping("/api/marketrates")
 @CrossOrigin("*")

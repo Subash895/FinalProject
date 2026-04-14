@@ -3,6 +3,7 @@ package com.smartCity.Web.place;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,19 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.shared.ApiDtoMapper;
-import com.smartCity.Web.place.PlaceDtos;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/places")
 @CrossOrigin("*")
+@RequiredArgsConstructor
 public class PlaceController {
   private final PlaceService service;
   private final ApiDtoMapper apiDtoMapper;
-
-  public PlaceController(PlaceService service, ApiDtoMapper apiDtoMapper) {
-    this.service = service;
-    this.apiDtoMapper = apiDtoMapper;
-  }
 
   @PostMapping
   public PlaceDtos.PlaceResponse create(@RequestBody PlaceDtos.PlaceRequest entity) {
@@ -44,13 +41,12 @@ public class PlaceController {
   }
 
   @GetMapping("/{id}")
-  public org.springframework.http.ResponseEntity<PlaceDtos.PlaceResponse> getById(
-      @PathVariable Long id) {
+  public ResponseEntity<PlaceDtos.PlaceResponse> getById(@PathVariable Long id) {
     return service
         .getById(id)
         .map(apiDtoMapper::toPlaceResponse)
-        .map(org.springframework.http.ResponseEntity::ok)
-        .orElse(org.springframework.http.ResponseEntity.notFound().build());
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}")

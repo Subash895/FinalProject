@@ -3,23 +3,27 @@ package com.smartCity.Web.news;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.shared.ApiDtoMapper;
-import com.smartCity.Web.news.NewsDtos;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/news")
 @CrossOrigin("*")
+@RequiredArgsConstructor
 public class NewsController {
 
   private final NewsService service;
   private final ApiDtoMapper apiDtoMapper;
-
-  public NewsController(NewsService service, ApiDtoMapper apiDtoMapper) {
-    this.service = service;
-    this.apiDtoMapper = apiDtoMapper;
-  }
 
   @PostMapping
   public NewsDtos.NewsResponse create(@RequestBody NewsDtos.NewsRequest news) {

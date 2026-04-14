@@ -9,35 +9,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartCity.Web.auth.AuthDtos;
+import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.user.Role;
 import com.smartCity.Web.user.User;
 import com.smartCity.Web.user.UserService;
-import com.smartCity.Web.shared.ApiDtoMapper;
-import com.smartCity.Web.auth.AuthDtos;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
+@RequiredArgsConstructor
 public class AuthController {
 
   private final UserService userService;
   private final JwtService jwtService;
   private final ApiDtoMapper apiDtoMapper;
 
-  public AuthController(UserService userService, JwtService jwtService, ApiDtoMapper apiDtoMapper) {
-    this.userService = userService;
-    this.jwtService = jwtService;
-    this.apiDtoMapper = apiDtoMapper;
-  }
-
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody AuthDtos.RegisterRequest request) {
     try {
-      User savedUser = userService.register(apiDtoMapper.toUser(request));
-      String token = jwtService.generateToken(savedUser);
-      return ResponseEntity.ok(apiDtoMapper.toAuthResponse(token, savedUser));
+      return ResponseEntity.ok(authResponse(userService.register(apiDtoMapper.toUser(request))));
     } catch (Exception e) {
-      e.printStackTrace();
       return ResponseEntity.internalServerError().body("Register failed: " + e.getMessage());
     }
   }
@@ -45,9 +38,7 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody AuthDtos.LoginRequest request) {
     try {
-      User loggedInUser = userService.login(request.email(), request.password());
-      String token = jwtService.generateToken(loggedInUser);
-      return ResponseEntity.ok(apiDtoMapper.toAuthResponse(token, loggedInUser));
+      return ResponseEntity.ok(authResponse(userService.login(request.email(), request.password())));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body("Login failed: " + e.getMessage());
     }
@@ -56,9 +47,8 @@ public class AuthController {
   @PostMapping("/google")
   public ResponseEntity<?> google(@RequestBody GoogleAuthRequest request) {
     try {
-      User loggedInUser = userService.loginWithGoogle(request.credential(), request.role());
-      String token = jwtService.generateToken(loggedInUser);
-      return ResponseEntity.ok(apiDtoMapper.toAuthResponse(token, loggedInUser));
+      return ResponseEntity.ok(
+          authResponse(userService.loginWithGoogle(request.credential(), request.role())));
     } catch (IllegalStateException e) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
           .body("Google sign-in is unavailable: " + e.getMessage());
@@ -92,6 +82,10 @@ public class AuthController {
     boolean enabled = userService.isGoogleAuthEnabled();
     return ResponseEntity.ok(
         new GoogleAuthConfigResponse(enabled, enabled ? userService.getGoogleClientId() : null));
+  }
+
+  private AuthDtos.AuthResponse authResponse(User user) {
+    return apiDtoMapper.toAuthResponse(jwtService.generateToken(user), user);
   }
 
   public record GoogleAuthRequest(String credential, Role role) {}

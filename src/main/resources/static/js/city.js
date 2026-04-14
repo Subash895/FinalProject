@@ -1,3 +1,6 @@
+/**
+ * Client-side behavior for the city page, including event handling and API calls.
+ */
 const CITY_EMOJIS = ["CT", "SK", "PT", "HC", "TR", "MT", "BF", "RW"];
 
 function esc(value) {
@@ -16,44 +19,616 @@ function escapeHtml(value) {
 const cityMapState = {
     cities: [],
     map: null,
-    markers: new Map()
+    markers: new Map(),
+    searchResults: [],
+    searchToken: 0,
+    selectedCoordinates: null,
+    selectionMarker: null,
+    userLocationMarker: null,
+    userLocation: getSavedUserLocation()
 };
 
 const cityHistoryState = {
     cityId: null,
-    cityName: ""
+    cityName: "",
+    editingHistoryId: null,
+    histories: []
+};
+
+const cityEditState = {
+    editingCityId: null
 };
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cityForm")?.addEventListener("submit", createCity);
+    document.getElementById("cityCurrentLocationBtn")?.addEventListener("click", fillCityFromCurrentLocation);
+    document.getElementById("cityCancelEditBtn")?.addEventListener("click", resetCityForm);
     document.getElementById("loadBtn")?.addEventListener("click", loadCities);
-    document.getElementById("closeHistoryBtn")?.addEventListener("click", closeCityHistory);
+    attachCitySearchHandlers();
     initCityMap();
     loadCities();
 });
 
+function setCityLocationStatus(message) {
+    const status = document.getElementById("cityLocationStatus");
+    if (status) {
+        status.textContent = message;
+    }
+}
+
+
+function debounce(callback, delay) {
+    let timeoutId = null;
+    return (...args) => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => callback(...args), delay);
+    };
+}
+
+function attachCitySearchHandlers() {
+    const nameInput = document.getElementById("name");
+    const stateInput = document.getElementById("state");
+    const countryInput = document.getElementById("country");
+
+    if (!nameInput) {
+        return;
+    }
+
+    const scheduleSearch = debounce(searchCityLocation, 350);
+    [nameInput, stateInput, countryInput].forEach(input => {
+        input?.addEventListener("input", scheduleSearch);
+    });
+}
+
 async function createCity(event) {
     event.preventDefault();
-    const form = event.target;
-    const button = form.querySelector("button[type=submit]");
+    const button = document.getElementById("citySubmitBtn");
     button.disabled = true;
     button.textContent = "Saving...";
 
     try {
-        await apiRequest("/cities", "POST", {
-            name: document.getElementById("name").value.trim(),
-            state: document.getElementById("state").value.trim(),
-            country: document.getElementById("country").value.trim()
-        });
-        form.reset();
+        const name = document.getElementById("name").value.trim();
+        const state = document.getElementById("state").value.trim();
+        const country = document.getElementById("country").value.trim();
+        const historyTitle = document.getElementById("cityHistoryTitleInput")?.value.trim() || "";
+        const historyContent = document.getElementById("cityHistoryContentInput")?.value.trim() || "";
+
+        if ((historyTitle && !historyContent) || (!historyTitle && historyContent)) {
+            throw new Error("Enter both history title and history content, or leave both empty.");
+        }
+
+        const fallbackCoordinates =
+            cityMapState.selectedCoordinates || await geocodeCityForSave(name, state, country);
+
+        const payload = {
+            name,
+            state,
+            country,
+            latitude: fallbackCoordinates?.lat ?? null,
+            longitude: fallbackCoordinates?.lng ?? null
+        };
+
+        const createdCity = await apiRequest("/cities", "POST", payload);
+        if (historyTitle && historyContent && createdCity?.id) {
+            await apiRequest("/cityhistory", "POST", {
+                cityId: createdCity.id,
+                title: historyTitle,
+                content: historyContent
+            });
+        }
         showToast("City added.", "success");
+
+        resetCityForm();
         await loadCities();
-    } catch {
-        showToast("Failed to add city.", "error");
+    } catch (error) {
+        showToast(error.message || "Failed to save city.", "error");
     } finally {
         button.disabled = false;
         button.textContent = "Add City";
     }
+}
+
+function resetCityForm() {
+    document.getElementById("cityForm")?.reset();
+    cityMapState.selectedCoordinates = null;
+    cityMapState.searchResults = [];
+    renderCitySearchResults();
+    setCityFormMode(false);
+}
+
+function setCityFormMode(isEditing) {
+    const title = document.getElementById("cityFormTitle");
+    const submitButton = document.getElementById("citySubmitBtn");
+    const cancelButton = document.getElementById("cityCancelEditBtn");
+    const historySectionTitle = document.querySelector(".city-history-inline-fields .form-title");
+
+    if (title) {
+        title.textContent = "Add a City";
+    }
+    if (submitButton) {
+        submitButton.textContent = "Add City";
+    }
+    if (cancelButton) {
+        cancelButton.style.display = "none";
+    }
+    if (historySectionTitle) {
+        historySectionTitle.textContent = "City History";
+    }
+}
+
+function startCityEdit(cityId) {
+    const city = cityMapState.cities.find(item => item.id === cityId);
+    if (!city) {
+        showToast("City not found for editing.", "error");
+        return;
+    }
+
+    if (cityEditState.editingCityId === cityId) {
+        cancelCityEdit();
+        return;
+    }
+
+    cityEditState.editingCityId = cityId;
+    renderInlineCityEdit(cityId);
+}
+
+function cancelCityEdit() {
+    if (cityEditState.editingCityId) {
+        const slot = document.getElementById(`city-edit-slot-${cityEditState.editingCityId}`);
+        if (slot) {
+            slot.hidden = true;
+            slot.innerHTML = "";
+        }
+    }
+    cityEditState.editingCityId = null;
+}
+
+function inlineCityEditMarkup(city) {
+    return `
+        <div class="city-inline-edit-form">
+            <div class="form-title">Edit City</div>
+            <form onsubmit="submitInlineCityEdit(event, ${city.id})">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit-city-name-${city.id}">City Name</label>
+                        <input class="form-control" id="edit-city-name-${city.id}" value="${escapeHtml(city.name || "")}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-city-state-${city.id}">State</label>
+                        <input class="form-control" id="edit-city-state-${city.id}" value="${escapeHtml(city.state || "")}" placeholder="e.g. Karnataka">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-city-country-${city.id}">Country</label>
+                        <input class="form-control" id="edit-city-country-${city.id}" value="${escapeHtml(city.country || "India")}" required>
+                    </div>
+                </div>
+                <div class="city-history-inline-fields">
+                    <div class="form-title">Add History For This City</div>
+                    <div class="form-grid city-history-form-grid">
+                        <div class="form-group">
+                            <label for="edit-city-history-title-${city.id}">History Title</label>
+                            <input class="form-control" id="edit-city-history-title-${city.id}" type="text" placeholder="e.g. Early development">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-city-history-content-${city.id}">History Content</label>
+                        <textarea class="form-control city-history-textarea" id="edit-city-history-content-${city.id}" placeholder="Write the city history here..."></textarea>
+                    </div>
+                </div>
+                <div class="city-form-actions">
+                    <button class="btn btn-primary" type="submit">Update City</button>
+                    <button class="btn btn-secondary" type="button" onclick="cancelCityEdit()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+function renderInlineCityEdit(cityId) {
+    cancelCityEdit();
+    cityEditState.editingCityId = cityId;
+    const city = cityMapState.cities.find(item => item.id === cityId);
+    const slot = document.getElementById(`city-edit-slot-${cityId}`);
+    if (!city || !slot) {
+        cityEditState.editingCityId = null;
+        return;
+    }
+
+    slot.hidden = false;
+    slot.innerHTML = inlineCityEditMarkup(city);
+}
+
+async function submitInlineCityEdit(event, cityId) {
+    event.preventDefault();
+    const city = cityMapState.cities.find(item => item.id === cityId);
+    if (!city) {
+        showToast("City not found for editing.", "error");
+        return;
+    }
+
+    const button = event.submitter;
+    const name = document.getElementById(`edit-city-name-${cityId}`)?.value.trim() || "";
+    const state = document.getElementById(`edit-city-state-${cityId}`)?.value.trim() || "";
+    const country = document.getElementById(`edit-city-country-${cityId}`)?.value.trim() || "";
+    const historyTitle = document.getElementById(`edit-city-history-title-${cityId}`)?.value.trim() || "";
+    const historyContent = document.getElementById(`edit-city-history-content-${cityId}`)?.value.trim() || "";
+
+    if ((historyTitle && !historyContent) || (!historyTitle && historyContent)) {
+        showToast("Enter both history title and history content, or leave both empty.", "error");
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Updating...";
+    }
+
+    try {
+        const fallbackCoordinates = city.latitude != null && city.longitude != null
+            ? { lat: city.latitude, lng: city.longitude }
+            : await geocodeCityForSave(name, state, country);
+        const payload = {
+            name,
+            state,
+            country,
+            latitude: fallbackCoordinates?.lat ?? null,
+            longitude: fallbackCoordinates?.lng ?? null
+        };
+
+        await apiRequest(`/cities/${cityId}`, "PUT", payload);
+        if (historyTitle && historyContent) {
+            await apiRequest("/cityhistory", "POST", {
+                cityId,
+                title: historyTitle,
+                content: historyContent
+            });
+        }
+
+        showToast("City updated.", "success");
+        cancelCityEdit();
+        await loadCities();
+    } catch (error) {
+        showToast(error.message || "Failed to update city.", "error");
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Update City";
+        }
+    }
+}
+
+async function searchCityLocation() {
+    const nameInput = document.getElementById("name");
+    const stateInput = document.getElementById("state");
+    const countryInput = document.getElementById("country");
+
+    if (!nameInput) {
+        return;
+    }
+
+    const name = nameInput.value.trim();
+    const state = stateInput?.value.trim() || "";
+    const country = countryInput?.value.trim() || "India";
+    const query = [name, state, country].filter(Boolean).join(", ");
+
+    if (!name || name.length < 3) {
+        cityMapState.searchResults = [];
+        renderCitySearchResults();
+        setCityMapStatus("Type at least 3 letters to search for a city.");
+        return;
+    }
+
+    const currentToken = ++cityMapState.searchToken;
+
+    try {
+        setCityMapStatus(`Searching map for "${name}"...`);
+        const results = await searchWithOpenStreetMap(query, {
+            limit: 10
+        });
+
+        if (currentToken !== cityMapState.searchToken) {
+            return;
+        }
+
+        cityMapState.searchResults = (results || []).filter(result => {
+            const resultCountry = String(result?.address?.country || "").trim().toLowerCase();
+            return !resultCountry || resultCountry === "india";
+        });
+        renderCitySearchResults();
+
+        if (!cityMapState.searchResults.length) {
+            setCityMapStatus(`No city match found for "${name}".`);
+            return;
+        }
+
+        focusCoordinatesOnCityMap(cityMapState.searchResults[0], cityMapState.searchResults[0].displayName || name);
+    } catch (error) {
+        console.error(error);
+        if (currentToken !== cityMapState.searchToken) {
+            return;
+        }
+        cityMapState.searchResults = [];
+        renderCitySearchResults();
+        setCityMapStatus("City search failed.");
+    }
+}
+
+function renderCitySearchResults() {
+    const container = document.getElementById("citySearchResults");
+    if (!container) {
+        return;
+    }
+
+    if (!cityMapState.searchResults.length) {
+        container.hidden = true;
+        container.innerHTML = "";
+        return;
+    }
+
+    container.hidden = false;
+    container.innerHTML = cityMapState.searchResults.map((result, index) => `
+        <button type="button" class="map-search-option" onclick="selectCitySearchResult(${index})">
+            ${result.name || "Suggested city"}
+            <small>${result.displayName || ""}</small>
+        </button>
+    `).join("");
+}
+
+function selectCitySearchResult(index) {
+    const result = cityMapState.searchResults[index];
+    if (!result) {
+        return;
+    }
+
+    const fields = extractCityFields(result);
+    const nameInput = document.getElementById("name");
+    const stateInput = document.getElementById("state");
+    const countryInput = document.getElementById("country");
+
+    if (nameInput && fields.name) {
+        nameInput.value = fields.name;
+    }
+    if (stateInput) {
+        stateInput.value = fields.state || "";
+    }
+    if (countryInput && fields.country) {
+        countryInput.value = fields.country;
+    }
+
+    cityMapState.searchResults = [];
+    cityMapState.selectedCoordinates = {
+        lat: result.lat,
+        lng: result.lng
+    };
+    renderCitySearchResults();
+    focusCoordinatesOnCityMap(result, result.displayName || result.name || "selected city");
+}
+
+function extractCityFields(result) {
+    const address = result?.address || {};
+    return {
+        name: address.city || address.town || address.village || address.municipality || result?.name || "",
+        state: address.state || address.region || address.county || "",
+        country: address.country || ""
+    };
+}
+
+async function fillCityFromCurrentLocation() {
+    const button = document.getElementById("cityCurrentLocationBtn");
+    if (!button) {
+        return;
+    }
+
+    button.disabled = true;
+    setCityLocationStatus("Getting your current position...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        setCityLocationStatus("Resolving city details from map data...");
+        const result = await reverseGeocodeWithOpenStreetMap(coords.lat, coords.lng);
+        const fields = extractCityFields(result);
+
+        if (!fields.name || !fields.country) {
+            throw new Error("Current location did not return enough city details.");
+        }
+
+        const nameInput = document.getElementById("name");
+        const stateInput = document.getElementById("state");
+        const countryInput = document.getElementById("country");
+
+        if (nameInput) {
+            nameInput.value = fields.name;
+        }
+        if (stateInput) {
+            stateInput.value = fields.state || "";
+        }
+        if (countryInput) {
+            countryInput.value = fields.country;
+        }
+
+        cityMapState.searchResults = [];
+        cityMapState.selectedCoordinates = {
+            lat: coords.lat,
+            lng: coords.lng
+        };
+        renderCitySearchResults();
+        focusCoordinatesOnCityMap(coords, result?.displayName || fields.name);
+        setCityLocationStatus("Current city details applied.");
+    } catch (error) {
+        setCityLocationStatus(error.message || "Failed to use current location.");
+        showToast(error.message || "Failed to use current location.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+
+function syncCityHistoryAdminUI() {
+    if (cityHistoryState.cityId) {
+        renderExpandedCityHistory();
+    }
+}
+
+function resetCityHistoryForm() {
+    cityHistoryState.editingHistoryId = null;
+    syncCityHistoryAdminUI();
+}
+
+function cityHistoryEditorMarkup(cityId) {
+    if (!isAdmin() || cityHistoryState.cityId !== cityId) {
+        return "";
+    }
+
+    const isEditing = Boolean(cityHistoryState.editingHistoryId);
+    const history = isEditing ?
+        cityHistoryState.histories.find(item => item.id === cityHistoryState.editingHistoryId) :
+        null;
+
+    return `
+        <div class="city-history-editor">
+            <div class="form-title">${isEditing ? "Edit City History" : "Add City History"}</div>
+            <form onsubmit="submitCityHistoryForm(event, ${cityId})">
+                <div class="form-grid city-history-form-grid">
+                    <div class="form-group">
+                        <label for="historyTitle-${cityId}">Title</label>
+                        <input class="form-control" id="historyTitle-${cityId}" type="text" placeholder="e.g. Early development" value="${escapeHtml(history?.title || "")}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="historyContent-${cityId}">Content</label>
+                    <textarea class="form-control city-history-textarea" id="historyContent-${cityId}" placeholder="Write the city history here..." required>${escapeHtml(history?.content || "")}</textarea>
+                </div>
+                <div class="city-history-form-actions">
+                    <button class="btn btn-primary" type="submit">${isEditing ? "Update History" : "Save History"}</button>
+                    ${isEditing ? `<button class="btn btn-secondary" type="button" onclick="resetCityHistoryForm()">Cancel</button>` : ""}
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+function cityHistoryListMarkup(cityId, cityName) {
+    if (!cityHistoryState.histories.length) {
+        return `
+            <div class="empty-state glass-card">
+                <div class="empty-icon">HS</div>
+                <p>No history found for ${escapeHtml(cityName)}.</p>
+            </div>
+        `;
+    }
+
+    return cityHistoryState.histories.map(history => `
+        <article class="city-history-item">
+            <div class="city-history-item-header">
+                <h3>${escapeHtml(history.title || "Untitled history")}</h3>
+                ${isAdmin() ? `
+                    <div class="city-history-item-actions">
+                        <button class="btn btn-edit btn-sm" type="button" onclick="startCityHistoryEdit(${history.id})">Edit</button>
+                        <button class="btn btn-delete btn-sm" type="button" onclick="deleteCityHistory(${history.id})">Delete</button>
+                    </div>
+                ` : ""}
+            </div>
+            <p>${escapeHtml(history.content || "No history content available.")}</p>
+        </article>
+    `).join("");
+}
+
+function renderExpandedCityHistory() {
+    const cityId = cityHistoryState.cityId;
+    if (!cityId) {
+        return;
+    }
+
+    const slot = document.getElementById(`city-history-slot-${cityId}`);
+    if (!slot) {
+        return;
+    }
+
+    slot.hidden = false;
+    slot.innerHTML = `
+        <div class="city-inline-history-header">
+            <div>
+                <h3>${escapeHtml(cityHistoryState.cityName)} History</h3>
+                <p class="city-history-meta">Showing history for ${escapeHtml(cityHistoryState.cityName)}.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button" onclick="closeCityHistory()">Close</button>
+        </div>
+        ${cityHistoryEditorMarkup(cityId)}
+        <div class="city-history-list">
+            ${cityHistoryListMarkup(cityId, cityHistoryState.cityName)}
+        </div>
+    `;
+}
+
+async function submitCityHistoryForm(event, cityId) {
+    event.preventDefault();
+    if (!cityId) {
+        showToast("Open a city history before adding an entry.", "info");
+        return;
+    }
+
+    const selectedCity = cityMapState.cities.find(city => city.id === cityId);
+    const titleInput = document.getElementById(`historyTitle-${cityId}`);
+    const contentInput = document.getElementById(`historyContent-${cityId}`);
+    const button = event.submitter;
+    const payload = {
+        cityId,
+        title: titleInput?.value.trim() || "",
+        content: contentInput?.value.trim() || ""
+    };
+
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner"></span> Saving...';
+    }
+
+    try {
+        if (cityHistoryState.editingHistoryId) {
+            await apiRequest(`/cityhistory/${cityHistoryState.editingHistoryId}`, "PUT", payload);
+            showToast("City history updated.", "success");
+        } else {
+            await apiRequest("/cityhistory", "POST", payload);
+            showToast("City history added.", "success");
+        }
+
+        resetCityHistoryForm();
+        if (selectedCity) {
+            await openCityHistory(selectedCity.id, selectedCity.name, true);
+        }
+    } catch (error) {
+        showToast(error.message || "Failed to add city history.", "error");
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = cityHistoryState.editingHistoryId ? "Update History" : "Save History";
+        }
+    }
+}
+
+function startCityHistoryEdit(historyId) {
+    const history = cityHistoryState.histories?.find(item => item.id === historyId);
+    if (!history) {
+        showToast("City history not found.", "error");
+        return;
+    }
+
+    cityHistoryState.editingHistoryId = historyId;
+
+    renderExpandedCityHistory();
+}
+
+async function deleteCityHistory(historyId) {
+    openDeleteModal({
+        itemName: "this city history",
+        onConfirm: async () => {
+            await apiRequest(`/cityhistory/${historyId}`, "DELETE");
+            resetCityHistoryForm();
+            if (cityHistoryState.cityId && cityHistoryState.cityName) {
+                await openCityHistory(cityHistoryState.cityId, cityHistoryState.cityName, true);
+            }
+        }
+    });
 }
 
 async function loadCities() {
@@ -61,22 +636,22 @@ async function loadCities() {
     container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
 
     try {
-        const cities = await apiRequest("/cities");
-        const citiesWithReviews = await Promise.all((cities || []).map(async city => ({
-            ...city,
-            reviews: await loadReviews(REVIEW_TARGETS.city, city.id)
-        })));
-        cityMapState.cities = citiesWithReviews;
-
-        if (cityHistoryState.cityId) {
-            const selectedCity = citiesWithReviews.find(city => city.id === cityHistoryState.cityId);
-            if (selectedCity) {
-                openCityHistory(selectedCity.id, selectedCity.name);
-            } else {
-                closeCityHistory();
-            }
+        if (!cityMapState.userLocation) {
+            cityMapState.userLocation = await getUserLocation().catch(() => null);
         }
 
+        const cities = await apiRequest("/cities");
+        const citiesWithReviews = await Promise.all((cities || []).map(async city => {
+            const coordinates = await resolveCityCoordinates(city).catch(() => null);
+            return {
+                ...city,
+                reviews: await loadReviews(REVIEW_TARGETS.city, city.id),
+                distanceKm: cityMapState.userLocation && coordinates ?
+                    haversineDistanceKm(cityMapState.userLocation, coordinates) :
+                    null
+            };
+        }));
+        cityMapState.cities = citiesWithReviews;
         if (citiesWithReviews.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">CT</div><p>No cities yet. Add the first one.</p></div>';
             syncCityMap();
@@ -87,20 +662,46 @@ async function loadCities() {
         container.innerHTML = citiesWithReviews.map((city, index) => `
             <div class="city-card glass-card" style="animation-delay:${index * 0.05}s">
               <div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>
-              <div class="city-info">
-                <h3><button type="button" class="city-link" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">${city.name}</button></h3>
-                ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
-                <div class="city-country">${city.country || "Country not set"}</div>
-                ${renderReviewSection(REVIEW_TARGETS.city, city.id, city.reviews || [])}
-              </div>
-              <div class="city-actions">
-                <button class="btn btn-primary btn-sm" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">History</button>
-                <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
-                ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editCity(${city.id}, ${JSON.stringify(city)})'>Edit</button>` : ""}
-                ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${city.id}, '${esc(city.name)}')">Delete</button>` : ""}
+              <div class="city-card-body">
+                <div class="city-card-main">
+                  <div class="city-info">
+                    <h3><button type="button" class="city-link" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">${city.name}</button></h3>
+                    ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
+                    <div class="city-country">${city.country || "Country not set"}</div>
+                    ${city.distanceKm != null ? `<div class="city-distance">${formatDistanceKm(city.distanceKm)}</div>` : ""}
+                    ${renderReviewSection(REVIEW_TARGETS.city, city.id, city.reviews || [])}
+                  </div>
+                  <div class="city-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">History</button>
+                    <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
+                    ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick="startCityEdit(${city.id})">Edit</button>` : ""}
+                    ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${city.id}, '${esc(city.name)}')">Delete</button>` : ""}
+                  </div>
+                </div>
+                <div id="city-edit-slot-${city.id}" class="city-inline-edit" hidden></div>
+                <div id="city-history-slot-${city.id}" class="city-inline-history" hidden></div>
               </div>
             </div>
         `).join("");
+
+        if (cityEditState.editingCityId) {
+            const editingCity = citiesWithReviews.find(city => city.id === cityEditState.editingCityId);
+            if (editingCity) {
+                renderInlineCityEdit(editingCity.id);
+            } else {
+                cancelCityEdit();
+            }
+        }
+
+        if (cityHistoryState.cityId) {
+            const selectedCity = citiesWithReviews.find(city => city.id === cityHistoryState.cityId);
+            if (selectedCity) {
+                cityHistoryState.cityName = selectedCity.name;
+                renderExpandedCityHistory();
+            } else {
+                closeCityHistory();
+            }
+        }
 
         syncCityMap();
         hydrateReviewForms(loadCities);
@@ -108,37 +709,6 @@ async function loadCities() {
         container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">NA</div><p>Cannot connect to server.</p></div>';
         setCityMapStatus("City data failed to load.");
     }
-}
-
-function editCity(id, city) {
-    openEditModal({
-        title: "Edit City",
-        fields: [{
-                key: "name",
-                label: "City Name",
-                placeholder: "e.g. Bengaluru"
-            },
-            {
-                key: "state",
-                label: "State",
-                placeholder: "e.g. Karnataka"
-            },
-            {
-                key: "country",
-                label: "Country",
-                placeholder: "e.g. India"
-            }
-        ],
-        values: {
-            name: city.name,
-            state: city.state,
-            country: city.country
-        },
-        onSave: async (data) => {
-            await apiRequest(`/cities/${id}`, "PUT", data);
-            await loadCities();
-        }
-    });
 }
 
 function deleteCity(id, name) {
@@ -157,7 +727,12 @@ async function initCityMap() {
             center: OSM_DEFAULT_CENTER,
             zoom: 5
         });
-        setCityMapStatus("Map ready. Use any city card to focus a marker.");
+        cityMapState.map.on("click", handleCityMapClick);
+        addCurrentLocationControl(cityMapState.map, {
+            title: "Show my current location",
+            onClick: showCurrentLocationOnCityMap
+        });
+        setCityMapStatus("Map ready. Click the map to fill city details or use any city card to focus a marker.");
         syncCityMap();
     } catch (error) {
         console.error(error);
@@ -174,6 +749,12 @@ function setCityMapStatus(message) {
 
 function cityAddress(city) {
     return [city.name, city.state, city.country].filter(Boolean).join(", ");
+}
+
+async function geocodeCityForSave(name, state, country) {
+    const normalizedCountry = (country || "").trim() || "India";
+    const query = [name, state, normalizedCountry].filter(Boolean).join(", ");
+    return geocodeWithOpenStreetMap(query);
 }
 
 async function syncCityMap() {
@@ -194,7 +775,12 @@ async function syncCityMap() {
 
     for (const city of cityMapState.cities) {
         try {
-            const location = await geocodeWithOpenStreetMap(cityAddress(city));
+            const location = city.latitude != null && city.longitude != null ?
+                {
+                    lat: city.latitude,
+                    lng: city.longitude
+                } :
+                await geocodeWithOpenStreetMap(cityAddress(city));
             if (!location) {
                 continue;
             }
@@ -212,11 +798,13 @@ async function syncCityMap() {
     }
 
     if (markerCount > 0) {
-        cityMapState.map.fitBounds(bounds, {
-            padding: [24, 24]
-        });
-        if (markerCount === 1) {
-            cityMapState.map.setZoom(10);
+        if (!cityMapState.selectedCoordinates) {
+            cityMapState.map.fitBounds(bounds, {
+                padding: [24, 24]
+            });
+            if (markerCount === 1) {
+                cityMapState.map.setZoom(10);
+            }
         }
         setCityMapStatus(`${markerCount} city marker(s) loaded.`);
     } else {
@@ -234,84 +822,215 @@ function cityPopupContent(city) {
     `;
 }
 
-function focusCityOnMap(cityId) {
-    const marker = cityMapState.markers.get(cityId);
+async function resolveCityCoordinates(city) {
+    if (!city) {
+        return null;
+    }
+
+    if (city.latitude != null && city.longitude != null) {
+        return {
+            lat: city.latitude,
+            lng: city.longitude
+        };
+    }
+
+    return geocodeWithOpenStreetMap(cityAddress(city));
+}
+
+async function ensureCityMarker(cityId) {
     const city = cityMapState.cities.find(item => item.id === cityId);
-    if (!marker || !city) {
-        showToast("City marker is not ready yet.", "info");
+    if (!city || !cityMapState.map) {
+        return null;
+    }
+
+    const existingMarker = cityMapState.markers.get(cityId);
+    if (existingMarker) {
+        return existingMarker;
+    }
+
+    const location = await resolveCityCoordinates(city);
+    if (!location) {
+        return null;
+    }
+
+    const marker = L.marker([location.lat, location.lng], {
+        title: city.name
+    }).addTo(cityMapState.map);
+    marker.bindPopup(cityPopupContent(city));
+    cityMapState.markers.set(cityId, marker);
+    return marker;
+}
+
+async function focusCityOnMap(cityId) {
+    const city = cityMapState.cities.find(item => item.id === cityId);
+    if (!city) {
+        showToast("City not found.", "error");
+        return;
+    }
+
+    setCityMapStatus(`Locating ${city.name} on the map...`);
+    const marker = await ensureCityMarker(cityId);
+    if (!marker) {
+        showToast("City location could not be resolved.", "error");
+        setCityMapStatus(`City location could not be resolved for ${city.name}.`);
         return;
     }
 
     cityMapState.map.panTo(marker.getLatLng());
     cityMapState.map.setZoom(11);
     marker.openPopup();
+    setCityMapStatus(`Focused on ${city.name}.`);
 }
 
-async function openCityHistory(cityId, cityName) {
-    const panel = document.getElementById("cityHistoryPanel");
-    const title = document.getElementById("cityHistoryTitle");
-    const meta = document.getElementById("cityHistoryMeta");
-    const list = document.getElementById("cityHistoryList");
+function focusCoordinatesOnCityMap(coords, label) {
+    if (!cityMapState.map || !coords) {
+        return;
+    }
+
+    cityMapState.map.panTo([coords.lat, coords.lng]);
+    cityMapState.map.setZoom(10);
+    showCitySelectionMarker(coords, label);
+    setCityMapStatus(`Focused on ${label}.`);
+}
+
+function showCitySelectionMarker(coords, label) {
+    if (!cityMapState.map || !coords) {
+        return;
+    }
+
+    if (!cityMapState.selectionMarker) {
+        cityMapState.selectionMarker = L.marker([coords.lat, coords.lng], {
+            title: label || "Selected city"
+        }).addTo(cityMapState.map);
+    } else {
+        cityMapState.selectionMarker.setLatLng([coords.lat, coords.lng]);
+        cityMapState.selectionMarker.options.title = label || "Selected city";
+    }
+
+    if (label) {
+        cityMapState.selectionMarker.bindPopup(label);
+    }
+}
+
+async function showCurrentLocationOnCityMap() {
+    if (!cityMapState.map) {
+        return;
+    }
+
+    setCityMapStatus("Getting your current location...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        cityMapState.userLocation = coords;
+        cityMapState.userLocationMarker = showUserLocationMarker(cityMapState.map, coords, {
+            marker: cityMapState.userLocationMarker,
+            label: "Me",
+            popupText: "Me"
+        });
+        cityMapState.map.flyTo([coords.lat, coords.lng], 14, {
+            duration: 0.8
+        });
+        cityMapState.userLocationMarker?.openPopup();
+        setCityMapStatus("Showing your current location.");
+    } catch (error) {
+        showToast(error.message || "Failed to get current location.", "error");
+        setCityMapStatus(error.message || "Failed to get current location.");
+    }
+}
+
+async function handleCityMapClick(event) {
+    const lat = event?.latlng?.lat;
+    const lng = event?.latlng?.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return;
+    }
+
+    setCityLocationStatus("Reading city details from the selected map point...");
+
+    try {
+        const result = await reverseGeocodeWithOpenStreetMap(lat, lng);
+        const fields = extractCityFields(result);
+
+        if (!fields.name || !fields.country) {
+            throw new Error("The selected point does not contain enough city details.");
+        }
+
+        const nameInput = document.getElementById("name");
+        const stateInput = document.getElementById("state");
+        const countryInput = document.getElementById("country");
+
+        if (nameInput) {
+            nameInput.value = fields.name;
+        }
+        if (stateInput) {
+            stateInput.value = fields.state || "";
+        }
+        if (countryInput) {
+            countryInput.value = fields.country;
+        }
+
+        cityMapState.searchResults = [];
+        cityMapState.selectedCoordinates = { lat, lng };
+        renderCitySearchResults();
+        focusCoordinatesOnCityMap({ lat, lng }, result?.displayName || fields.name);
+        setCityLocationStatus("City details filled from the selected map point.");
+    } catch (error) {
+        setCityLocationStatus(error.message || "Failed to read city details from the map point.");
+        showToast(error.message || "Failed to read city details from the map point.", "error");
+    }
+}
+
+async function openCityHistory(cityId, cityName, forceReload = false) {
+    if (cityHistoryState.cityId === cityId && !forceReload) {
+        closeCityHistory();
+        return;
+    }
+
+    closeCityHistory();
 
     cityHistoryState.cityId = cityId;
     cityHistoryState.cityName = cityName;
+    resetCityHistoryForm();
+    cityHistoryState.histories = [];
 
-    panel.hidden = false;
-    title.textContent = `${cityName} History`;
-    meta.textContent = `Loading history for city ID ${cityId}.`;
-    list.innerHTML = '<div class="empty-state glass-card"><span class="spinner"></span></div>';
-    panel.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    const slot = document.getElementById(`city-history-slot-${cityId}`);
+    if (slot) {
+        slot.hidden = false;
+        slot.innerHTML = `
+            <div class="empty-state glass-card">
+                <span class="spinner"></span>
+            </div>
+        `;
+    }
 
     try {
         const histories = await apiRequest(`/cityhistory/city/${cityId}?cityName=${encodeURIComponent(cityName)}`);
-        meta.textContent = `Showing history joined by city ID ${cityId} and city name ${cityName}.`;
-
-        if (!histories || histories.length === 0) {
-            list.innerHTML = `
+        cityHistoryState.histories = histories || [];
+        renderExpandedCityHistory();
+    } catch {
+        if (slot) {
+            slot.innerHTML = `
                 <div class="empty-state glass-card">
-                    <div class="empty-icon">HS</div>
-                    <p>No history found for ${cityName}.</p>
+                    <div class="empty-icon">ER</div>
+                    <p>Failed to load city history.</p>
                 </div>
             `;
-            return;
         }
-
-        list.innerHTML = histories.map(history => `
-            <article class="city-history-item">
-                <h3>${escapeHtml(history.title || "Untitled history")}</h3>
-                <p>${escapeHtml(history.content || "No history content available.")}</p>
-            </article>
-        `).join("");
-    } catch {
-        meta.textContent = `Could not load history for city ID ${cityId}.`;
-        list.innerHTML = `
-            <div class="empty-state glass-card">
-                <div class="empty-icon">ER</div>
-                <p>Failed to load city history.</p>
-            </div>
-        `;
     }
 }
 
 function closeCityHistory() {
-    const panel = document.getElementById("cityHistoryPanel");
-    const title = document.getElementById("cityHistoryTitle");
-    const meta = document.getElementById("cityHistoryMeta");
-    const list = document.getElementById("cityHistoryList");
+    if (cityHistoryState.cityId) {
+        const activeSlot = document.getElementById(`city-history-slot-${cityHistoryState.cityId}`);
+        if (activeSlot) {
+            activeSlot.hidden = true;
+            activeSlot.innerHTML = "";
+        }
+    }
 
     cityHistoryState.cityId = null;
     cityHistoryState.cityName = "";
-
-    panel.hidden = true;
-    title.textContent = "City History";
-    meta.textContent = "Select a city to load its history.";
-    list.innerHTML = `
-        <div class="empty-state glass-card">
-            <div class="empty-icon">HS</div>
-            <p>Select a city to view its history</p>
-        </div>
-    `;
+    cityHistoryState.histories = [];
+    cityHistoryState.editingHistoryId = null;
 }

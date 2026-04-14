@@ -4,6 +4,9 @@ import java.time.LocalDate;
 
 import com.smartCity.Web.city.CityDtos.CityResponse;
 
+/**
+ * Groups the request and response DTOs used by the Event API.
+ */
 public final class EventDtos {
 
   private EventDtos() {}

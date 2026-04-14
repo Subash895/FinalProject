@@ -2,6 +2,9 @@ package com.smartCity.Web.user;
 
 import com.smartCity.Web.user.Role;
 
+/**
+ * Groups the request and response DTOs used by the User API.
+ */
 public final class UserDtos {
 
   private UserDtos() {}

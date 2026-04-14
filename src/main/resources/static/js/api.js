@@ -1,5 +1,8 @@
+/**
+ * Shared frontend API helpers for authenticated requests, error handling, and common UI feedback.
+ */
 /* ============================================================
-   SMART CITY — api.js  (Shared API utility)
+   SMART CITY â€” api.js  (Shared API utility)
    ============================================================ */
 
 const API_BASE =
@@ -44,7 +47,7 @@ async function apiRequest(endpoint, method = "GET", data = null) {
         throw new Error(errorMessage);
     }
 
-    // DELETE often returns 204 No Content — don't try to parse JSON
+    // DELETE often returns 204 No Content â€” don't try to parse JSON
     if (res.status === 204 || res.headers.get("content-length") === "0") return null;
 
     const contentType = res.headers.get("content-type") || "";

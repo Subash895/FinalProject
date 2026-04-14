@@ -22,6 +22,9 @@ import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.business.BusinessDtos;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Exposes REST endpoints for Business operations.
+ */
 @RestController
 @RequestMapping("/api/businesses")
 @CrossOrigin("*")
@@ -51,14 +54,25 @@ public class BusinessController {
   }
 
   @GetMapping
-  public List<BusinessDtos.BusinessResponse> getAll(@RequestParam(required = false) String q) {
-    return service.getAll(q).stream()
+  public List<BusinessDtos.BusinessResponse> getAll(
+      @RequestParam(required = false) String q,
+      @AuthenticationPrincipal JwtUserPrincipal principal) {
+    return service
+        .getAll(q, principal == null ? null : principal.id(), principal == null ? null : principal.role())
+        .stream()
         .map(apiDtoMapper::toBusinessResponse)
         .collect(Collectors.toList());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<BusinessDtos.BusinessResponse> getById(@PathVariable Long id) {
+  public ResponseEntity<BusinessDtos.BusinessResponse> getById(
+      @PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal != null && "BUSINESS".equals(principal.role())) {
+      return ResponseEntity.ok(
+          apiDtoMapper.toBusinessResponse(
+              service.getByIdForUser(id, principal.id(), principal.role())));
+    }
+
     return service
         .getById(id)
         .map(apiDtoMapper::toBusinessResponse)
@@ -68,12 +82,24 @@ public class BusinessController {
 
   @PutMapping("/{id}")
   public BusinessDtos.BusinessResponse update(
-      @PathVariable Long id, @RequestBody BusinessDtos.BusinessRequest entity) {
-    return apiDtoMapper.toBusinessResponse(service.update(id, apiDtoMapper.toBusiness(entity)));
+      @PathVariable Long id,
+      @RequestBody BusinessDtos.BusinessRequest entity,
+      @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+    }
+
+    return apiDtoMapper.toBusinessResponse(
+        service.update(id, apiDtoMapper.toBusiness(entity), principal.id(), principal.role()));
   }
 
   @DeleteMapping("/{id}")
-  public void delete(@PathVariable Long id) {
-    service.delete(id);
+  public void delete(
+      @PathVariable Long id, @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+    }
+
+    service.delete(id, principal.id(), principal.role());
   }
 }

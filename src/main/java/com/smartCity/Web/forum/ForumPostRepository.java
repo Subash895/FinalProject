@@ -1,6 +1,8 @@
 package com.smartCity.Web.forum;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.smartCity.Web.forum.ForumPost;
 
+/**
+ * Provides database access methods for Forum Post records.
+ */
 public interface ForumPostRepository extends JpaRepository<ForumPost, Long> {}

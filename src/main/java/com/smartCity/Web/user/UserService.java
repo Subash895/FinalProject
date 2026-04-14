@@ -9,14 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.smartCity.Web.auth.GoogleIdTokenVerifier.VerifiedGoogleUser;
 import com.smartCity.Web.auth.GoogleIdTokenVerifier;
 import com.smartCity.Web.notification.EmailNotificationService;
-import com.smartCity.Web.user.Role;
-import com.smartCity.Web.user.User;
-import com.smartCity.Web.user.UserRepository;
-import com.smartCity.Web.auth.GoogleIdTokenVerifier.VerifiedGoogleUser;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
   private static final long RESET_OTP_TTL_MILLIS = 10 * 60 * 1000L;
@@ -27,17 +26,6 @@ public class UserService {
   private final EmailNotificationService emailNotificationService;
   private final ConcurrentMap<String, PasswordResetOtp> passwordResetOtps =
       new ConcurrentHashMap<>();
-
-  public UserService(
-      UserRepository repo,
-      PasswordEncoder passwordEncoder,
-      GoogleIdTokenVerifier googleIdTokenVerifier,
-      EmailNotificationService emailNotificationService) {
-    this.repo = repo;
-    this.passwordEncoder = passwordEncoder;
-    this.googleIdTokenVerifier = googleIdTokenVerifier;
-    this.emailNotificationService = emailNotificationService;
-  }
 
   public User save(User entity) {
     return repo.save(entity);
@@ -62,18 +50,11 @@ public class UserService {
   }
 
   public User register(User user) {
-    Optional<User> existing = repo.findByEmail(user.getEmail());
-    if (existing.isPresent()) {
+    if (repo.findByEmail(user.getEmail()).isPresent()) {
       throw new RuntimeException("Email already exists");
     }
-
-    if (!StringUtils.hasText(user.getName())) {
-      throw new RuntimeException("Name is required");
-    }
-
-    if (!StringUtils.hasText(user.getPassword())) {
-      throw new RuntimeException("Password is required");
-    }
+    requireText(user.getName(), "Name is required");
+    requireText(user.getPassword(), "Password is required");
 
     if (user.getRole() == null) {
       throw new RuntimeException("Role is required");
@@ -111,9 +92,7 @@ public class UserService {
   }
 
   public void sendPasswordResetOtp(String email) {
-    if (!StringUtils.hasText(email)) {
-      throw new RuntimeException("Email is required");
-    }
+    requireText(email, "Email is required");
 
     User user =
         repo.findByEmail(email.trim()).orElseThrow(() -> new RuntimeException("User not found"));
@@ -131,11 +110,9 @@ public class UserService {
   }
 
   public void resetPasswordWithOtp(String email, String otp, String newPassword) {
-    if (!StringUtils.hasText(email)
-        || !StringUtils.hasText(otp)
-        || !StringUtils.hasText(newPassword)) {
-      throw new RuntimeException("Email, OTP, and new password are required");
-    }
+    requireText(email, "Email, OTP, and new password are required");
+    requireText(otp, "Email, OTP, and new password are required");
+    requireText(newPassword, "Email, OTP, and new password are required");
 
     if (newPassword.trim().length() < 8) {
       throw new RuntimeException("New password must be at least 8 characters");
@@ -211,13 +188,8 @@ public class UserService {
   }
 
   private User applyUserUpdates(User existing, User entity, boolean allowAnyRole) {
-    if (!StringUtils.hasText(entity.getName())) {
-      throw new RuntimeException("Name is required");
-    }
-
-    if (!StringUtils.hasText(entity.getEmail())) {
-      throw new RuntimeException("Email is required");
-    }
+    requireText(entity.getName(), "Name is required");
+    requireText(entity.getEmail(), "Email is required");
 
     repo.findByEmail(entity.getEmail())
         .filter(user -> !user.getId().equals(existing.getId()))
@@ -246,6 +218,12 @@ public class UserService {
 
   private Role normalizeRole(Role role) {
     return role == Role.BUSINESS ? Role.BUSINESS : Role.USER;
+  }
+
+  private void requireText(String value, String message) {
+    if (!StringUtils.hasText(value)) {
+      throw new RuntimeException(message);
+    }
   }
 
   private String normalizeEmail(String email) {
