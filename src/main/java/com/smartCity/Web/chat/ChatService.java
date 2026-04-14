@@ -193,7 +193,7 @@ public class ChatService {
       }
     }
 
-    return "I can only answer with information available in this MySmartCity project, and I could not complete the request right now.";
+    return "I can only answer with information available in this MySmartCity , and I could not complete the request right now.";
   }
 
   private String resolveChatCompletionsUrl() {
@@ -286,9 +286,6 @@ public class ChatService {
     }
     for (City city : cities) {
       builder
-          .append("- [City #")
-          .append(city.getId())
-          .append("] ")
           .append(safe(city.getName()))
           .append(", ")
           .append(safe(city.getState()))
@@ -308,9 +305,6 @@ public class ChatService {
     }
     for (Place place : places) {
       builder
-          .append("- [Place #")
-          .append(place.getId())
-          .append("] ")
           .append(safe(place.getName()))
           .append(" | city: ")
           .append(place.getCity() != null ? safe(place.getCity().getName()) : "N/A")
@@ -334,9 +328,6 @@ public class ChatService {
     }
     for (Business business : businesses) {
       builder
-          .append("- [Business #")
-          .append(business.getId())
-          .append("] ")
           .append(safe(business.getName()))
           .append(" | address: ")
           .append(safe(business.getAddress()))
@@ -356,9 +347,6 @@ public class ChatService {
     }
     for (News news : newsItems) {
       builder
-          .append("- [News #")
-          .append(news.getId())
-          .append("] ")
           .append(safe(news.getTitle()))
           .append(" | city: ")
           .append(news.getCity() != null ? safe(news.getCity().getName()) : "N/A")
@@ -380,9 +368,6 @@ public class ChatService {
     }
     for (ForumPost post : posts) {
       builder
-          .append("- [Forum #")
-          .append(post.getId())
-          .append("] ")
           .append(safe(post.getTitle()))
           .append(" | content: ")
           .append(trim(post.getContent()))
