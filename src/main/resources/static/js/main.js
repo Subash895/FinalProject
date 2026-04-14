@@ -186,3 +186,234 @@ function initializeTheme() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeTheme);
+
+const chatState = {
+    initialized: false,
+    historyLoaded: false,
+    sending: false
+};
+
+function initializeChatbot() {
+    if (chatState.initialized || typeof isLoggedIn !== "function" || typeof apiRequest !== "function") {
+        return;
+    }
+
+    chatState.initialized = true;
+
+    if (!isLoggedIn()) {
+        return;
+    }
+
+    const user = typeof getUser === "function" ? getUser() : null;
+    if (!user?.id) {
+        return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "chatbot-shell";
+    wrapper.innerHTML = `
+      <button type="button" class="chatbot-launcher" id="chatbotLauncher" aria-label="Open chatbot">
+        <span class="chatbot-launcher-icon">AI</span>
+        <span>Assistant</span>
+      </button>
+      <section class="chatbot-panel" id="chatbotPanel" aria-hidden="true">
+        <div class="chatbot-header">
+          <div>
+            <strong>SmartCity Assistant</strong>
+            <p>${escapeChatHtml(user.name || "User")}</p>
+          </div>
+          <button type="button" class="chatbot-close" id="chatbotClose" aria-label="Close chatbot">X</button>
+        </div>
+        <div class="chatbot-body" id="chatbotMessages">
+          <div class="chatbot-empty" id="chatbotEmpty">
+            Ask about cities, places, businesses, news, or forum posts from this project.
+          </div>
+        </div>
+        <form class="chatbot-form" id="chatbotForm">
+          <textarea id="chatbotInput" class="chatbot-input" placeholder="Ask about your project data..." rows="3" maxlength="1000"></textarea>
+          <div class="chatbot-actions">
+            <button type="button" class="btn btn-secondary" id="chatbotClear">Clear History</button>
+            <button type="submit" class="btn btn-primary" id="chatbotSend">Send</button>
+          </div>
+        </form>
+      </section>
+    `;
+
+    document.body.appendChild(wrapper);
+
+    const launcher = document.getElementById("chatbotLauncher");
+    const panel = document.getElementById("chatbotPanel");
+    const closeButton = document.getElementById("chatbotClose");
+    const clearButton = document.getElementById("chatbotClear");
+    const form = document.getElementById("chatbotForm");
+    const input = document.getElementById("chatbotInput");
+
+    launcher.addEventListener("click", async () => {
+        launcher.classList.add("is-hidden");
+        panel.classList.add("open");
+        panel.setAttribute("aria-hidden", "false");
+        if (!chatState.historyLoaded) {
+            await loadChatHistory();
+        }
+        input.focus();
+    });
+
+    closeButton.addEventListener("click", closeChatbot);
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+        await sendChatMessage();
+    });
+
+    clearButton.addEventListener("click", clearChatHistory);
+
+    input.addEventListener("keydown", async event => {
+        if (event.key === "Escape") {
+            closeChatbot();
+            return;
+        }
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            await sendChatMessage();
+        }
+    });
+
+    document.addEventListener("click", event => {
+        if (!panel.classList.contains("open")) {
+            return;
+        }
+
+        const clickedInsidePanel = panel.contains(event.target);
+        const clickedLauncher = launcher.contains(event.target);
+        if (!clickedInsidePanel && !clickedLauncher) {
+            closeChatbot();
+        }
+    });
+}
+
+function closeChatbot() {
+    const launcher = document.getElementById("chatbotLauncher");
+    const panel = document.getElementById("chatbotPanel");
+    if (!panel) {
+        return;
+    }
+    if (launcher) {
+        launcher.classList.remove("is-hidden");
+    }
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+}
+
+function renderChatMessages(messages) {
+    const container = document.getElementById("chatbotMessages");
+    if (!container) {
+        return;
+    }
+
+    const safeMessages = Array.isArray(messages) ? messages : [];
+    if (!safeMessages.length) {
+        container.innerHTML = `<div class="chatbot-empty" id="chatbotEmpty">Ask about cities, places, businesses, news, or forum posts from this project.</div>`;
+        return;
+    }
+
+    container.innerHTML = safeMessages.map(message => {
+        const timestamp = message?.createdAt ? new Date(message.createdAt).toLocaleString() : "";
+        const role = message?.role === "assistant" ? "assistant" : "user";
+        return `
+          <article class="chatbot-message chatbot-message-${role}">
+            <div class="chatbot-bubble">
+              <p>${escapeChatHtml(message?.content || "")}</p>
+              <time>${escapeChatHtml(timestamp)}</time>
+            </div>
+          </article>
+        `;
+    }).join("");
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function escapeChatHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;")
+        .replaceAll("\n", "<br>");
+}
+
+async function loadChatHistory() {
+    if (!isLoggedIn()) {
+        return;
+    }
+
+    try {
+        const response = await apiRequest("/chat/history");
+        chatState.historyLoaded = true;
+        renderChatMessages(response?.messages || []);
+    } catch (error) {
+        showToast(error.message || "Failed to load chatbot history.", "error");
+    }
+}
+
+async function sendChatMessage() {
+    if (chatState.sending || !isLoggedIn()) {
+        return;
+    }
+
+    const input = document.getElementById("chatbotInput");
+    const sendButton = document.getElementById("chatbotSend");
+    if (!input || !sendButton) {
+        return;
+    }
+
+    const message = input.value.trim();
+    if (!message) {
+        return;
+    }
+
+    chatState.sending = true;
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<span class="spinner"></span> Sending...';
+
+    try {
+        const response = await apiRequest("/chat/message", "POST", { message });
+        input.value = "";
+        chatState.historyLoaded = true;
+        renderChatMessages(response?.messages || []);
+    } catch (error) {
+        showToast(error.message || "Chatbot request failed.", "error");
+    } finally {
+        chatState.sending = false;
+        sendButton.disabled = false;
+        sendButton.textContent = "Send";
+    }
+}
+
+async function clearChatHistory() {
+    if (!isLoggedIn()) {
+        return;
+    }
+
+    const clearButton = document.getElementById("chatbotClear");
+    if (!clearButton) {
+        return;
+    }
+
+    clearButton.disabled = true;
+    clearButton.textContent = "Clearing...";
+
+    try {
+        const response = await apiRequest("/chat/history", "DELETE");
+        chatState.historyLoaded = true;
+        renderChatMessages(response?.messages || []);
+        showToast("Chat history cleared.", "info");
+    } catch (error) {
+        showToast(error.message || "Failed to clear chatbot history.", "error");
+    } finally {
+        clearButton.disabled = false;
+        clearButton.textContent = "Clear History";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", initializeChatbot);

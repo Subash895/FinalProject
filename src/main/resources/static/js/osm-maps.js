@@ -30,6 +30,77 @@ function createOpenStreetMap(elementId, options = {}) {
     return map;
 }
 
+function createUserLocationIcon(label = "Me") {
+    return L.divIcon({
+        className: "map-user-location-icon",
+        html: `
+            <div class="map-user-location-badge">
+                <span class="map-user-location-dot"></span>
+                <span class="map-user-location-label">${String(label || "Me")}</span>
+            </div>
+        `,
+        iconSize: [74, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14]
+    });
+}
+
+function showUserLocationMarker(map, coords, options = {}) {
+    if (!map || !Number.isFinite(coords?.lat) || !Number.isFinite(coords?.lng)) {
+        return null;
+    }
+
+    const label = options.label || "Me";
+    const marker = options.marker || L.marker([coords.lat, coords.lng], {
+        title: options.title || "Your location",
+        icon: createUserLocationIcon(label),
+        zIndexOffset: 1000
+    }).addTo(map);
+
+    marker.setLatLng([coords.lat, coords.lng]);
+    marker.setIcon(createUserLocationIcon(label));
+    marker.options.title = options.title || "Your location";
+    marker.bindPopup(options.popupText || label);
+
+    return marker;
+}
+
+function addCurrentLocationControl(map, options = {}) {
+    if (!map || !window.L?.Control) {
+        return null;
+    }
+
+    const control = L.control({
+        position: options.position || "topright"
+    });
+
+    control.onAdd = function onAdd() {
+        const container = L.DomUtil.create("div", "leaflet-bar map-location-control");
+        const button = L.DomUtil.create("button", "map-location-control-button", container);
+
+        button.type = "button";
+        button.title = options.title || "Show my current location";
+        button.setAttribute("aria-label", options.title || "Show my current location");
+        button.innerHTML = `
+            <span class="map-location-control-crosshair" aria-hidden="true"></span>
+        `;
+
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+        L.DomEvent.on(button, "click", async event => {
+            L.DomEvent.stop(event);
+            if (typeof options.onClick === "function") {
+                await options.onClick(button);
+            }
+        });
+
+        return container;
+    };
+
+    control.addTo(map);
+    return control;
+}
+
 function geocodeWithOpenStreetMap(address) {
     const normalizedAddress = String(address || "").trim();
     if (!normalizedAddress) {

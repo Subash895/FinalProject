@@ -23,6 +23,7 @@ const placeState = {
     searchResults: [],
     searchToken: 0,
     selectionMarker: null,
+    userLocationMarker: null,
     userLocation: getSavedUserLocation()
 };
 
@@ -332,6 +333,10 @@ async function initPlaceMap() {
             zoom: 5
         });
         placeState.map.on("click", handlePlaceMapClick);
+        addCurrentLocationControl(placeState.map, {
+            title: "Show my current location",
+            onClick: showCurrentLocationOnPlaceMap
+        });
         setPlaceMapStatus("Map ready. Click the map to fill a location, search an address, or click a place marker.");
     } catch (error) {
         console.error(error);
@@ -554,11 +559,13 @@ function syncPlaceMap(places) {
     });
 
     if (count > 0) {
-        placeState.map.fitBounds(bounds, {
-            padding: [24, 24]
-        });
-        if (count === 1) {
-            placeState.map.setZoom(14);
+        if (!placeState.selectedCoordinates) {
+            placeState.map.fitBounds(bounds, {
+                padding: [24, 24]
+            });
+            if (count === 1) {
+                placeState.map.setZoom(1);
+            }
         }
         setPlaceMapStatus(`${count} mapped place(s) loaded.`);
     } else {
@@ -593,6 +600,33 @@ function showPlaceSelectionMarker(coords, label) {
 
     if (label) {
         placeState.selectionMarker.bindPopup(label);
+    }
+}
+
+async function showCurrentLocationOnPlaceMap() {
+    if (!placeState.map) {
+        return;
+    }
+
+    setPlaceMapStatus("Getting your current location...");
+
+    try {
+        const coords = await getCurrentBrowserLocation();
+        saveUserLocation(coords);
+        placeState.userLocation = coords;
+        placeState.userLocationMarker = showUserLocationMarker(placeState.map, coords, {
+            marker: placeState.userLocationMarker,
+            label: "Me",
+            popupText: "Me"
+        });
+        placeState.map.flyTo([coords.lat, coords.lng], 14, {
+            duration: 0.8
+        });
+        placeState.userLocationMarker?.openPopup();
+        setPlaceMapStatus("Showing your current location.");
+    } catch (error) {
+        showToast(error.message || "Failed to get current location.", "error");
+        setPlaceMapStatus(error.message || "Failed to get current location.");
     }
 }
 
