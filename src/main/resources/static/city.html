@@ -61,35 +61,22 @@
             <input class="form-control" id="country" placeholder="e.g. India" required>
           </div>
         </div>
+        <div class="city-history-inline-fields">
+          <div class="form-title">City History</div>
+          <div class="form-grid city-history-form-grid">
+            <div class="form-group">
+              <label for="cityHistoryTitleInput">History Title</label>
+              <input class="form-control" id="cityHistoryTitleInput" type="text" placeholder="e.g. Early development">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cityHistoryContentInput">History Content</label>
+            <textarea class="form-control city-history-textarea" id="cityHistoryContentInput" placeholder="Write the city history here..."></textarea>
+          </div>
+        </div>
         <div class="city-form-actions">
           <button type="submit" class="btn btn-primary" id="citySubmitBtn">Add City</button>
           <button type="button" class="btn btn-secondary" id="cityCancelEditBtn" style="display:none">Cancel</button>
-        </div>
-      </form>
-    </div>
-
-    <div id="addCityHistorySection" class="glass-card city-form-card" style="display:none">
-      <div class="form-title" id="cityHistoryFormTitle">Add City History</div>
-      <form id="cityHistoryForm">
-        <div class="form-grid city-history-form-grid">
-          <div class="form-group">
-            <label for="historyCityId">City</label>
-            <select class="form-control" id="historyCityId" required>
-              <option value="">Select a city</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="historyTitle">Title</label>
-            <input class="form-control" id="historyTitle" type="text" placeholder="e.g. Early development" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="historyContent">Content</label>
-          <textarea class="form-control city-history-textarea" id="historyContent" placeholder="Write the city history here..." required></textarea>
-        </div>
-        <div class="city-history-form-actions">
-          <button id="saveHistoryBtn" class="btn btn-primary" type="submit">Save History</button>
-          <button id="cancelHistoryEditBtn" class="btn btn-secondary" type="button" style="display:none">Cancel</button>
         </div>
       </form>
     </div>
@@ -107,22 +94,6 @@
     <div class="section-header">
       <h2>All Cities</h2>
       <button id="loadBtn" class="btn btn-secondary">Refresh</button>
-    </div>
-
-    <div id="cityHistoryPanel" class="glass-card city-history-panel" hidden>
-      <div class="section-header city-history-header">
-        <div>
-          <h2 id="cityHistoryTitle">City History</h2>
-          <p id="cityHistoryMeta" class="city-history-meta">Select a city to load its history.</p>
-        </div>
-        <button id="closeHistoryBtn" class="btn btn-secondary btn-sm" type="button">Close</button>
-      </div>
-      <div id="cityHistoryList" class="city-history-list">
-        <div class="empty-state glass-card">
-          <div class="empty-icon">HS</div>
-          <p>Select a city to view its history</p>
-        </div>
-      </div>
     </div>
 
     <div id="list" class="card-list">
@@ -146,7 +117,6 @@
     applyRoleUI();
     if (isAdmin()) {
       document.getElementById("addCitySection").style.display = "";
-      document.getElementById("addCityHistorySection").style.display = "";
     }
 
   </script>

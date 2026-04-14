@@ -30,7 +30,8 @@ const cityMapState = {
 const cityHistoryState = {
     cityId: null,
     cityName: "",
-    editingHistoryId: null
+    editingHistoryId: null,
+    histories: []
 };
 
 const cityFormState = {
@@ -39,12 +40,9 @@ const cityFormState = {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cityForm")?.addEventListener("submit", createCity);
-    document.getElementById("cityHistoryForm")?.addEventListener("submit", createCityHistory);
     document.getElementById("cityCurrentLocationBtn")?.addEventListener("click", fillCityFromCurrentLocation);
     document.getElementById("cityCancelEditBtn")?.addEventListener("click", resetCityForm);
-    document.getElementById("cancelHistoryEditBtn")?.addEventListener("click", resetCityHistoryForm);
     document.getElementById("loadBtn")?.addEventListener("click", loadCities);
-    document.getElementById("closeHistoryBtn")?.addEventListener("click", closeCityHistory);
     attachCitySearchHandlers();
     initCityMap();
     loadCities();
@@ -83,7 +81,6 @@ function attachCitySearchHandlers() {
 
 async function createCity(event) {
     event.preventDefault();
-    const form = event.target;
     const button = document.getElementById("citySubmitBtn");
     button.disabled = true;
     button.textContent = cityFormState.editingCityId ? "Updating..." : "Saving...";
@@ -92,6 +89,13 @@ async function createCity(event) {
         const name = document.getElementById("name").value.trim();
         const state = document.getElementById("state").value.trim();
         const country = document.getElementById("country").value.trim();
+        const historyTitle = document.getElementById("cityHistoryTitleInput")?.value.trim() || "";
+        const historyContent = document.getElementById("cityHistoryContentInput")?.value.trim() || "";
+
+        if ((historyTitle && !historyContent) || (!historyTitle && historyContent)) {
+            throw new Error("Enter both history title and history content, or leave both empty.");
+        }
+
         const fallbackCoordinates =
             cityMapState.selectedCoordinates || await geocodeCityForSave(name, state, country);
 
@@ -104,10 +108,24 @@ async function createCity(event) {
         };
 
         if (cityFormState.editingCityId) {
-            await apiRequest(`/cities/${cityFormState.editingCityId}`, "PUT", payload);
+            const updatedCity = await apiRequest(`/cities/${cityFormState.editingCityId}`, "PUT", payload);
+            if (historyTitle && historyContent) {
+                await apiRequest("/cityhistory", "POST", {
+                    cityId: updatedCity?.id || cityFormState.editingCityId,
+                    title: historyTitle,
+                    content: historyContent
+                });
+            }
             showToast("City updated.", "success");
         } else {
-            await apiRequest("/cities", "POST", payload);
+            const createdCity = await apiRequest("/cities", "POST", payload);
+            if (historyTitle && historyContent && createdCity?.id) {
+                await apiRequest("/cityhistory", "POST", {
+                    cityId: createdCity.id,
+                    title: historyTitle,
+                    content: historyContent
+                });
+            }
             showToast("City added.", "success");
         }
 
@@ -134,6 +152,7 @@ function setCityFormMode(isEditing) {
     const title = document.getElementById("cityFormTitle");
     const submitButton = document.getElementById("citySubmitBtn");
     const cancelButton = document.getElementById("cityCancelEditBtn");
+    const historySectionTitle = document.querySelector(".city-history-inline-fields .form-title");
 
     if (title) {
         title.textContent = isEditing ? "Edit City" : "Add a City";
@@ -143,6 +162,9 @@ function setCityFormMode(isEditing) {
     }
     if (cancelButton) {
         cancelButton.style.display = isEditing ? "" : "none";
+    }
+    if (historySectionTitle) {
+        historySectionTitle.textContent = isEditing ? "Add History For This City" : "City History";
     }
 }
 
@@ -167,8 +189,16 @@ function startCityEdit(cityId) {
     document.getElementById("name").value = city.name || "";
     document.getElementById("state").value = city.state || "";
     document.getElementById("country").value = city.country || "India";
+    const historyTitleInput = document.getElementById("cityHistoryTitleInput");
+    const historyContentInput = document.getElementById("cityHistoryContentInput");
+    if (historyTitleInput) {
+        historyTitleInput.value = "";
+    }
+    if (historyContentInput) {
+        historyContentInput.value = "";
+    }
     setCityFormMode(true);
-    setCityLocationStatus(`Editing ${city.name}. Update the details here and click Update City.`);
+    setCityLocationStatus(`Editing ${city.name}. You can also add a new history entry before clicking Update City.`);
 
     document.getElementById("addCitySection")?.scrollIntoView({
         behavior: "smooth",
@@ -348,64 +378,123 @@ async function fillCityFromCurrentLocation() {
 
 
 function syncCityHistoryAdminUI() {
-    const citySelect = document.getElementById("historyCityId");
-    if (!citySelect) {
-        return;
-    }
-
-    const currentValue = citySelect.value;
-    citySelect.innerHTML = `<option value="">Select a city</option>${cityMapState.cities
-        .map(city => `<option value="${city.id}">${escapeHtml(city.name)}</option>`)
-        .join("")}`;
-
-    const selectedValue = cityHistoryState.cityId ? String(cityHistoryState.cityId) : currentValue;
-    if (selectedValue) {
-        citySelect.value = selectedValue;
-    }
-}
-
-function setCityHistoryFormMode(isEditing) {
-    const title = document.getElementById("cityHistoryFormTitle");
-    const saveButton = document.getElementById("saveHistoryBtn");
-    const cancelButton = document.getElementById("cancelHistoryEditBtn");
-
-    if (title) {
-        title.textContent = isEditing ? "Edit City History" : "Add City History";
-    }
-    if (saveButton) {
-        saveButton.textContent = isEditing ? "Update History" : "Save History";
-    }
-    if (cancelButton) {
-        cancelButton.style.display = isEditing ? "" : "none";
+    if (cityHistoryState.cityId) {
+        renderExpandedCityHistory();
     }
 }
 
 function resetCityHistoryForm() {
     cityHistoryState.editingHistoryId = null;
-    document.getElementById("cityHistoryForm")?.reset();
     syncCityHistoryAdminUI();
-    setCityHistoryFormMode(false);
 }
 
-async function createCityHistory(event) {
-    event.preventDefault();
-    const cityId = Number(document.getElementById("historyCityId")?.value);
+function cityHistoryEditorMarkup(cityId) {
+    if (!isAdmin() || cityHistoryState.cityId !== cityId) {
+        return "";
+    }
+
+    const isEditing = Boolean(cityHistoryState.editingHistoryId);
+    const history = isEditing ?
+        cityHistoryState.histories.find(item => item.id === cityHistoryState.editingHistoryId) :
+        null;
+
+    return `
+        <div class="city-history-editor">
+            <div class="form-title">${isEditing ? "Edit City History" : "Add City History"}</div>
+            <form onsubmit="submitCityHistoryForm(event, ${cityId})">
+                <div class="form-grid city-history-form-grid">
+                    <div class="form-group">
+                        <label for="historyTitle-${cityId}">Title</label>
+                        <input class="form-control" id="historyTitle-${cityId}" type="text" placeholder="e.g. Early development" value="${escapeHtml(history?.title || "")}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="historyContent-${cityId}">Content</label>
+                    <textarea class="form-control city-history-textarea" id="historyContent-${cityId}" placeholder="Write the city history here..." required>${escapeHtml(history?.content || "")}</textarea>
+                </div>
+                <div class="city-history-form-actions">
+                    <button class="btn btn-primary" type="submit">${isEditing ? "Update History" : "Save History"}</button>
+                    ${isEditing ? `<button class="btn btn-secondary" type="button" onclick="resetCityHistoryForm()">Cancel</button>` : ""}
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+function cityHistoryListMarkup(cityId, cityName) {
+    if (!cityHistoryState.histories.length) {
+        return `
+            <div class="empty-state glass-card">
+                <div class="empty-icon">HS</div>
+                <p>No history found for ${escapeHtml(cityName)}.</p>
+            </div>
+        `;
+    }
+
+    return cityHistoryState.histories.map(history => `
+        <article class="city-history-item">
+            <div class="city-history-item-header">
+                <h3>${escapeHtml(history.title || "Untitled history")}</h3>
+                ${isAdmin() ? `
+                    <div class="city-history-item-actions">
+                        <button class="btn btn-edit btn-sm" type="button" onclick="startCityHistoryEdit(${history.id})">Edit</button>
+                        <button class="btn btn-delete btn-sm" type="button" onclick="deleteCityHistory(${history.id})">Delete</button>
+                    </div>
+                ` : ""}
+            </div>
+            <p>${escapeHtml(history.content || "No history content available.")}</p>
+        </article>
+    `).join("");
+}
+
+function renderExpandedCityHistory() {
+    const cityId = cityHistoryState.cityId;
     if (!cityId) {
-        showToast("Select a city before adding history.", "info");
         return;
     }
 
-    const form = event.target;
-    const button = document.getElementById("saveHistoryBtn");
+    const slot = document.getElementById(`city-history-slot-${cityId}`);
+    if (!slot) {
+        return;
+    }
+
+    slot.hidden = false;
+    slot.innerHTML = `
+        <div class="city-inline-history-header">
+            <div>
+                <h3>${escapeHtml(cityHistoryState.cityName)} History</h3>
+                <p class="city-history-meta">Showing history for ${escapeHtml(cityHistoryState.cityName)}.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button" onclick="closeCityHistory()">Close</button>
+        </div>
+        ${cityHistoryEditorMarkup(cityId)}
+        <div class="city-history-list">
+            ${cityHistoryListMarkup(cityId, cityHistoryState.cityName)}
+        </div>
+    `;
+}
+
+async function submitCityHistoryForm(event, cityId) {
+    event.preventDefault();
+    if (!cityId) {
+        showToast("Open a city history before adding an entry.", "info");
+        return;
+    }
+
     const selectedCity = cityMapState.cities.find(city => city.id === cityId);
+    const titleInput = document.getElementById(`historyTitle-${cityId}`);
+    const contentInput = document.getElementById(`historyContent-${cityId}`);
+    const button = event.submitter;
     const payload = {
         cityId,
-        title: document.getElementById("historyTitle").value.trim(),
-        content: document.getElementById("historyContent").value.trim()
+        title: titleInput?.value.trim() || "",
+        content: contentInput?.value.trim() || ""
     };
 
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner"></span> Saving...';
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner"></span> Saving...';
+    }
 
     try {
         if (cityHistoryState.editingHistoryId) {
@@ -418,13 +507,15 @@ async function createCityHistory(event) {
 
         resetCityHistoryForm();
         if (selectedCity) {
-            await openCityHistory(selectedCity.id, selectedCity.name);
+            await openCityHistory(selectedCity.id, selectedCity.name, true);
         }
     } catch (error) {
         showToast(error.message || "Failed to add city history.", "error");
     } finally {
-        button.disabled = false;
-        button.textContent = cityHistoryState.editingHistoryId ? "Update History" : "Save History";
+        if (button) {
+            button.disabled = false;
+            button.textContent = cityHistoryState.editingHistoryId ? "Update History" : "Save History";
+        }
     }
 }
 
@@ -437,25 +528,7 @@ function startCityHistoryEdit(historyId) {
 
     cityHistoryState.editingHistoryId = historyId;
 
-    const citySelect = document.getElementById("historyCityId");
-    const titleInput = document.getElementById("historyTitle");
-    const contentInput = document.getElementById("historyContent");
-
-    if (citySelect) {
-        citySelect.value = String(history.city?.id || cityHistoryState.cityId || "");
-    }
-    if (titleInput) {
-        titleInput.value = history.title || "";
-    }
-    if (contentInput) {
-        contentInput.value = history.content || "";
-    }
-
-    setCityHistoryFormMode(true);
-    document.getElementById("addCityHistorySection")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    renderExpandedCityHistory();
 }
 
 async function deleteCityHistory(historyId) {
@@ -465,7 +538,7 @@ async function deleteCityHistory(historyId) {
             await apiRequest(`/cityhistory/${historyId}`, "DELETE");
             resetCityHistoryForm();
             if (cityHistoryState.cityId && cityHistoryState.cityName) {
-                await openCityHistory(cityHistoryState.cityId, cityHistoryState.cityName);
+                await openCityHistory(cityHistoryState.cityId, cityHistoryState.cityName, true);
             }
         }
     });
@@ -492,17 +565,6 @@ async function loadCities() {
             };
         }));
         cityMapState.cities = citiesWithReviews;
-        syncCityHistoryAdminUI();
-
-        if (cityHistoryState.cityId) {
-            const selectedCity = citiesWithReviews.find(city => city.id === cityHistoryState.cityId);
-            if (selectedCity) {
-                openCityHistory(selectedCity.id, selectedCity.name);
-            } else {
-                closeCityHistory();
-            }
-        }
-
         if (citiesWithReviews.length === 0) {
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">CT</div><p>No cities yet. Add the first one.</p></div>';
             syncCityMap();
@@ -513,21 +575,36 @@ async function loadCities() {
         container.innerHTML = citiesWithReviews.map((city, index) => `
             <div class="city-card glass-card" style="animation-delay:${index * 0.05}s">
               <div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>
-              <div class="city-info">
-                <h3><button type="button" class="city-link" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">${city.name}</button></h3>
-                ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
-                <div class="city-country">${city.country || "Country not set"}</div>
-                ${city.distanceKm != null ? `<div class="city-distance">${formatDistanceKm(city.distanceKm)}</div>` : ""}
-                ${renderReviewSection(REVIEW_TARGETS.city, city.id, city.reviews || [])}
-              </div>
-              <div class="city-actions">
-                <button class="btn btn-primary btn-sm" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">History</button>
-                <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
-                ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick="startCityEdit(${city.id})">Edit</button>` : ""}
-                ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${city.id}, '${esc(city.name)}')">Delete</button>` : ""}
+              <div class="city-card-body">
+                <div class="city-card-main">
+                  <div class="city-info">
+                    <h3><button type="button" class="city-link" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">${city.name}</button></h3>
+                    ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
+                    <div class="city-country">${city.country || "Country not set"}</div>
+                    ${city.distanceKm != null ? `<div class="city-distance">${formatDistanceKm(city.distanceKm)}</div>` : ""}
+                    ${renderReviewSection(REVIEW_TARGETS.city, city.id, city.reviews || [])}
+                  </div>
+                  <div class="city-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">History</button>
+                    <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
+                    ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick="startCityEdit(${city.id})">Edit</button>` : ""}
+                    ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${city.id}, '${esc(city.name)}')">Delete</button>` : ""}
+                  </div>
+                </div>
+                <div id="city-history-slot-${city.id}" class="city-inline-history" hidden></div>
               </div>
             </div>
         `).join("");
+
+        if (cityHistoryState.cityId) {
+            const selectedCity = citiesWithReviews.find(city => city.id === cityHistoryState.cityId);
+            if (selectedCity) {
+                cityHistoryState.cityName = selectedCity.name;
+                renderExpandedCityHistory();
+            } else {
+                closeCityHistory();
+            }
+        }
 
         syncCityMap();
         hydrateReviewForms(loadCities);
@@ -774,84 +851,56 @@ async function handleCityMapClick(event) {
     }
 }
 
-async function openCityHistory(cityId, cityName) {
-    const panel = document.getElementById("cityHistoryPanel");
-    const title = document.getElementById("cityHistoryTitle");
-    const meta = document.getElementById("cityHistoryMeta");
-    const list = document.getElementById("cityHistoryList");
+async function openCityHistory(cityId, cityName, forceReload = false) {
+    if (cityHistoryState.cityId === cityId && !forceReload) {
+        closeCityHistory();
+        return;
+    }
+
+    closeCityHistory();
 
     cityHistoryState.cityId = cityId;
     cityHistoryState.cityName = cityName;
+    resetCityHistoryForm();
     cityHistoryState.histories = [];
-    syncCityHistoryAdminUI();
 
-    panel.hidden = false;
-    title.textContent = `${cityName} History`;
-    meta.textContent = `Loading history for city ID ${cityId}.`;
-    list.innerHTML = '<div class="empty-state glass-card"><span class="spinner"></span></div>';
-    panel.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    const slot = document.getElementById(`city-history-slot-${cityId}`);
+    if (slot) {
+        slot.hidden = false;
+        slot.innerHTML = `
+            <div class="empty-state glass-card">
+                <span class="spinner"></span>
+            </div>
+        `;
+    }
 
     try {
         const histories = await apiRequest(`/cityhistory/city/${cityId}?cityName=${encodeURIComponent(cityName)}`);
         cityHistoryState.histories = histories || [];
-        meta.textContent = `Showing history joined by city ID ${cityId} and city name ${cityName}.`;
-
-        if (!histories || histories.length === 0) {
-            list.innerHTML = `
+        renderExpandedCityHistory();
+    } catch {
+        if (slot) {
+            slot.innerHTML = `
                 <div class="empty-state glass-card">
-                    <div class="empty-icon">HS</div>
-                    <p>No history found for ${cityName}.</p>
+                    <div class="empty-icon">ER</div>
+                    <p>Failed to load city history.</p>
                 </div>
             `;
-            return;
         }
-
-        list.innerHTML = histories.map(history => `
-            <article class="city-history-item">
-                <div class="city-history-item-header">
-                    <h3>${escapeHtml(history.title || "Untitled history")}</h3>
-                    ${isAdmin() ? `
-                        <div class="city-history-item-actions">
-                            <button class="btn btn-edit btn-sm" type="button" onclick="startCityHistoryEdit(${history.id})">Edit</button>
-                            <button class="btn btn-delete btn-sm" type="button" onclick="deleteCityHistory(${history.id})">Delete</button>
-                        </div>
-                    ` : ""}
-                </div>
-                <p>${escapeHtml(history.content || "No history content available.")}</p>
-            </article>
-        `).join("");
-    } catch {
-        meta.textContent = `Could not load history for city ID ${cityId}.`;
-        list.innerHTML = `
-            <div class="empty-state glass-card">
-                <div class="empty-icon">ER</div>
-                <p>Failed to load city history.</p>
-            </div>
-        `;
     }
 }
 
 function closeCityHistory() {
-    const panel = document.getElementById("cityHistoryPanel");
-    const title = document.getElementById("cityHistoryTitle");
-    const meta = document.getElementById("cityHistoryMeta");
-    const list = document.getElementById("cityHistoryList");
+    if (cityHistoryState.cityId) {
+        const activeSlot = document.getElementById(`city-history-slot-${cityHistoryState.cityId}`);
+        if (activeSlot) {
+            activeSlot.hidden = true;
+            activeSlot.innerHTML = "";
+        }
+    }
 
     cityHistoryState.cityId = null;
     cityHistoryState.cityName = "";
     cityHistoryState.histories = [];
-    resetCityHistoryForm();
-
-    panel.hidden = true;
-    title.textContent = "City History";
-    meta.textContent = "Select a city to load its history.";
-    list.innerHTML = `
-        <div class="empty-state glass-card">
-            <div class="empty-icon">HS</div>
-            <p>Select a city to view its history</p>
-        </div>
-    `;
+    cityHistoryState.editingHistoryId = null;
 }
