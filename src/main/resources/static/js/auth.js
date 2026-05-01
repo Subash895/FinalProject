@@ -97,7 +97,11 @@ function updateStoredUser(userResponse) {
     }));
 }
 
-function logout() {
+async function logout() {
+    try {
+        await apiRequest("/auth/logout", "POST");
+    } catch {}
+
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     window.location.href = "login.html";

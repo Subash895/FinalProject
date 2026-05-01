@@ -888,6 +888,136 @@ select.form-control option:focus {
     vertical-align: middle;
 }
 
+/* Skeleton Loading */
+.skeleton-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    width: 100%;
+}
+
+.city-list.is-loading .skeleton-list,
+.place-list.is-loading .skeleton-list,
+.forum-list.is-loading .skeleton-list,
+.news-list.is-loading .skeleton-list,
+.sub-list.is-loading .skeleton-list,
+.card-list.is-loading .skeleton-list {
+    grid-template-columns: 1fr;
+}
+
+.skeleton-card {
+    min-height: 150px;
+    padding: 1.25rem;
+    overflow: hidden;
+    animation: fadeInUp 0.28s ease both;
+}
+
+.skeleton-card-row,
+.skeleton-card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.skeleton-card-row {
+    justify-content: space-between;
+}
+
+.skeleton-stack {
+    flex: 1;
+    min-width: 0;
+}
+
+.skeleton-line,
+.skeleton-circle {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body.theme-light .skeleton-line,
+body.theme-light .skeleton-circle {
+    background: rgba(9, 24, 58, 0.08);
+    border-color: rgba(9, 24, 58, 0.04);
+}
+
+.skeleton-line {
+    height: 12px;
+    margin: 0.75rem 0;
+    border-radius: 999px;
+}
+
+.skeleton-line-title {
+    height: 18px;
+    margin-top: 0.2rem;
+}
+
+.skeleton-pill {
+    height: 30px;
+}
+
+.skeleton-circle {
+    flex: 0 0 auto;
+    border-radius: 999px;
+}
+
+.skeleton-line::after,
+.skeleton-circle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    animation: skeletonShimmer 1.35s ease-in-out infinite;
+}
+
+body.theme-light .skeleton-line::after,
+body.theme-light .skeleton-circle::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78), transparent);
+}
+
+.skeleton-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.profile-loading .profile-avatar,
+.profile-loading #profileRoleBadge,
+.profile-loading #profileName,
+.profile-loading #profileEmail,
+.profile-loading #profileId,
+.profile-loading #profileRole,
+.profile-loading #profileForm .form-control {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0.08);
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    background-size: 220% 100%;
+    animation: skeletonInputShimmer 1.35s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-loading .profile-avatar::after,
+.profile-loading #profileRoleBadge::after,
+.profile-loading #profileName::after,
+.profile-loading #profileEmail::after,
+.profile-loading #profileId::after,
+.profile-loading #profileRole::after,
+.profile-loading #profileForm .form-control::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+    animation: skeletonShimmer 1.35s ease-in-out infinite;
+}
+
 /* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .site-footer {
     position: relative;
@@ -1295,6 +1425,22 @@ body.theme-light .chatbot-panel {
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes skeletonShimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes skeletonInputShimmer {
+    0% {
+        background-position: 120% 0;
+    }
+
+    100% {
+        background-position: -120% 0;
     }
 }
 

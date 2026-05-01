@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartCity.Web.auth.AuthDtos;
-import com.smartCity.Web.auth.JwtService;
-import com.smartCity.Web.auth.JwtUserPrincipal;
+import com.smartCity.Web.auth.jwt.JwtService;
+import com.smartCity.Web.auth.jwt.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import lombok.RequiredArgsConstructor;
 

@@ -633,7 +633,7 @@ async function deleteCityHistory(historyId) {
 
 async function loadCities() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "city", 4);
 
     try {
         if (!cityMapState.userLocation) {
@@ -641,25 +641,27 @@ async function loadCities() {
         }
 
         const cities = await apiRequest("/cities");
-        const citiesWithReviews = await Promise.all((cities || []).map(async city => {
+        const citiesWithReviews = await attachReviewsToItems(cities || [], REVIEW_TARGETS.city);
+        const citiesWithDetails = await Promise.all(citiesWithReviews.map(async city => {
             const coordinates = await resolveCityCoordinates(city).catch(() => null);
             return {
                 ...city,
-                reviews: await loadReviews(REVIEW_TARGETS.city, city.id),
                 distanceKm: cityMapState.userLocation && coordinates ?
                     haversineDistanceKm(cityMapState.userLocation, coordinates) :
                     null
             };
         }));
-        cityMapState.cities = citiesWithReviews;
-        if (citiesWithReviews.length === 0) {
+        cityMapState.cities = citiesWithDetails;
+        if (citiesWithDetails.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">CT</div><p>No cities yet. Add the first one.</p></div>';
             syncCityMap();
             return;
         }
 
         container.className = "city-list";
-        container.innerHTML = citiesWithReviews.map((city, index) => `
+        clearListSkeleton(container);
+        container.innerHTML = citiesWithDetails.map((city, index) => `
             <div class="city-card glass-card" style="animation-delay:${index * 0.05}s">
               <div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>
               <div class="city-card-body">
@@ -685,7 +687,7 @@ async function loadCities() {
         `).join("");
 
         if (cityEditState.editingCityId) {
-            const editingCity = citiesWithReviews.find(city => city.id === cityEditState.editingCityId);
+            const editingCity = citiesWithDetails.find(city => city.id === cityEditState.editingCityId);
             if (editingCity) {
                 renderInlineCityEdit(editingCity.id);
             } else {
@@ -694,7 +696,7 @@ async function loadCities() {
         }
 
         if (cityHistoryState.cityId) {
-            const selectedCity = citiesWithReviews.find(city => city.id === cityHistoryState.cityId);
+            const selectedCity = citiesWithDetails.find(city => city.id === cityHistoryState.cityId);
             if (selectedCity) {
                 cityHistoryState.cityName = selectedCity.name;
                 renderExpandedCityHistory();
@@ -706,6 +708,7 @@ async function loadCities() {
         syncCityMap();
         hydrateReviewForms(loadCities);
     } catch {
+        clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">NA</div><p>Cannot connect to server.</p></div>';
         setCityMapStatus("City data failed to load.");
     }
@@ -997,11 +1000,7 @@ async function openCityHistory(cityId, cityName, forceReload = false) {
     const slot = document.getElementById(`city-history-slot-${cityId}`);
     if (slot) {
         slot.hidden = false;
-        slot.innerHTML = `
-            <div class="empty-state glass-card">
-                <span class="spinner"></span>
-            </div>
-        `;
+        slot.innerHTML = skeletonListMarkup("news", 1);
     }
 
     try {

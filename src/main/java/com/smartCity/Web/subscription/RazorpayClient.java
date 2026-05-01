@@ -2,7 +2,6 @@ package com.smartCity.Web.subscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartCity.Web.config.RazorpayProperties;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;

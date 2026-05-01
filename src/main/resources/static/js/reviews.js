@@ -12,6 +12,25 @@ async function loadReviews(targetType, targetId) {
     return apiRequest(`/reviews?targetType=${encodeURIComponent(targetType)}&targetId=${encodeURIComponent(targetId)}`);
 }
 
+async function loadReviewsBatch(targetType, targetIds) {
+    const cleanIds = Array.from(new Set((targetIds || []).filter(Boolean)));
+    if (cleanIds.length === 0) {
+        return {};
+    }
+
+    return apiRequest(`/reviews/batch?targetType=${encodeURIComponent(targetType)}&targetIds=${cleanIds.join(",")}`);
+}
+
+async function attachReviewsToItems(items, targetType) {
+    const list = Array.isArray(items) ? items : [];
+    const reviewsByTarget = await loadReviewsBatch(targetType, list.map(item => item.id));
+
+    return list.map(item => ({
+        ...item,
+        reviews: reviewsByTarget?.[item.id] || reviewsByTarget?.[String(item.id)] || []
+    }));
+}
+
 async function submitReview(targetType, targetId, payload) {
     return apiRequest("/reviews", "POST", {
         targetType,

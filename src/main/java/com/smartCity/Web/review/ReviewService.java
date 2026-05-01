@@ -2,6 +2,8 @@ package com.smartCity.Web.review;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.smartCity.Web.auth.JwtUserPrincipal;
+import com.smartCity.Web.auth.jwt.JwtUserPrincipal;
 import com.smartCity.Web.business.Business;
 import com.smartCity.Web.business.BusinessRepository;
 import com.smartCity.Web.city.CityRepository;
@@ -57,6 +59,24 @@ public class ReviewService {
   public List<Review> getReviews(ReviewTargetType targetType, Long targetId) {
     validateTarget(targetType, targetId);
     return reviewRepository.findByTargetTypeAndTargetIdOrderByUpdatedAtDesc(targetType, targetId);
+  }
+
+  public Map<Long, List<Review>> getReviewsByTargetIds(
+      ReviewTargetType targetType, List<Long> targetIds) {
+    if (targetType == null || targetIds == null || targetIds.isEmpty()) {
+      return Map.of();
+    }
+
+    List<Long> cleanTargetIds =
+        targetIds.stream().filter(id -> id != null && id > 0).distinct().toList();
+    if (cleanTargetIds.isEmpty()) {
+      return Map.of();
+    }
+
+    return reviewRepository
+        .findByTargetTypeAndTargetIdInOrderByUpdatedAtDesc(targetType, cleanTargetIds)
+        .stream()
+        .collect(Collectors.groupingBy(Review::getTargetId));
   }
 
   public Review createOrUpdateReview(

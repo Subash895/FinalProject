@@ -41,20 +41,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadNews() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "news", 4);
     try {
         const data = await apiRequest("/news");
         if (!data || data.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">NW</span><p>No articles yet. Publish the first one!</p></div>';
             return;
         }
 
-        const newsWithReviews = await Promise.all(data.map(async item => ({
-            ...item,
-            reviews: await loadReviews(REVIEW_TARGETS.news, item.id)
-        })));
+        const newsWithReviews = await attachReviewsToItems(data, REVIEW_TARGETS.news);
 
         container.className = "news-list";
+        clearListSkeleton(container);
         container.innerHTML = newsWithReviews.map((n, i) => `
       <div class="news-card glass-card" style="animation-delay:${i * 0.05}s">
         <div class="news-main">
@@ -74,6 +73,7 @@ async function loadNews() {
 
         hydrateReviewForms(loadNews);
     } catch {
+        clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">NA</span><p>Cannot connect to server.</p></div>';
     }
 }

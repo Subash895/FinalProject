@@ -1,6 +1,8 @@
 package com.smartCity.Web.review;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,6 +40,16 @@ public class ReviewController {
     return reviewService.getReviews(targetType, targetId).stream()
         .map(apiDtoMapper::toReviewResponse)
         .toList();
+  }
+
+  @GetMapping("/batch")
+  public Map<Long, List<ReviewDtos.ReviewResponse>> getReviewsBatch(
+      @RequestParam ReviewTargetType targetType, @RequestParam List<Long> targetIds) {
+    return reviewService.getReviewsByTargetIds(targetType, targetIds).entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream().map(apiDtoMapper::toReviewResponse).toList()));
   }
 
   @PostMapping

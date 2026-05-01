@@ -92,17 +92,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadSubs() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "subscription", 4);
 
     try {
         const endpoint = isAdmin() ? "/subscriptions" : (isLoggedIn() ? "/subscriptions/my" : "/subscriptions");
         const data = await apiRequest(endpoint);
         if (!data || data.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">S</span><p>No subscriptions yet.</p></div>';
             return;
         }
 
         container.className = "sub-list";
+        clearListSkeleton(container);
         container.innerHTML = data.map((subscription, index) => `
       <div class="sub-card glass-card" style="animation-delay:${index * 0.04}s">
         <div>
@@ -116,6 +118,7 @@ async function loadSubs() {
         </div>
       </div>`).join("");
     } catch {
+        clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">!</span><p>Cannot connect to server.</p></div>';
     }
 }

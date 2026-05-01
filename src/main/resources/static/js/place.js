@@ -180,7 +180,7 @@ function clearFilters() {
 
 async function loadPlaces() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "card", 4);
 
     try {
         if (!placeState.userLocation) {
@@ -188,30 +188,33 @@ async function loadPlaces() {
         }
 
         const places = await apiRequest(`/places${getFilterQuery()}`);
-        const placesWithReviews = await Promise.all((places || []).map(async place => ({
+        const placesWithReviews = await attachReviewsToItems(places || [], REVIEW_TARGETS.place);
+        const placesWithDetails = placesWithReviews.map(place => ({
             ...place,
-            reviews: await loadReviews(REVIEW_TARGETS.place, place.id),
             distanceKm: placeState.userLocation && place.latitude != null && place.longitude != null ?
                 haversineDistanceKm(placeState.userLocation, {
                     lat: place.latitude,
                     lng: place.longitude
                 }) :
                 null
-        })));
+        }));
 
-        updateResultSummary(placesWithReviews?.length || 0);
-        syncPlaceMap(placesWithReviews || []);
+        updateResultSummary(placesWithDetails?.length || 0);
+        syncPlaceMap(placesWithDetails || []);
 
-        if (!placesWithReviews || placesWithReviews.length === 0) {
+        if (!placesWithDetails || placesWithDetails.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">PL</div><p>No places match the current filter.</p></div>';
             return;
         }
 
         container.className = "place-list";
-        container.innerHTML = placesWithReviews.map((place, index) => renderPlaceCard(place, index)).join("");
+        clearListSkeleton(container);
+        container.innerHTML = placesWithDetails.map((place, index) => renderPlaceCard(place, index)).join("");
         hydrateReviewForms(loadPlaces);
     } catch {
         updateResultSummary(0);
+        clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><div class="empty-icon">NA</div><p>Cannot connect to server.</p></div>';
     }
 }

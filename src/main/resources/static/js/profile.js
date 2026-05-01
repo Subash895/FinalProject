@@ -100,11 +100,13 @@ function initializeProfilePasswordToggles() {
 }
 
 async function loadProfile() {
+    document.body.classList.add("profile-loading");
     const user = await apiRequest("/users/me");
     updateStoredUser(user);
     applyRoleUI();
     fillProfileSummary(user);
     fillProfileForm(user);
+    document.body.classList.remove("profile-loading");
 }
 
 async function saveProfile(event) {
@@ -153,6 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         await loadProfile();
     } catch (error) {
+        document.body.classList.remove("profile-loading");
         setProfileMessage("error", error.message || "Unable to load profile.");
     }
 });

@@ -1,4 +1,4 @@
-package com.smartCity.Web.config;
+package com.smartCity.Web.subscription;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

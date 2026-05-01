@@ -9,8 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.smartCity.Web.auth.GoogleIdTokenVerifier.VerifiedGoogleUser;
-import com.smartCity.Web.auth.GoogleIdTokenVerifier;
+import com.smartCity.Web.auth.google.GoogleIdTokenVerifier.VerifiedGoogleUser;
+import com.smartCity.Web.auth.google.GoogleIdTokenVerifier;
 import com.smartCity.Web.notification.EmailNotificationService;
 import lombok.RequiredArgsConstructor;
 

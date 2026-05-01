@@ -1,4 +1,4 @@
-package com.smartCity.Web.auth;
+package com.smartCity.Web.auth.jwt;
 
 /**
  * Adapts the application user model to the Spring Security principal contract.

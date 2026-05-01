@@ -2,7 +2,6 @@ package com.smartCity.Web.subscription;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartCity.Web.config.RazorpayProperties;
 import com.smartCity.Web.user.User;
 import com.smartCity.Web.user.UserRepository;
 import java.nio.charset.StandardCharsets;

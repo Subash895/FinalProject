@@ -1,4 +1,4 @@
-package com.smartCity.Web.auth;
+package com.smartCity.Web.auth.jwt;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.smartCity.Web.auth.jwt.verification.JwtVerifier;
+
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,27 +26,27 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtService jwtService;
+  public static final String AUTH_COOKIE_NAME = "SMARTCITY_AUTH";
 
-  public JwtAuthenticationFilter(JwtService jwtService) {
-    this.jwtService = jwtService;
+  private final JwtVerifier jwtVerifier;
+
+  public JwtAuthenticationFilter(JwtVerifier jwtVerifier) {
+    this.jwtVerifier = jwtVerifier;
   }
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    String header = request.getHeader("Authorization");
+    String token = resolveToken(request);
 
-    if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+    if (!StringUtils.hasText(token)) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    String token = header.substring(7);
-
     try {
-      Claims claims = jwtService.parse(token);
+      Claims claims = jwtVerifier.verify(token);
       String role = claims.get("role", String.class);
       String email = claims.getSubject();
       Long userId = claims.get("userId", Long.class);
@@ -60,5 +63,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     filterChain.doFilter(request, response);
+  }
+
+  private String resolveToken(HttpServletRequest request) {
+    String header = request.getHeader("Authorization");
+    if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
+      return header.substring(7);
+    }
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return null;
+    }
+
+    for (Cookie cookie : cookies) {
+      if (AUTH_COOKIE_NAME.equals(cookie.getName()) && StringUtils.hasText(cookie.getValue())) {
+        return cookie.getValue();
+      }
+    }
+
+    return null;
   }
 }

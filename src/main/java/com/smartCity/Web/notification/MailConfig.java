@@ -1,4 +1,4 @@
-package com.smartCity.Web.config;
+package com.smartCity.Web.notification;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.StringUtils;
@@ -16,6 +17,7 @@ import org.springframework.util.StringUtils;
  * Registers the mail-related beans used to send application emails.
  */
 @Configuration
+@EnableAsync
 public class MailConfig {
 
   @Bean

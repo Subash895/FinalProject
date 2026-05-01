@@ -1,4 +1,4 @@
-package com.smartCity.Web.auth;
+package com.smartCity.Web.auth.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -7,6 +7,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.smartCity.Web.auth.jwt.verification.JwtVerifier;
 import com.smartCity.Web.user.User;
 
 import io.jsonwebtoken.Claims;
@@ -21,12 +22,14 @@ public class JwtService {
 
   private final Key signingKey;
   private final long expirationMs;
+  private final JwtVerifier jwtVerifier;
 
   public JwtService(
       @Value("${app.jwt.secret}") String secret,
       @Value("${app.jwt.expiration-ms}") long expirationMs) {
     this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     this.expirationMs = expirationMs;
+    this.jwtVerifier = new JwtVerifier(secret);
   }
 
   public String generateToken(User user) {
@@ -45,10 +48,6 @@ public class JwtService {
   }
 
   public Claims parse(String token) {
-    return Jwts.parser()
-        .verifyWith((javax.crypto.SecretKey) signingKey)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
+    return jwtVerifier.verify(token);
   }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,6 +28,7 @@ public class EmailNotificationService {
     this.fromAddress = fromAddress;
   }
 
+  @Async
   public void sendCommentThankYou(String recipientEmail, String recipientName, String targetLabel) {
     if (!StringUtils.hasText(recipientEmail)) {
       return;
@@ -36,17 +38,15 @@ public class EmailNotificationService {
         recipientEmail,
         "Thank you for your comment",
         """
-                        Hello %s,
-
-                        Thank you for your comment on %s.
-
-                        We appreciate your feedback.
-
-                        Smart City Team
-                        """
+        Hello %s,
+        Thank you for your comment on %s.
+        We appreciate your feedback.
+        Smart City Team
+        """
             .formatted(resolveName(recipientName), targetLabel));
   }
 
+  @Async
   public void sendBusinessCommentNotification(
       String ownerEmail,
       String ownerName,
@@ -56,7 +56,6 @@ public class EmailNotificationService {
     if (!StringUtils.hasText(ownerEmail)) {
       return;
     }
-
     sendEmail(
         ownerEmail,
         "New comment for your business",
@@ -84,14 +83,10 @@ public class EmailNotificationService {
         "Your Smart City password reset OTP",
         """
                         Hello %s,
-
                         We received a password reset request for your Smart City account.
-
                         Your OTP is: %s
-
                         This OTP will expire in 10 minutes.
                         If you did not request this reset, you can ignore this email.
-
                         Smart City Team
                         """
             .formatted(resolveName(recipientName), otp));

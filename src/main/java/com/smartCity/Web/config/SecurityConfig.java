@@ -12,7 +12,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.smartCity.Web.auth.JwtAuthenticationFilter;
+import com.smartCity.Web.auth.jwt.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 

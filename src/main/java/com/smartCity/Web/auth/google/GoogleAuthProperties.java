@@ -1,4 +1,4 @@
-package com.smartCity.Web.config;
+package com.smartCity.Web.auth.google;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

@@ -86,7 +86,7 @@ async function fillBusinessAddressFromCurrentLocation() {
 
 async function loadBusinesses() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "card", 4);
 
     try {
         if (!businessState.userLocation) {
@@ -97,15 +97,16 @@ async function loadBusinesses() {
         const endpoint = query ? `/businesses?q=${encodeURIComponent(query)}` : "/businesses";
         const data = await apiRequest(endpoint);
         if (!data || data.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">BS</span><p>${query ? "No businesses match your search." : "No businesses yet."}</p></div>`;
             return;
         }
 
-        const businessesWithReviews = await Promise.all(data.map(async business => {
+        const businessesWithReviews = await attachReviewsToItems(data, REVIEW_TARGETS.business);
+        const businessesWithDetails = await Promise.all(businessesWithReviews.map(async business => {
             const coordinates = business.address ? await geocodeWithOpenStreetMap(business.address).catch(() => null) : null;
             return {
                 ...business,
-                reviews: await loadReviews(REVIEW_TARGETS.business, business.id),
                 distanceKm: businessState.userLocation && coordinates ?
                     haversineDistanceKm(businessState.userLocation, coordinates) :
                     null
@@ -113,7 +114,8 @@ async function loadBusinesses() {
         }));
 
         container.className = "card-list";
-        container.innerHTML = businessesWithReviews.map((b, i) => {
+        clearListSkeleton(container);
+        container.innerHTML = businessesWithDetails.map((b, i) => {
             const canEdit = isAdmin() || (isBusiness() && b.owner && b.owner.id === getUserId());
             const canDelete = isAdmin();
 
@@ -136,6 +138,7 @@ async function loadBusinesses() {
 
         hydrateReviewForms(loadBusinesses);
     } catch {
+        clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">NA</span><p>Cannot connect to server. Is it running on port 8080?</p></div>';
     }
 }

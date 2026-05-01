@@ -2,9 +2,7 @@ package com.smartCity.Web.comment;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
-
 import com.smartCity.Web.notification.EmailNotificationService;
 import lombok.RequiredArgsConstructor;
 

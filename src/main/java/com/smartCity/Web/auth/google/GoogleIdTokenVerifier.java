@@ -1,4 +1,4 @@
-package com.smartCity.Web.auth;
+package com.smartCity.Web.auth.google;
 
 import java.util.Set;
 
@@ -13,8 +13,6 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import com.smartCity.Web.config.GoogleAuthProperties;
 
 /**
  * Validates Google ID tokens and extracts the user details needed by the authentication flow.

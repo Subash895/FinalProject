@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadPosts() {
     const container = document.getElementById("list");
-    container.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+    setListSkeleton(container, "forum", 4);
 
     try {
         const data = await apiRequest("/forumposts");
@@ -45,11 +45,13 @@ async function loadPosts() {
         }
 
         if (!data || data.length === 0) {
+            clearListSkeleton(container);
             container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">FM</span><p>No posts yet. Start the conversation!</p></div>`;
             return;
         }
 
         container.className = "forum-list";
+        clearListSkeleton(container);
         container.innerHTML = data.map((p, i) => {
             const canEdit = isAdmin();
             const canDelete = isAdmin();
@@ -72,6 +74,7 @@ async function loadPosts() {
       </div>`;
         }).join("");
     } catch {
+        clearListSkeleton(container);
         container.innerHTML = `<div class="empty-state glass-card"><span class="empty-icon">ER</span><p>Cannot connect to server.</p></div>`;
     }
 }

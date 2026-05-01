@@ -16,6 +16,7 @@ const API_BASE =
 async function apiRequest(endpoint, method = "GET", data = null) {
     const options = {
         method,
+        credentials: "include",
         headers: {
             "Content-Type": "application/json"
         }
@@ -54,4 +55,94 @@ async function apiRequest(endpoint, method = "GET", data = null) {
     if (contentType.includes("application/json")) return res.json();
 
     return null;
+}
+
+function skeletonLine(width = "100%", extraClass = "") {
+    return `<span class="skeleton-line ${extraClass}" style="width:${width}"></span>`;
+}
+
+function skeletonCircle(size = "48px") {
+    return `<span class="skeleton-circle" style="width:${size};height:${size}"></span>`;
+}
+
+function skeletonListMarkup(type = "card", count = 4) {
+    const items = Array.from({ length: count }, (_, index) => {
+        const delay = `style="animation-delay:${index * 0.04}s"`;
+
+        if (type === "city") {
+            return `
+                <div class="skeleton-card skeleton-card-row glass-card" ${delay}>
+                    ${skeletonCircle("56px")}
+                    <div class="skeleton-stack">
+                        ${skeletonLine("42%", "skeleton-line-title")}
+                        ${skeletonLine("62%")}
+                        ${skeletonLine("34%")}
+                        <div class="skeleton-actions">
+                            ${skeletonLine("72px", "skeleton-pill")}
+                            ${skeletonLine("64px", "skeleton-pill")}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (type === "forum" || type === "news") {
+            return `
+                <div class="skeleton-card glass-card" ${delay}>
+                    <div class="skeleton-card-head">
+                        ${skeletonLine("55%", "skeleton-line-title")}
+                        ${skeletonLine("86px", "skeleton-pill")}
+                    </div>
+                    ${skeletonLine("92%")}
+                    ${skeletonLine("78%")}
+                    ${skeletonLine("44%")}
+                </div>
+            `;
+        }
+
+        if (type === "subscription") {
+            return `
+                <div class="skeleton-card skeleton-card-row glass-card" ${delay}>
+                    <div class="skeleton-stack">
+                        ${skeletonLine("48%", "skeleton-line-title")}
+                        ${skeletonLine("32%")}
+                    </div>
+                    ${skeletonLine("92px", "skeleton-pill")}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="skeleton-card glass-card" ${delay}>
+                <div class="skeleton-card-head">
+                    ${skeletonCircle("46px")}
+                    <div class="skeleton-stack">
+                        ${skeletonLine("52%", "skeleton-line-title")}
+                        ${skeletonLine("72%")}
+                    </div>
+                </div>
+                ${skeletonLine("88%")}
+                ${skeletonLine("64%")}
+                <div class="skeleton-actions">
+                    ${skeletonLine("70px", "skeleton-pill")}
+                    ${skeletonLine("70px", "skeleton-pill")}
+                </div>
+            </div>
+        `;
+    });
+
+    return `<div class="skeleton-list" aria-label="Loading content">${items.join("")}</div>`;
+}
+
+function setListSkeleton(container, type = "card", count = 4) {
+    if (!container) {
+        return;
+    }
+
+    container.classList.add("is-loading");
+    container.innerHTML = skeletonListMarkup(type, count);
+}
+
+function clearListSkeleton(container) {
+    container?.classList.remove("is-loading");
 }

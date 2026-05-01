@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.smartCity.Web.auth.JwtUserPrincipal;
+import com.smartCity.Web.auth.jwt.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.business.BusinessDtos;
 import org.springframework.http.HttpStatus;

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smartCity.Web.auth.JwtUserPrincipal;
+import com.smartCity.Web.auth.jwt.JwtUserPrincipal;
 import com.smartCity.Web.shared.ApiDtoMapper;
 import com.smartCity.Web.subscription.SubscriptionDtos;
 
