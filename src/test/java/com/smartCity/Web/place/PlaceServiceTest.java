@@ -18,12 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PlaceServiceTest {
 
   @Mock private PlaceRepository placeRepository;
+  @Mock private PlaceGalleryImageRepository placeGalleryImageRepository;
 
   private PlaceService placeService;
 
   @BeforeEach
   void setUp() {
-    placeService = new PlaceService(placeRepository);
+    placeService = new PlaceService(placeRepository, placeGalleryImageRepository);
   }
 
   @Test
@@ -82,6 +83,7 @@ class PlaceServiceTest {
   @Test
   void deleteDelegatesToRepository() {
     placeService.delete(3L);
+    verify(placeGalleryImageRepository).deleteByPlaceId(3L);
     verify(placeRepository).deleteById(3L);
   }
 }

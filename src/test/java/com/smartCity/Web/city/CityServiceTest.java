@@ -33,6 +33,7 @@ class CityServiceTest {
   @Mock private NewsRepository newsRepository;
   @Mock private PlaceRepository placeRepository;
   @Mock private ReviewRepository reviewRepository;
+  @Mock private CityGalleryImageRepository cityGalleryImageRepository;
 
   private CityService cityService;
 
@@ -45,7 +46,8 @@ class CityServiceTest {
             eventRepository,
             newsRepository,
             placeRepository,
-            reviewRepository);
+            reviewRepository,
+            cityGalleryImageRepository);
   }
 
   @Test
@@ -84,6 +86,7 @@ class CityServiceTest {
     verify(reviewRepository).deleteByTargetTypeAndTargetIdIn(ReviewTargetType.PLACE, List.of(10L));
     verify(reviewRepository).deleteByTargetTypeAndTargetIdIn(ReviewTargetType.NEWS, List.of(20L));
     verify(cityHistoryRepository).deleteByCityId(3L);
+    verify(cityGalleryImageRepository).deleteByCityId(3L);
     verify(eventRepository).deleteByCityId(3L);
     verify(newsRepository).deleteByCityId(3L);
     verify(placeRepository).deleteByCityId(3L);
