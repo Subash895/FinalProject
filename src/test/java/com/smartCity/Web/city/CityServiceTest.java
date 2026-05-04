@@ -23,6 +23,7 @@ import com.smartCity.Web.place.Place;
 import com.smartCity.Web.place.PlaceRepository;
 import com.smartCity.Web.review.ReviewRepository;
 import com.smartCity.Web.review.ReviewTargetType;
+import com.smartCity.Web.city.CityGalleryImageRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CityServiceTest {
