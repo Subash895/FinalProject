@@ -48,6 +48,17 @@
         </div>
       </div>
     </section>
+
+    <section class="glass-card">
+      <div class="section-header">
+        <h2>Place Gallery</h2>
+      </div>
+      <div id="placeGalleryAdmin" class="place-gallery-admin" style="display:none">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="triggerPlaceGalleryPicker()">Add Image</button>
+        <input id="placeGalleryInput" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" hidden onchange="handlePlaceGallerySelected(event)">
+      </div>
+      <div id="placeGalleryList" class="place-gallery-grid"></div>
+    </section>
   </main>
 
   <script src="js/api.js"></script>
@@ -56,4 +67,3 @@
   <script src="js/place-view.js"></script>
 </body>
 </html>
-

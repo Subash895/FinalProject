@@ -28,6 +28,7 @@ public class CityService {
   private final NewsRepository newsRepository;
   private final PlaceRepository placeRepository;
   private final ReviewRepository reviewRepository;
+  private final CityGalleryImageRepository cityGalleryImageRepository;
 
   public City save(City entity) {
     return repo.save(entity);
@@ -85,6 +86,7 @@ public class CityService {
     }
 
     cityHistoryRepository.deleteByCityId(id);
+    cityGalleryImageRepository.deleteByCityId(id);
     eventRepository.deleteByCityId(id);
     newsRepository.deleteByCityId(id);
     placeRepository.deleteByCityId(id);

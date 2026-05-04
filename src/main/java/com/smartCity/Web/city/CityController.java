@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CityController {
   private final CityService service;
+  private final CityGalleryService galleryService;
   private final ApiDtoMapper apiDtoMapper;
 
   @PostMapping
@@ -82,5 +83,38 @@ public class CityController {
     } catch (Exception ex) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to upload city image.");
     }
+  }
+
+  @GetMapping("/{id}/gallery")
+  public List<CityDtos.CityGalleryImageResponse> listGalleryImages(@PathVariable Long id) {
+    return galleryService.listByCity(id).stream()
+        .map(apiDtoMapper::toCityGalleryImageResponse)
+        .collect(Collectors.toList());
+  }
+
+  @PostMapping(value = "/{id}/gallery", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public CityDtos.CityGalleryImageResponse addGalleryImage(
+      @PathVariable Long id,
+      @RequestParam("photo") MultipartFile photo) {
+    if (photo == null || photo.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select an image.");
+    }
+    try {
+      byte[] bytes = photo.getBytes();
+      if (ImageIO.read(new ByteArrayInputStream(bytes)) == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only image files are allowed.");
+      }
+      return apiDtoMapper.toCityGalleryImageResponse(
+          galleryService.addImage(id, bytes, photo.getContentType()));
+    } catch (ResponseStatusException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to upload image.");
+    }
+  }
+
+  @DeleteMapping("/{id}/gallery/{imageId}")
+  public void deleteGalleryImage(@PathVariable Long id, @PathVariable Long imageId) {
+    galleryService.deleteImage(id, imageId);
   }
 }

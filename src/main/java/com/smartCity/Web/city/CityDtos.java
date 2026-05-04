@@ -12,4 +12,6 @@ public final class CityDtos {
 
   public record CityResponse(
       Long id, String name, String state, String country, Double latitude, Double longitude, String imageUrl) {}
+
+  public record CityGalleryImageResponse(Long id, Long cityId, String imageUrl, Integer sortOrder) {}
 }

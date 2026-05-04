@@ -138,27 +138,7 @@ function applyRoleUI() {
             `<span class="nav-profile-avatar">${getUserInitials(user)}</span>`;
     }
 
-    wireBusinessLandingLinks();
     initializeGlobalProfilePhotoUpload();
-}
-
-async function wireBusinessLandingLinks() {
-    if (!isLoggedIn() || !isBusiness() || typeof apiRequest !== "function") {
-        return;
-    }
-
-    try {
-        const businesses = await apiRequest("/businesses");
-        const firstBusinessId = Array.isArray(businesses) ? businesses[0]?.id : null;
-        if (!firstBusinessId) {
-            return;
-        }
-
-        const targetHref = `business-manage.html?businessId=${encodeURIComponent(firstBusinessId)}`;
-        document.querySelectorAll('a[href="business.html"]').forEach(link => {
-            link.href = targetHref;
-        });
-    } catch {}
 }
 
 function isSubscriptionPage() {

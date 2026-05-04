@@ -2,12 +2,91 @@ function getPlaceViewId() {
   return Number(new URLSearchParams(window.location.search).get("placeId"));
 }
 
+function escapePlaceViewHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderPlaceGallery(placeId, images) {
+  const container = document.getElementById("placeGalleryList");
+  const list = Array.isArray(images) ? images : [];
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state glass-card"><p>No gallery images yet.</p></div>';
+    return;
+  }
+
+  const canManage = isAdmin();
+  container.innerHTML = list.map(image => `
+    <article class="place-gallery-item">
+      <img src="${escapePlaceViewHtml(image.imageUrl || "")}" alt="Place gallery image">
+      ${canManage ? `
+        <div class="card-actions">
+          <button type="button" class="btn btn-delete btn-sm" onclick="deletePlaceGalleryImage(${placeId}, ${image.id})">Delete</button>
+        </div>
+      ` : ""}
+    </article>
+  `).join("");
+}
+
+function triggerPlaceGalleryPicker() {
+  document.getElementById("placeGalleryInput")?.click();
+}
+
+async function handlePlaceGallerySelected(event) {
+  const placeId = getPlaceViewId();
+  const file = event?.target?.files?.[0];
+  if (!placeId || !file) {
+    return;
+  }
+  if (!file.type || !file.type.startsWith("image/")) {
+    showToast("Only image files are allowed.", "error");
+    event.target.value = "";
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("photo", file);
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE}/places/${placeId}/gallery`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    });
+    if (!response.ok) {
+      const message = await response.text().catch(() => "Failed to upload image.");
+      throw new Error(message || "Failed to upload image.");
+    }
+    showToast("Image added to place gallery.", "success");
+    await loadPlaceView();
+  } catch (error) {
+    showToast(error.message || "Failed to upload image.", "error");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+async function deletePlaceGalleryImage(placeId, imageId) {
+  openDeleteModal({
+    itemName: "this gallery image",
+    onConfirm: async () => {
+      await apiRequest(`/places/${placeId}/gallery/${imageId}`, "DELETE");
+      await loadPlaceView();
+    }
+  });
+}
+
 async function loadPlaceView() {
   const placeId = getPlaceViewId();
   if (!placeId) {
     throw new Error("Place id is required.");
   }
   const place = await apiRequest(`/places/${placeId}`);
+  const gallery = await apiRequest(`/places/${placeId}/gallery`).catch(() => []);
 
   document.getElementById("placeTitle").textContent = place.name || "Place";
   document.getElementById("placeMeta").textContent = [
@@ -32,6 +111,12 @@ async function loadPlaceView() {
   } else {
     mapLink.innerHTML = "";
   }
+
+  const galleryAdmin = document.getElementById("placeGalleryAdmin");
+  if (galleryAdmin) {
+    galleryAdmin.style.display = isAdmin() ? "flex" : "none";
+  }
+  renderPlaceGallery(placeId, gallery);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -42,4 +127,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     showToast(error.message || "Failed to load place details.", "error");
   }
 });
-

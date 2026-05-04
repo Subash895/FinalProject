@@ -154,6 +154,10 @@ async function loadBusinesses() {
 }
 
 function openBusinessDetailsPage(id) {
+    if (isBusiness() && !isAdmin()) {
+        window.location.href = `business-manage.html?businessId=${encodeURIComponent(id)}`;
+        return;
+    }
     window.location.href = `business-view.html?businessId=${encodeURIComponent(id)}`;
 }
 

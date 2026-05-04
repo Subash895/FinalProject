@@ -20,6 +20,38 @@
   margin-top: 1rem;
 }
 
+.city-gallery-admin {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.8rem;
+}
+
+.city-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.city-gallery-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.city-gallery-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.city-gallery-item .card-actions {
+  padding: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .history-list {
   display: grid;
   gap: 0.8rem;
@@ -47,4 +79,3 @@
     grid-template-columns: 1fr;
   }
 }
-

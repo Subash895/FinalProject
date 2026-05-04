@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PlaceController {
   private final PlaceService service;
+  private final PlaceGalleryService galleryService;
   private final ApiDtoMapper apiDtoMapper;
 
   @PostMapping
@@ -93,5 +94,48 @@ public class PlaceController {
     } catch (Exception ex) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to upload place image.");
     }
+  }
+
+  @GetMapping("/{id}/gallery")
+  public List<PlaceDtos.PlaceGalleryImageResponse> listGalleryImages(@PathVariable Long id) {
+    return galleryService.listByPlace(id).stream()
+        .map(apiDtoMapper::toPlaceGalleryImageResponse)
+        .collect(Collectors.toList());
+  }
+
+  @PostMapping(value = "/{id}/gallery", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public PlaceDtos.PlaceGalleryImageResponse addGalleryImage(
+      @PathVariable Long id,
+      @RequestParam("photo") MultipartFile photo,
+      @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal == null || !"ADMIN".equals(principal.role())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required.");
+    }
+    if (photo == null || photo.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select an image.");
+    }
+    try {
+      byte[] bytes = photo.getBytes();
+      if (ImageIO.read(new ByteArrayInputStream(bytes)) == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only image files are allowed.");
+      }
+      return apiDtoMapper.toPlaceGalleryImageResponse(
+          galleryService.addImage(id, bytes, photo.getContentType()));
+    } catch (ResponseStatusException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to upload image.");
+    }
+  }
+
+  @DeleteMapping("/{id}/gallery/{imageId}")
+  public void deleteGalleryImage(
+      @PathVariable Long id,
+      @PathVariable Long imageId,
+      @AuthenticationPrincipal JwtUserPrincipal principal) {
+    if (principal == null || !"ADMIN".equals(principal.role())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required.");
+    }
+    galleryService.deleteImage(id, imageId);
   }
 }

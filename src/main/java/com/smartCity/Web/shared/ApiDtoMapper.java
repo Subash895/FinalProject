@@ -13,6 +13,7 @@ import com.smartCity.Web.business.BusinessRepository;
 import com.smartCity.Web.business.BusinessDtos;
 import com.smartCity.Web.business.BusinessVacancy;
 import com.smartCity.Web.city.City;
+import com.smartCity.Web.city.CityGalleryImage;
 import com.smartCity.Web.city.CityRepository;
 import com.smartCity.Web.city.CityDtos;
 import com.smartCity.Web.cityhistory.CityHistory;
@@ -29,6 +30,7 @@ import com.smartCity.Web.marketrate.MarketRateDtos;
 import com.smartCity.Web.news.News;
 import com.smartCity.Web.news.NewsDtos;
 import com.smartCity.Web.place.Place;
+import com.smartCity.Web.place.PlaceGalleryImage;
 import com.smartCity.Web.place.PlaceDtos;
 import com.smartCity.Web.review.Review;
 import com.smartCity.Web.review.ReviewDtos;
@@ -132,6 +134,14 @@ public class ApiDtoMapper {
     city.setLatitude(request.latitude());
     city.setLongitude(request.longitude());
     return city;
+  }
+
+  public CityDtos.CityGalleryImageResponse toCityGalleryImageResponse(CityGalleryImage image) {
+    return new CityDtos.CityGalleryImageResponse(
+        image.getId(),
+        image.getCity() == null ? null : image.getCity().getId(),
+        toDataUrl(image.getImageData(), image.getImageContentType()),
+        image.getSortOrder());
   }
 
   public BusinessDtos.BusinessResponse toBusinessResponse(Business business) {
@@ -311,6 +321,14 @@ public class ApiDtoMapper {
     place.setLatitude(request.latitude());
     place.setLongitude(request.longitude());
     return place;
+  }
+
+  public PlaceDtos.PlaceGalleryImageResponse toPlaceGalleryImageResponse(PlaceGalleryImage image) {
+    return new PlaceDtos.PlaceGalleryImageResponse(
+        image.getId(),
+        image.getPlace() == null ? null : image.getPlace().getId(),
+        toDataUrl(image.getImageData(), image.getImageContentType()),
+        image.getSortOrder());
   }
 
   public ForumDtos.ForumPostResponse toForumPostResponse(ForumPost post) {

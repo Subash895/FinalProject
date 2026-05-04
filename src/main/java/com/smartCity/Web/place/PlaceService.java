@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public class PlaceService {
   private static final int MAX_PLACE_IMAGE_LENGTH = 3_000_000;
   private final PlaceRepository repo;
+  private final PlaceGalleryImageRepository placeGalleryImageRepository;
 
   public Place save(Place entity) {
     return repo.save(entity);
@@ -66,6 +67,7 @@ public class PlaceService {
   }
 
   public void delete(Long id) {
+    placeGalleryImageRepository.deleteByPlaceId(id);
     repo.deleteById(id);
   }
 

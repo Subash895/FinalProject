@@ -19,6 +19,38 @@
   margin-top: 1rem;
 }
 
+.place-gallery-admin {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.8rem;
+}
+
+.place-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.place-gallery-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.place-gallery-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.place-gallery-item .card-actions {
+  padding: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 #placeMapLink {
   margin-top: 0.7rem;
 }
@@ -32,4 +64,3 @@
     grid-template-columns: 1fr;
   }
 }
-

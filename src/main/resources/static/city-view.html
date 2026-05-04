@@ -49,6 +49,17 @@
     </section>
 
     <section class="glass-card">
+      <div class="section-header">
+        <h2>City Gallery</h2>
+      </div>
+      <div id="cityGalleryAdmin" class="city-gallery-admin" style="display:none">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="triggerCityGalleryPicker()">Add Image</button>
+        <input id="cityGalleryInput" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" hidden onchange="handleCityGallerySelected(event)">
+      </div>
+      <div id="cityGalleryList" class="city-gallery-grid"></div>
+    </section>
+
+    <section class="glass-card">
       <div class="section-header"><h2>City History</h2></div>
       <div id="cityHistoryList" class="history-list"></div>
     </section>
@@ -60,4 +71,3 @@
   <script src="js/city-view.js"></script>
 </body>
 </html>
-

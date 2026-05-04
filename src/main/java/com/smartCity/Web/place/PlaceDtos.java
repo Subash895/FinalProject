@@ -31,4 +31,6 @@ public final class PlaceDtos {
       Double latitude,
       Double longitude,
       String imageUrl) {}
+
+  public record PlaceGalleryImageResponse(Long id, Long placeId, String imageUrl, Integer sortOrder) {}
 }
