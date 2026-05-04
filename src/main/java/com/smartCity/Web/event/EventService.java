@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EventService {
+  private static final int MAX_EVENT_IMAGE_LENGTH = 3_000_000;
 
   private final EventRepository repo;
 
@@ -40,5 +41,19 @@ public class EventService {
 
   public void delete(Long id) {
     repo.deleteById(id);
+  }
+
+  public Event updateImage(Long id, byte[] imageData, String contentType) {
+    Event existing =
+        repo.findById(id).orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+    if (imageData == null || imageData.length == 0) {
+      throw new RuntimeException("Event image is required");
+    }
+    if (imageData.length > MAX_EVENT_IMAGE_LENGTH) {
+      throw new RuntimeException("Event image is too large");
+    }
+    existing.setImageData(imageData);
+    existing.setImageContentType(contentType);
+    return repo.save(existing);
   }
 }

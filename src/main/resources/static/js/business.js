@@ -13,6 +13,13 @@ function getBusinessSearchQuery() {
     return document.getElementById("businessSearch")?.value.trim() || "";
 }
 
+function businessImageMarkup(business) {
+    if (business?.imageUrl) {
+        return `<img class="business-card-image" src="${business.imageUrl}" alt="${esc(business.name || "Business")}">`;
+    }
+    return `<div class="business-card-image business-card-image-fallback">BS</div>`;
+}
+
 const businessState = {
     userLocation: getSavedUserLocation()
 };
@@ -116,19 +123,22 @@ async function loadBusinesses() {
         container.className = "card-list";
         clearListSkeleton(container);
         container.innerHTML = businessesWithDetails.map((b, i) => {
-            const canEdit = isAdmin() || (isBusiness() && b.owner && b.owner.id === getUserId());
+            const canEdit = isAdmin() || isBusiness() || (isBusiness() && b.owner && b.owner.id === getUserId());
             const canDelete = isAdmin();
+            const cardClick = ` onclick="handleBusinessCardClick(event, ${b.id})"`;
 
             return `
-      <div class="business-card glass-card" style="animation-delay:${i * 0.05}s">
+      <div class="business-card glass-card business-card-manageable" style="animation-delay:${i * 0.05}s"${cardClick}>
+        ${businessImageMarkup(b)}
         <div class="card-tag">${b.owner?.name || "Business"}</div>
-        <h3>${b.name}</h3>
+        <h3><button class="business-card-title-link" type="button" onclick="openBusinessDetailsPage(${b.id})">${b.name}</button></h3>
         <div class="biz-meta">
           <span><span class="meta-icon">Address</span>${b.address || "-"}</span>
           <span><span class="meta-icon">About</span>${b.description || "-"}</span>
         </div>
         ${b.distanceKm != null ? `<div class="business-distance">${formatDistanceKm(b.distanceKm)}</div>` : ""}
         <div class="card-actions">
+          ${canEdit ? `<button class="btn btn-secondary btn-sm" title="Upload" onclick="triggerBusinessImagePicker(${b.id})">Upload</button><input id="businessImageInput_${b.id}" class="business-image-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" onchange="handleBusinessImageSelected(${b.id}, event)">` : ""}
           ${canEdit ? `<button class="btn btn-edit btn-sm" onclick='editBusiness(${b.id}, ${JSON.stringify(b)})'>Edit</button>` : ""}
           ${canDelete ? `<button class="btn btn-delete btn-sm" onclick="deleteBusiness(${b.id}, '${esc(b.name)}')">Delete</button>` : ""}
         </div>
@@ -141,6 +151,23 @@ async function loadBusinesses() {
         clearListSkeleton(container);
         container.innerHTML = '<div class="empty-state glass-card"><span class="empty-icon">NA</span><p>Cannot connect to server. Is it running on port 8080?</p></div>';
     }
+}
+
+function openBusinessDetailsPage(id) {
+    window.location.href = `business-view.html?businessId=${encodeURIComponent(id)}`;
+}
+
+function handleBusinessCardClick(event, id) {
+    if (!event || !id) {
+        return;
+    }
+
+    const interactiveArea = event.target.closest("button, a, input, textarea, select, label, form, .review-section, .card-actions");
+    if (interactiveArea) {
+        return;
+    }
+
+    openBusinessDetailsPage(id);
 }
 
 function editBusiness(id, b) {
@@ -182,4 +209,47 @@ function deleteBusiness(id, name) {
             await loadBusinesses();
         }
     });
+}
+
+function triggerBusinessImagePicker(id) {
+    const input = document.getElementById(`businessImageInput_${id}`);
+    input?.click();
+}
+
+async function handleBusinessImageSelected(id, event) {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+        return;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+        showToast("Only image files are allowed.", "error");
+        event.target.value = "";
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("photo", file);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/businesses/${Number(id)}/photo`, {
+            method: "PUT",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData
+        });
+
+        if (!response.ok) {
+            let message = "Failed to upload business image.";
+            try {
+                message = await response.text() || message;
+            } catch {}
+            throw new Error(message);
+        }
+
+        showToast("Business image updated.", "success");
+        await loadBusinesses();
+    } catch (error) {
+        showToast(error.message || "Failed to upload business image.", "error");
+    } finally {
+        event.target.value = "";
+    }
 }

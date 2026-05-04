@@ -1,0 +1,35 @@
+.detail-hero {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) 1fr;
+  gap: 1rem;
+}
+
+.detail-image {
+  width: 100%;
+  min-height: 240px;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.hero-actions {
+  margin-top: 1rem;
+}
+
+#placeMapLink {
+  margin-top: 0.7rem;
+}
+
+#placeMapLink a {
+  color: var(--cyan);
+}
+
+@media (max-width: 900px) {
+  .detail-hero {
+    grid-template-columns: 1fr;
+  }
+}
+

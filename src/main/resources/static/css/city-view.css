@@ -1,0 +1,50 @@
+.detail-hero {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-image {
+  width: 100%;
+  min-height: 240px;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.hero-actions {
+  margin-top: 1rem;
+}
+
+.history-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.history-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.history-item h3 {
+  margin: 0 0 0.45rem;
+}
+
+.history-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .detail-hero {
+    grid-template-columns: 1fr;
+  }
+}
+

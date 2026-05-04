@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("smartcity.theme") || "dark";
+        document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <title>MySmartCity - Place Details</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/place-view.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand"><div class="brand-icon">SC</div>My<span>Smart</span>City</a>
+    <ul class="navbar-nav">
+      <li><a href="place.html" class="active"><span class="nav-icon">📍</span>Places</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">&#9728;</span></button></li>
+    </ul>
+  </nav>
+
+  <main class="page-wrapper">
+    <section class="page-header">
+      <h1 id="placeTitle">Place</h1>
+      <p id="placeMeta">Loading...</p>
+      <div class="header-line"></div>
+    </section>
+
+    <section class="glass-card detail-hero">
+      <img id="placeImage" class="detail-image" alt="Place image">
+      <div>
+        <h2>About This Place</h2>
+        <p id="placeAbout">Loading details...</p>
+        <div id="placeMapLink"></div>
+        <div class="hero-actions">
+          <a href="place.html" class="btn btn-secondary">Back to Places</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/place-view.js"></script>
+</body>
+</html>
+

@@ -34,6 +34,13 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Lob
+  @Column(name = "profile_photo", columnDefinition = "LONGBLOB")
+  private byte[] profilePhoto;
+
+  @Column(name = "profile_photo_content_type")
+  private String profilePhotoContentType;
+
   public User(String name, String email, String password, Role role) {
     this.name = name;
     this.email = email;

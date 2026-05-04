@@ -30,6 +30,13 @@ public class Business {
   private String address;
   private Boolean isFeatured = false;
 
+  @Lob
+  @Column(name = "image_data", columnDefinition = "LONGBLOB")
+  private byte[] imageData;
+
+  @Column(name = "image_content_type")
+  private String imageContentType;
+
   public Business(User owner, String name, String description, String address) {
     this.owner = owner;
     this.name = name;

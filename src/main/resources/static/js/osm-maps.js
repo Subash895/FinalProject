@@ -19,12 +19,11 @@ function createOpenStreetMap(elementId, options = {}) {
 
     const map = L.map(elementId, {
         zoomControl: true,
-        attributionControl: true
+        attributionControl: false
     }).setView(options.center || OSM_DEFAULT_CENTER, options.zoom || OSM_DEFAULT_ZOOM);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom: 19
     }).addTo(map);
 
     return map;

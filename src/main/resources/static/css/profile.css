@@ -35,10 +35,25 @@
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile-summary .badge {
     margin-bottom: 1rem;
+}
+
+.profile-photo-btn {
+    margin-bottom: 1rem;
+}
+
+.profile-photo-input {
+    display: none;
 }
 
 .profile-summary h2 {

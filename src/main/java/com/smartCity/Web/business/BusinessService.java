@@ -17,6 +17,8 @@ import com.smartCity.Web.user.UserRepository;
  */
 @Service
 public class BusinessService {
+  private static final int MAX_BUSINESS_IMAGE_LENGTH = 3_000_000;
+
   private final BusinessRepository repo;
   private final UserRepository userRepository;
 
@@ -97,6 +99,22 @@ public class BusinessService {
         repo.findById(id).orElseThrow(() -> new RuntimeException("Business not found"));
     validateBusinessAccess(existing, authenticatedUserId, role);
     repo.deleteById(id);
+  }
+
+  public Business updateImage(
+      Long id, byte[] imageData, String contentType, Long authenticatedUserId, String role) {
+    Business existing =
+        repo.findById(id).orElseThrow(() -> new RuntimeException("Business not found"));
+    validateBusinessAccess(existing, authenticatedUserId, role);
+    if (imageData == null || imageData.length == 0) {
+      throw new RuntimeException("Business image is required");
+    }
+    if (imageData.length > MAX_BUSINESS_IMAGE_LENGTH) {
+      throw new RuntimeException("Business image is too large");
+    }
+    existing.setImageData(imageData);
+    existing.setImageContentType(contentType);
+    return repo.save(existing);
   }
 
   private void validateBusinessAccess(Business business, Long authenticatedUserId, String role) {

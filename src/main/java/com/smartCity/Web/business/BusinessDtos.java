@@ -17,7 +17,8 @@ public final class BusinessDtos {
       String name,
       String description,
       String address,
-      Boolean isFeatured) {}
+      Boolean isFeatured,
+      String imageUrl) {}
 
   public record BusinessResponse(
       Long id,
@@ -25,5 +26,29 @@ public final class BusinessDtos {
       String name,
       String description,
       String address,
-      Boolean isFeatured) {}
+      Boolean isFeatured,
+      String imageUrl) {}
+
+  public record VacancyRequest(
+      String title,
+      String description,
+      String location,
+      String requirements,
+      String contactEmail,
+      String salaryInfo,
+      Boolean active) {}
+
+  public record VacancyResponse(
+      Long id,
+      Long businessId,
+      String title,
+      String description,
+      String location,
+      String requirements,
+      String contactEmail,
+      String salaryInfo,
+      Boolean active,
+      java.time.LocalDateTime createdAt) {}
+
+  public record BusinessGalleryImageResponse(Long id, Long businessId, String imageUrl, Integer sortOrder) {}
 }

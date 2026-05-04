@@ -29,5 +29,6 @@ public final class PlaceDtos {
       String category,
       String location,
       Double latitude,
-      Double longitude) {}
+      Double longitude,
+      String imageUrl) {}
 }

@@ -57,10 +57,12 @@ async function loadNews() {
         container.innerHTML = newsWithReviews.map((n, i) => `
       <div class="news-card glass-card" style="animation-delay:${i * 0.05}s">
         <div class="news-main">
+          ${n.imageUrl ? `<img class="news-image" src="${n.imageUrl}" alt="${n.title || "News"}">` : ""}
           <h3>${n.title}</h3>
           <div class="news-body">${n.content || ""}</div>
           <div class="news-timestamp">Published ${newsTimestamp(n)}</div>
           <div class="card-actions">
+            ${isAdmin() ? `<button class="btn btn-secondary btn-sm" title="Upload" onclick="triggerNewsImagePicker(${n.id})">Upload</button><input id="newsImageInput_${n.id}" class="news-image-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" onchange="handleNewsImageSelected(${n.id}, event)">` : ""}
             ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editNews(${n.id}, ${JSON.stringify(n)})'>Edit</button>` : ""}
             ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteNews(${n.id}, '${esc(n.title)}')">Delete</button>` : ""}
           </div>
@@ -111,4 +113,43 @@ function deleteNews(id, title) {
             await loadNews();
         }
     });
+}
+
+function triggerNewsImagePicker(id) {
+    document.getElementById(`newsImageInput_${id}`)?.click();
+}
+
+async function handleNewsImageSelected(id, event) {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+        return;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+        showToast("Only image files are allowed.", "error");
+        event.target.value = "";
+        return;
+    }
+    try {
+        const formData = new FormData();
+        formData.append("photo", file);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/news/${Number(id)}/photo`, {
+            method: "PUT",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData
+        });
+        if (!response.ok) {
+            let message = "Failed to upload news image.";
+            try {
+                message = await response.text() || message;
+            } catch {}
+            throw new Error(message);
+        }
+        showToast("News image updated.", "success");
+        await loadNews();
+    } catch (error) {
+        showToast(error.message || "Failed to upload news image.", "error");
+    } finally {
+        event.target.value = "";
+    }
 }

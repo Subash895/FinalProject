@@ -56,7 +56,7 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/api/chat/**")
                     .authenticated()
-                    .requestMatchers("/api/users/me")
+                    .requestMatchers("/api/users/me", "/api/users/me/photo")
                     .authenticated()
                     .requestMatchers(
                         "/api/subscriptions/checkout",

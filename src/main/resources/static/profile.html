@@ -5,6 +5,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("smartcity.theme") || "dark";
+        document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
   <title>MySmartCity - Profile</title>
   <link rel="icon" type="image/x-icon" href="images/subash.ico">
   <link rel="stylesheet" href="css/style.css">
@@ -42,6 +52,8 @@
     <section class="profile-grid">
       <aside class="glass-card profile-summary">
         <div class="profile-avatar" id="profileAvatar">U</div>
+        <label for="profilePhotoInput" class="btn btn-secondary btn-sm profile-photo-btn">Upload Photo</label>
+        <input id="profilePhotoInput" class="profile-photo-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*">
         <span class="badge badge-cyan" id="profileRoleBadge">USER</span>
         <h2 id="profileName">Loading...</h2>
         <p id="profileEmail">Please wait while we load your account.</p>

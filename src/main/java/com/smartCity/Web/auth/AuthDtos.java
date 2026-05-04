@@ -17,5 +17,6 @@ public final class AuthDtos {
 
   public record ResetPasswordRequest(String email, String otp, String newPassword) {}
 
-  public record AuthResponse(String token, Long id, String name, String email, Role role) {}
+  public record AuthResponse(
+      String token, Long id, String name, String email, Role role, String profilePhoto) {}
 }

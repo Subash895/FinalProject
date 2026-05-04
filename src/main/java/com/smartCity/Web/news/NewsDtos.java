@@ -17,5 +17,5 @@ public final class NewsDtos {
       Long cityId, CityRef city, String title, String content, LocalDateTime createdAt) {}
 
   public record NewsResponse(
-      Long id, CityResponse city, String title, String content, LocalDateTime createdAt) {}
+      Long id, CityResponse city, String title, String content, LocalDateTime createdAt, String imageUrl) {}
 }

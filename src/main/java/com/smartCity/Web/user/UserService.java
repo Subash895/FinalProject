@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
   private static final long RESET_OTP_TTL_MILLIS = 10 * 60 * 1000L;
+  private static final int MAX_PROFILE_PHOTO_LENGTH = 3_000_000;
 
   private final UserRepository repo;
   private final PasswordEncoder passwordEncoder;
@@ -75,6 +76,19 @@ public class UserService {
     User existing = repo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
     return applyUserUpdates(existing, entity, false);
+  }
+
+  public User updateProfilePhoto(Long userId, byte[] profilePhoto, String contentType) {
+    User existing = repo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    if (profilePhoto == null || profilePhoto.length == 0) {
+      throw new RuntimeException("Profile photo is required");
+    }
+    if (profilePhoto.length > MAX_PROFILE_PHOTO_LENGTH) {
+      throw new RuntimeException("Profile photo is too large");
+    }
+    existing.setProfilePhoto(profilePhoto);
+    existing.setProfilePhotoContentType(contentType);
+    return repo.save(existing);
   }
 
   public User login(String email, String password) {

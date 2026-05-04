@@ -8,8 +8,8 @@ public final class CityDtos {
   private CityDtos() {}
 
   public record CityRequest(
-      String name, String state, String country, Double latitude, Double longitude) {}
+      String name, String state, String country, Double latitude, Double longitude, String imageUrl) {}
 
   public record CityResponse(
-      Long id, String name, String state, String country, Double latitude, Double longitude) {}
+      Long id, String name, String state, String country, Double latitude, Double longitude, String imageUrl) {}
 }

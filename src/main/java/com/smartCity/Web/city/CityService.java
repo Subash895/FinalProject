@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CityService {
+  private static final int MAX_CITY_IMAGE_LENGTH = 3_000_000;
+
   private final CityRepository repo;
   private final CityHistoryRepository cityHistoryRepository;
   private final EventRepository eventRepository;
@@ -48,6 +50,20 @@ public class CityService {
     existing.setCountry(entity.getCountry());
     existing.setLatitude(entity.getLatitude());
     existing.setLongitude(entity.getLongitude());
+    return repo.save(existing);
+  }
+
+  public City updateImage(Long id, byte[] imageData, String contentType) {
+    City existing =
+        repo.findById(id).orElseThrow(() -> new RuntimeException("City not found with id: " + id));
+    if (imageData == null || imageData.length == 0) {
+      throw new RuntimeException("City image is required");
+    }
+    if (imageData.length > MAX_CITY_IMAGE_LENGTH) {
+      throw new RuntimeException("City image is too large");
+    }
+    existing.setImageData(imageData);
+    existing.setImageContentType(contentType);
     return repo.save(existing);
   }
 

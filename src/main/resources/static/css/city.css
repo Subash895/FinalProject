@@ -149,6 +149,25 @@
     flex-shrink: 0;
 }
 
+.city-card-linkable {
+    cursor: pointer;
+}
+
+.city-card-image {
+    width: 84px;
+    height: 84px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.city-image-input {
+    display: none;
+}
+
 .city-info {
     flex: 1;
 }

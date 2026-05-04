@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PlaceService {
+  private static final int MAX_PLACE_IMAGE_LENGTH = 3_000_000;
   private final PlaceRepository repo;
 
   public Place save(Place entity) {
@@ -66,6 +67,20 @@ public class PlaceService {
 
   public void delete(Long id) {
     repo.deleteById(id);
+  }
+
+  public Place updateImage(Long id, byte[] imageData, String contentType) {
+    Place existing =
+        repo.findById(id).orElseThrow(() -> new RuntimeException("Place not found with id: " + id));
+    if (imageData == null || imageData.length == 0) {
+      throw new RuntimeException("Place image is required");
+    }
+    if (imageData.length > MAX_PLACE_IMAGE_LENGTH) {
+      throw new RuntimeException("Place image is too large");
+    }
+    existing.setImageData(imageData);
+    existing.setImageContentType(contentType);
+    return repo.save(existing);
   }
 
   private String normalizeFilter(String value) {

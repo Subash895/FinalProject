@@ -32,6 +32,13 @@ public class City {
 
   private Double longitude;
 
+  @Lob
+  @Column(name = "image_data", columnDefinition = "LONGBLOB")
+  private byte[] imageData;
+
+  @Column(name = "image_content_type")
+  private String imageContentType;
+
   public City(String name, String state, String country, Double latitude, Double longitude) {
     this.name = name;
     this.state = state;

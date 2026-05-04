@@ -221,7 +221,8 @@ async function loadPlaces() {
 
 function renderPlaceCard(place, index) {
     return `
-      <article class="place-card glass-card" style="animation-delay:${index * 0.05}s">
+      <article class="place-card glass-card place-card-linkable" style="animation-delay:${index * 0.05}s" onclick="handlePlaceCardClick(event, ${place.id})">
+        ${place.imageUrl ? `<img class="place-card-image" src="${place.imageUrl}" alt="${place.name || "Place"}">` : ""}
         <div class="place-top">
           <div class="place-icon-wrap">${getPlaceBadge(place.category)}</div>
           <div class="place-info">
@@ -238,11 +239,27 @@ function renderPlaceCard(place, index) {
         </div>
         <div class="card-actions">
           <button class="btn btn-secondary btn-sm" onclick="focusPlaceOnMap(${place.id})">Map</button>
+          ${isAdmin() ? `<button class="btn btn-secondary btn-sm" title="Upload" onclick="triggerPlaceImagePicker(${place.id})">Upload</button><input id="placeImageInput_${place.id}" class="place-image-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" onchange="handlePlaceImageSelected(${place.id}, event)">` : ""}
           ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick='editPlace(${place.id}, ${JSON.stringify(place)})'>Edit</button>` : ""}
           ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deletePlace(${place.id}, '${esc(place.name)}')">Delete</button>` : ""}
         </div>
         ${renderReviewSection(REVIEW_TARGETS.place, place.id, place.reviews || [])}
       </article>`;
+}
+
+function openPlaceDetailsPage(id) {
+    window.location.href = `place-view.html?placeId=${encodeURIComponent(id)}`;
+}
+
+function handlePlaceCardClick(event, placeId) {
+    if (!event || !placeId) {
+        return;
+    }
+    const interactiveArea = event.target.closest("button, a, input, textarea, select, label, form, .review-section, .card-actions");
+    if (interactiveArea) {
+        return;
+    }
+    openPlaceDetailsPage(placeId);
 }
 
 function editPlace(id, place) {
@@ -723,4 +740,43 @@ async function focusPlaceOnMap(placeId) {
     placeState.map.setZoom(14);
     marker.openPopup();
     setPlaceMapStatus("Focused on selected place.");
+}
+
+function triggerPlaceImagePicker(id) {
+    document.getElementById(`placeImageInput_${id}`)?.click();
+}
+
+async function handlePlaceImageSelected(id, event) {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+        return;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+        showToast("Only image files are allowed.", "error");
+        event.target.value = "";
+        return;
+    }
+    try {
+        const formData = new FormData();
+        formData.append("photo", file);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/places/${Number(id)}/photo`, {
+            method: "PUT",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData
+        });
+        if (!response.ok) {
+            let message = "Failed to upload place image.";
+            try {
+                message = await response.text() || message;
+            } catch {}
+            throw new Error(message);
+        }
+        showToast("Place image updated.", "success");
+        await loadPlaces();
+    } catch (error) {
+        showToast(error.message || "Failed to upload place image.", "error");
+    } finally {
+        event.target.value = "";
+    }
 }

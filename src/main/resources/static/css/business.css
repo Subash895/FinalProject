@@ -59,6 +59,32 @@
     overflow: hidden;
 }
 
+.business-card-image {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--border);
+    display: block;
+}
+
+.business-card-image-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card-hover);
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.business-image-input {
+    display: none;
+}
+
 .business-card::before {
     content: '';
     position: absolute;
@@ -74,6 +100,15 @@
     transform: translateY(-3px);
     box-shadow: var(--shadow-glow);
     background: var(--bg-card-hover);
+}
+
+.business-card-manageable {
+    cursor: pointer;
+}
+
+.business-card-manageable .business-card-image,
+.business-card-manageable .business-card-title-link {
+    cursor: pointer;
 }
 
 .business-card .card-tag {
@@ -95,6 +130,20 @@
     font-weight: 700;
     margin-bottom: 0.6rem;
     padding-left: 0.75rem;
+}
+
+.business-card-title-link {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.business-card-title-link:hover {
+    color: var(--cyan);
 }
 
 .biz-meta {

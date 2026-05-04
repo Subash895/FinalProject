@@ -16,6 +16,13 @@ function escapeHtml(value) {
         .replace(/'/g, "&#39;");
 }
 
+function cityImageMarkup(city) {
+    if (city?.imageUrl) {
+        return `<img class="city-card-image" src="${city.imageUrl}" alt="${escapeHtml(city.name || "City")}">`;
+    }
+    return `<div class="city-avatar">${CITY_EMOJIS[Math.floor(Math.random() * CITY_EMOJIS.length)]}</div>`;
+}
+
 const cityMapState = {
     cities: [],
     map: null,
@@ -662,12 +669,12 @@ async function loadCities() {
         container.className = "city-list";
         clearListSkeleton(container);
         container.innerHTML = citiesWithDetails.map((city, index) => `
-            <div class="city-card glass-card" style="animation-delay:${index * 0.05}s">
-              <div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>
+            <div class="city-card glass-card city-card-linkable" style="animation-delay:${index * 0.05}s" onclick="handleCityCardClick(event, ${city.id})">
+              ${city.imageUrl ? `<img class="city-card-image" src="${city.imageUrl}" alt="${escapeHtml(city.name || "City")}">` : `<div class="city-avatar">${CITY_EMOJIS[index % CITY_EMOJIS.length]}</div>`}
               <div class="city-card-body">
                 <div class="city-card-main">
                   <div class="city-info">
-                    <h3><button type="button" class="city-link" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">${city.name}</button></h3>
+                    <h3><button type="button" class="city-link" onclick="openCityDetailsPage(${city.id})">${city.name}</button></h3>
                     ${city.state ? `<div class="city-state">${city.state}</div>` : ""}
                     <div class="city-country">${city.country || "Country not set"}</div>
                     ${city.distanceKm != null ? `<div class="city-distance">${formatDistanceKm(city.distanceKm)}</div>` : ""}
@@ -676,6 +683,7 @@ async function loadCities() {
                   <div class="city-actions">
                     <button class="btn btn-primary btn-sm" onclick="openCityHistory(${city.id}, '${esc(city.name)}')">History</button>
                     <button class="btn btn-secondary btn-sm" onclick="focusCityOnMap(${city.id})">Map</button>
+                    ${isAdmin() ? `<button class="btn btn-secondary btn-sm" title="Upload image" onclick="triggerCityImagePicker(${city.id})">Upload</button><input id="cityImageInput_${city.id}" class="city-image-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" onchange="handleCityImageSelected(${city.id}, event)">` : ""}
                     ${isAdmin() ? `<button class="btn btn-edit btn-sm" onclick="startCityEdit(${city.id})">Edit</button>` : ""}
                     ${isAdmin() ? `<button class="btn btn-delete btn-sm" onclick="deleteCity(${city.id}, '${esc(city.name)}')">Delete</button>` : ""}
                   </div>
@@ -1032,4 +1040,58 @@ function closeCityHistory() {
     cityHistoryState.cityName = "";
     cityHistoryState.histories = [];
     cityHistoryState.editingHistoryId = null;
+}
+
+function openCityDetailsPage(id) {
+    window.location.href = `city-view.html?cityId=${encodeURIComponent(id)}`;
+}
+
+function handleCityCardClick(event, cityId) {
+    if (!event || !cityId) {
+        return;
+    }
+    const interactiveArea = event.target.closest("button, a, input, textarea, select, label, form, .review-section, .city-actions");
+    if (interactiveArea) {
+        return;
+    }
+    openCityDetailsPage(cityId);
+}
+
+function triggerCityImagePicker(id) {
+    document.getElementById(`cityImageInput_${id}`)?.click();
+}
+
+async function handleCityImageSelected(id, event) {
+    const file = event?.target?.files?.[0];
+    if (!file) {
+        return;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+        showToast("Only image files are allowed.", "error");
+        event.target.value = "";
+        return;
+    }
+    try {
+        const formData = new FormData();
+        formData.append("photo", file);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE}/cities/${Number(id)}/photo`, {
+            method: "PUT",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData
+        });
+        if (!response.ok) {
+            let message = "Failed to upload city image.";
+            try {
+                message = await response.text() || message;
+            } catch {}
+            throw new Error(message);
+        }
+        showToast("City image updated.", "success");
+        await loadCities();
+    } catch (error) {
+        showToast(error.message || "Failed to upload city image.", "error");
+    } finally {
+        event.target.value = "";
+    }
 }

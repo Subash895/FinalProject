@@ -1,5 +1,6 @@
 package com.smartCity.Web.shared;
 
+import java.util.Base64;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -7,8 +8,10 @@ import org.springframework.stereotype.Component;
 import com.smartCity.Web.advertisement.Advertisement;
 import com.smartCity.Web.advertisement.AdvertisementDtos;
 import com.smartCity.Web.business.Business;
+import com.smartCity.Web.business.BusinessGalleryImage;
 import com.smartCity.Web.business.BusinessRepository;
 import com.smartCity.Web.business.BusinessDtos;
+import com.smartCity.Web.business.BusinessVacancy;
 import com.smartCity.Web.city.City;
 import com.smartCity.Web.city.CityRepository;
 import com.smartCity.Web.city.CityDtos;
@@ -60,14 +63,24 @@ public class ApiDtoMapper {
 
   public AuthDtos.AuthResponse toAuthResponse(String token, User user) {
     return new AuthDtos.AuthResponse(
-        token, user.getId(), user.getName(), user.getEmail(), user.getRole());
+        token,
+        user.getId(),
+        user.getName(),
+        user.getEmail(),
+        user.getRole(),
+        toDataUrl(user.getProfilePhoto(), user.getProfilePhotoContentType()));
   }
 
   public UserDtos.UserResponse toUserResponse(User user) {
     if (user == null) {
       return null;
     }
-    return new UserDtos.UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
+    return new UserDtos.UserResponse(
+        user.getId(),
+        user.getName(),
+        user.getEmail(),
+        user.getRole(),
+        toDataUrl(user.getProfilePhoto(), user.getProfilePhotoContentType()));
   }
 
   public User toUser(UserDtos.UserRequest request) {
@@ -107,7 +120,8 @@ public class ApiDtoMapper {
         city.getState(),
         city.getCountry(),
         city.getLatitude(),
-        city.getLongitude());
+        city.getLongitude(),
+        toDataUrl(city.getImageData(), city.getImageContentType()));
   }
 
   public City toCity(CityDtos.CityRequest request) {
@@ -130,7 +144,8 @@ public class ApiDtoMapper {
         business.getName(),
         business.getDescription(),
         business.getAddress(),
-        business.getIsFeatured());
+        business.getIsFeatured(),
+        toDataUrl(business.getImageData(), business.getImageContentType()));
   }
 
   public Business toBusiness(BusinessDtos.BusinessRequest request) {
@@ -142,6 +157,50 @@ public class ApiDtoMapper {
     business.setAddress(request.address());
     business.setIsFeatured(Boolean.TRUE.equals(request.isFeatured()));
     return business;
+  }
+
+  public BusinessVacancy toBusinessVacancy(BusinessDtos.VacancyRequest request) {
+    BusinessVacancy vacancy = new BusinessVacancy();
+    vacancy.setTitle(request.title());
+    vacancy.setDescription(request.description());
+    vacancy.setLocation(request.location());
+    vacancy.setRequirements(request.requirements());
+    vacancy.setContactEmail(request.contactEmail());
+    vacancy.setSalaryInfo(request.salaryInfo());
+    vacancy.setActive(request.active() == null ? Boolean.TRUE : request.active());
+    return vacancy;
+  }
+
+  public BusinessDtos.VacancyResponse toBusinessVacancyResponse(BusinessVacancy vacancy) {
+    return new BusinessDtos.VacancyResponse(
+        vacancy.getId(),
+        vacancy.getBusiness() == null ? null : vacancy.getBusiness().getId(),
+        vacancy.getTitle(),
+        vacancy.getDescription(),
+        vacancy.getLocation(),
+        vacancy.getRequirements(),
+        vacancy.getContactEmail(),
+        vacancy.getSalaryInfo(),
+        vacancy.getActive(),
+        vacancy.getCreatedAt());
+  }
+
+  public BusinessDtos.BusinessGalleryImageResponse toBusinessGalleryImageResponse(
+      BusinessGalleryImage image) {
+    return new BusinessDtos.BusinessGalleryImageResponse(
+        image.getId(),
+        image.getBusiness() == null ? null : image.getBusiness().getId(),
+        toDataUrl(image.getImageData(), image.getImageContentType()),
+        image.getSortOrder());
+  }
+
+  private String toDataUrl(byte[] bytes, String contentType) {
+    if (bytes == null || bytes.length == 0) {
+      return null;
+    }
+    String safeContentType =
+        contentType != null && contentType.startsWith("image/") ? contentType : "image/png";
+    return "data:" + safeContentType + ";base64," + Base64.getEncoder().encodeToString(bytes);
   }
 
   public AdvertisementDtos.AdvertisementResponse toAdvertisementResponse(
@@ -192,7 +251,8 @@ public class ApiDtoMapper {
         toCityResponse(event.getCity()),
         event.getTitle(),
         event.getDescription(),
-        event.getEventDate());
+        event.getEventDate(),
+        toDataUrl(event.getImageData(), event.getImageContentType()));
   }
 
   public Event toEvent(EventDtos.EventRequest request) {
@@ -211,7 +271,8 @@ public class ApiDtoMapper {
         toCityResponse(news.getCity()),
         news.getTitle(),
         news.getContent(),
-        news.getCreatedAt());
+        news.getCreatedAt(),
+        toDataUrl(news.getImageData(), news.getImageContentType()));
   }
 
   public News toNews(NewsDtos.NewsRequest request) {
@@ -235,7 +296,8 @@ public class ApiDtoMapper {
         place.getCategory(),
         place.getLocation(),
         place.getLatitude(),
-        place.getLongitude());
+        place.getLongitude(),
+        toDataUrl(place.getImageData(), place.getImageContentType()));
   }
 
   public Place toPlace(PlaceDtos.PlaceRequest request) {

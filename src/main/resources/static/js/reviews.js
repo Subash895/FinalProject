@@ -172,6 +172,7 @@ function renderReviewSection(targetType, itemId, reviews) {
     const average = list.length ?
         (list.reduce((sum, review) => sum + (review.rating || 0), 0) / list.length).toFixed(1) :
         null;
+    const collapsibleByAverage = Boolean(average);
 
     return `
         <section class="review-section">
@@ -181,18 +182,49 @@ function renderReviewSection(targetType, itemId, reviews) {
                     <p>${list.length ? `${list.length} review(s) - Average ${average}/5` : "No reviews yet."}</p>
                 </div>
                 <div class="review-summary-side">
-                    ${average ? `<div class="review-average">${average}<span>/5</span></div>` : ""}
+                    ${average ? `
+                        <button type="button" class="review-average" data-review-average-toggle data-review-expanded="false">
+                            ${average}<span>/5</span>
+                        </button>
+                    ` : ""}
                 </div>
             </div>
-            ${renderReviewControls(targetType, itemId, list.length)}
-            <div class="review-list review-list-hidden" data-review-list>
-                ${list.length ? list.map(renderReviewItem).join("") : `<div class="review-empty">Be the first user to write a review.</div>`}
+            <div class="review-details ${collapsibleByAverage ? "review-details-hidden" : ""}" data-review-details>
+                ${renderReviewControls(targetType, itemId, list.length)}
+                <div class="review-list review-list-hidden" data-review-list>
+                    ${list.length ? list.map(renderReviewItem).join("") : `<div class="review-empty">Be the first user to write a review.</div>`}
+                </div>
             </div>
         </section>
     `;
 }
 
 async function hydrateReviewForms(onSaved) {
+    const averageToggleButtons = Array.from(document.querySelectorAll("[data-review-average-toggle]"));
+    averageToggleButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const section = button.closest(".review-section");
+            const details = section?.querySelector("[data-review-details]");
+            const list = section?.querySelector("[data-review-list]");
+            const commentsButton = section?.querySelector("[data-review-comments]");
+            if (!details) {
+                return;
+            }
+
+            const isHidden = details.classList.toggle("review-details-hidden");
+            button.dataset.reviewExpanded = String(!isHidden);
+            if (!isHidden) {
+                list?.classList.remove("review-list-hidden");
+                if (commentsButton) {
+                    const suffix = Number(commentsButton.dataset.reviewCount || 0) > 0 ?
+                        ` (${commentsButton.dataset.reviewCount})` :
+                        "";
+                    commentsButton.textContent = `Hide Comments${suffix}`;
+                }
+            }
+        });
+    });
+
     const commentButtons = Array.from(document.querySelectorAll("[data-review-comments]"));
     commentButtons.forEach(button => {
         button.addEventListener("click", () => {

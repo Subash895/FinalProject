@@ -39,7 +39,12 @@ function getProfileInitials(user) {
 }
 
 function fillProfileSummary(user) {
-    document.getElementById("profileAvatar").textContent = getProfileInitials(user);
+    const avatarEl = document.getElementById("profileAvatar");
+    if (user.profilePhoto) {
+        avatarEl.innerHTML = `<img src="${user.profilePhoto}" alt="${user.name || "User"}">`;
+    } else {
+        avatarEl.textContent = getProfileInitials(user);
+    }
     document.getElementById("profileRoleBadge").textContent = user.role || "USER";
     document.getElementById("profileName").textContent = user.name || "Unnamed User";
     document.getElementById("profileEmail").textContent = user.email || "-";
@@ -109,6 +114,42 @@ async function loadProfile() {
     document.body.classList.remove("profile-loading");
 }
 
+async function uploadProfilePhoto(file) {
+    if (!file) {
+        return;
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+        throw new Error("Please select an image file.");
+    }
+
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE}/users/me/photo`, {
+        method: "PUT",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData
+    });
+
+    if (!response.ok) {
+        let message = "Failed to upload profile photo.";
+        try {
+            message = await response.text() || message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    const user = await response.json();
+    updateStoredUser(user);
+    applyRoleUI();
+    fillProfileSummary(user);
+    setProfileMessage("success", "Profile photo updated.");
+    if (typeof showToast === "function") {
+        showToast("Profile photo updated.", "success");
+    }
+}
+
 async function saveProfile(event) {
     event.preventDefault();
     setProfileMessage();
@@ -151,6 +192,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     applyRoleUI();
     initializeProfilePasswordToggles();
     document.getElementById("profileForm").addEventListener("submit", saveProfile);
+    document.getElementById("profilePhotoInput").addEventListener("change", async event => {
+        setProfileMessage();
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+        try {
+            await uploadProfilePhoto(file);
+        } catch (error) {
+            setProfileMessage("error", error.message || "Unable to upload profile photo.");
+        } finally {
+            event.target.value = "";
+        }
+    });
 
     try {
         await loadProfile();

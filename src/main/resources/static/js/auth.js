@@ -78,7 +78,8 @@ function storeSession(authResponse) {
         id: authResponse.id,
         name: authResponse.name,
         email: authResponse.email,
-        role: authResponse.role
+        role: authResponse.role,
+        profilePhoto: authResponse.profilePhoto || null
     }));
 }
 
@@ -93,7 +94,8 @@ function updateStoredUser(userResponse) {
         id: userResponse.id ?? existing.id,
         name: userResponse.name ?? existing.name,
         email: userResponse.email ?? existing.email,
-        role: userResponse.role ?? existing.role
+        role: userResponse.role ?? existing.role,
+        profilePhoto: userResponse.profilePhoto ?? existing.profilePhoto ?? null
     }));
 }
 
@@ -128,8 +130,74 @@ function applyRoleUI() {
         profileLink.classList.add("nav-profile-link");
         profileLink.href = "profile.html";
         profileLink.style.pointerEvents = "";
-        profileLink.innerHTML = `<span class="nav-profile-avatar">${getUserInitials(user)}</span><span>Profile: ${user.name} (${getRole()})</span>`;
+        const profileLabel = `Profile: ${user.name} (${getRole()})`;
+        profileLink.title = profileLabel;
+        profileLink.setAttribute("aria-label", profileLabel);
+        profileLink.innerHTML = user.profilePhoto ?
+            `<span class="nav-profile-avatar"><img src="${user.profilePhoto}" alt="${user.name || "User"}"></span>` :
+            `<span class="nav-profile-avatar">${getUserInitials(user)}</span>`;
     }
+
+    wireBusinessLandingLinks();
+    initializeGlobalProfilePhotoUpload();
+}
+
+async function wireBusinessLandingLinks() {
+    if (!isLoggedIn() || !isBusiness() || typeof apiRequest !== "function") {
+        return;
+    }
+
+    try {
+        const businesses = await apiRequest("/businesses");
+        const firstBusinessId = Array.isArray(businesses) ? businesses[0]?.id : null;
+        if (!firstBusinessId) {
+            return;
+        }
+
+        const targetHref = `business-manage.html?businessId=${encodeURIComponent(firstBusinessId)}`;
+        document.querySelectorAll('a[href="business.html"]').forEach(link => {
+            link.href = targetHref;
+        });
+    } catch {}
+}
+
+function isSubscriptionPage() {
+    const path = (window.location.pathname || "").toLowerCase();
+    return path.endsWith("/subscription.html") || path.endsWith("subscription.html");
+}
+
+async function uploadProfilePhotoFromNavbar(file) {
+    if (!file || !file.type || !file.type.startsWith("image/")) {
+        throw new Error("Please select an image file.");
+    }
+
+    const formData = new FormData();
+    formData.append("photo", file);
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE}/users/me/photo`, {
+        method: "PUT",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData
+    });
+
+    if (!response.ok) {
+        let message = "Failed to upload profile photo.";
+        try {
+            message = await response.text() || message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    const user = await response.json();
+    updateStoredUser(user);
+    applyRoleUI();
+    if (typeof showToast === "function") {
+        showToast("Profile photo updated.", "success");
+    }
+}
+
+function initializeGlobalProfilePhotoUpload() {
+    return;
 }
 
 async function loginUser(email, password) {

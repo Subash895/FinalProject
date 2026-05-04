@@ -34,6 +34,13 @@ public class Event {
 
   private LocalDate eventDate;
 
+  @Lob
+  @Column(name = "image_data", columnDefinition = "LONGBLOB")
+  private byte[] imageData;
+
+  @Column(name = "image_content_type")
+  private String imageContentType;
+
   public Event(City city, String title, String description, LocalDate eventDate) {
     this.city = city;
     this.title = title;

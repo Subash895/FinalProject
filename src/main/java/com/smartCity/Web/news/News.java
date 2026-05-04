@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -39,6 +40,13 @@ public class News {
   private String content;
 
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  @Lob
+  @Column(name = "image_data", columnDefinition = "LONGBLOB")
+  private byte[] imageData;
+
+  @Column(name = "image_content_type")
+  private String imageContentType;
 
   public News(City city, String title, String content) {
     this.city = city;

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("smartcity.theme") || "dark";
+        document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <title>MySmartCity - Manage Business</title>
+  <link rel="icon" type="image/x-icon" href="images/subash.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/business-manage.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand"><div class="brand-icon">SC</div>My<span>Smart</span>City</a>
+    <ul class="navbar-nav">
+      <li><a href="business.html" class="active"><span class="nav-icon">💼</span>Business</a></li>
+      <li id="navLogin"><a href="login.html" style="color:var(--cyan);background:var(--cyan-dim);border-radius:8px;">Login</a></li>
+      <li id="navUser" style="display:none"><a href="#" style="color:var(--text-secondary);font-size:0.8rem;pointer-events:none;"></a></li>
+      <li id="navLogout" style="display:none"><a href="#" onclick="logout()" style="color:var(--red);background:var(--red-dim);border-radius:8px;">Logout</a></li>
+      <li><button type="button" class="nav-theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="theme-icon">&#9728;</span></button></li>
+    </ul>
+  </nav>
+
+  <main class="page-wrapper">
+    <section class="page-header">
+      <h1>Manage <span class="highlight">Business</span></h1>
+      <p id="manageBusinessName">Loading...</p>
+      <div class="header-line"></div>
+    </section>
+
+    <section class="glass-card manage-card">
+      <div class="section-header"><h2>Business Profile</h2></div>
+      <form id="businessProfileForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="manageBusinessNameInput">Business Name</label>
+            <input id="manageBusinessNameInput" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="manageBusinessAddressInput">Address</label>
+            <input id="manageBusinessAddressInput" class="form-control" required>
+          </div>
+          <div class="form-group form-group-wide">
+            <label for="manageBusinessDescriptionInput">About Business</label>
+            <textarea id="manageBusinessDescriptionInput" class="form-control" required></textarea>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+          <a href="business.html" class="btn btn-secondary">Back</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="glass-card manage-card">
+      <div class="section-header"><h2>Business Image</h2></div>
+      <form id="businessImageForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="manageBusinessImageInput">Upload Image</label>
+            <input id="manageBusinessImageInput" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" required>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button type="submit" class="btn btn-secondary">Upload</button>
+        </div>
+      </form>
+      <img id="manageBusinessImagePreview" class="manage-image-preview" alt="Business image preview">
+    </section>
+
+    <section class="glass-card manage-card">
+      <div class="section-header"><h2>Gallery Images (Up to 8)</h2></div>
+      <form id="businessGalleryForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="manageBusinessGalleryInput">Add Gallery Image</label>
+            <input id="manageBusinessGalleryInput" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.ico,.tif,.tiff,image/*" required>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button type="submit" class="btn btn-secondary">Add To Gallery</button>
+        </div>
+      </form>
+      <div id="manageBusinessGalleryList" class="manage-gallery-grid"></div>
+    </section>
+
+    <section class="glass-card manage-card">
+      <div class="section-header"><h2>Hiring Vacancies</h2></div>
+      <form id="vacancyForm">
+        <div class="form-grid">
+          <div class="form-group"><label for="vacancyTitle">Title</label><input id="vacancyTitle" class="form-control" required></div>
+          <div class="form-group"><label for="vacancyLocation">Location</label><input id="vacancyLocation" class="form-control"></div>
+          <div class="form-group"><label for="vacancySalary">Salary</label><input id="vacancySalary" class="form-control"></div>
+          <div class="form-group"><label for="vacancyContact">Contact Email</label><input id="vacancyContact" type="email" class="form-control"></div>
+          <div class="form-group form-group-wide"><label for="vacancyRequirements">Requirements</label><textarea id="vacancyRequirements" class="form-control"></textarea></div>
+          <div class="form-group form-group-wide"><label for="vacancyDescription">Description</label><textarea id="vacancyDescription" class="form-control" required></textarea></div>
+        </div>
+        <div class="card-actions">
+          <button type="submit" class="btn btn-primary">Post Vacancy</button>
+        </div>
+      </form>
+      <div id="vacancyList" class="vacancy-list"></div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/business-manage.js"></script>
+</body>
+</html>

@@ -17,5 +17,5 @@ public final class EventDtos {
       Long cityId, CityRef city, String title, String description, LocalDate eventDate) {}
 
   public record EventResponse(
-      Long id, CityResponse city, String title, String description, LocalDate eventDate) {}
+      Long id, CityResponse city, String title, String description, LocalDate eventDate, String imageUrl) {}
 }
