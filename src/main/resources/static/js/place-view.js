@@ -97,12 +97,16 @@ async function loadPlaceView() {
   ].filter(Boolean).join(" • ");
   document.getElementById("placeAbout").textContent = place.description || place.location || "No details available.";
 
+  const heroSection = document.querySelector(".detail-hero");
   const image = document.getElementById("placeImage");
   if (place.imageUrl) {
     image.src = place.imageUrl;
     image.style.display = "block";
+    heroSection?.classList.remove("detail-hero-no-image");
   } else {
+    image.removeAttribute("src");
     image.style.display = "none";
+    heroSection?.classList.add("detail-hero-no-image");
   }
 
   const mapLink = document.getElementById("placeMapLink");
@@ -116,7 +120,15 @@ async function loadPlaceView() {
   if (galleryAdmin) {
     galleryAdmin.style.display = isAdmin() ? "flex" : "none";
   }
+
+  const reviews = await loadReviews(REVIEW_TARGETS.place, placeId).catch(() => []);
+  const reviewsContainer = document.getElementById("placeReviews");
+  if (reviewsContainer) {
+    reviewsContainer.innerHTML = renderReviewSection(REVIEW_TARGETS.place, placeId, reviews || []);
+  }
+
   renderPlaceGallery(placeId, gallery);
+  await hydrateReviewForms(loadPlaceView);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

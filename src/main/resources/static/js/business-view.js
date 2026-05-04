@@ -71,16 +71,27 @@ async function loadBusinessView() {
   document.getElementById("businessAddress").textContent = business.address || "-";
   document.getElementById("businessAbout").textContent = business.description || "No description available.";
 
+  const heroSection = document.querySelector(".business-hero");
   const heroImage = document.getElementById("businessHeroImage");
   if (business.imageUrl) {
     heroImage.src = business.imageUrl;
     heroImage.style.display = "block";
+    heroSection?.classList.remove("business-hero-no-image");
   } else {
+    heroImage.removeAttribute("src");
     heroImage.style.display = "none";
+    heroSection?.classList.add("business-hero-no-image");
+  }
+
+  const reviews = await loadReviews(REVIEW_TARGETS.business, businessId).catch(() => []);
+  const reviewsContainer = document.getElementById("businessReviews");
+  if (reviewsContainer) {
+    reviewsContainer.innerHTML = renderReviewSection(REVIEW_TARGETS.business, businessId, reviews || []);
   }
 
   renderGallery(business.imageUrl, galleries);
   renderVacancies(vacancies);
+  await hydrateReviewForms(loadBusinessView);
 
   const canManage = isLoggedIn() && isBusiness();
   const manageBtn = document.getElementById("manageBusinessBtn");
@@ -100,4 +111,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     showToast(error.message || "Failed to load business page.", "error");
   }
 });
-

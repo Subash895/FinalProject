@@ -548,6 +548,52 @@ html[data-theme="light"] .map-user-location-dot {
     -webkit-text-fill-color: var(--text-secondary);
 }
 
+.form-control[type="file"] {
+    color: var(--text-primary);
+    -webkit-text-fill-color: var(--text-primary);
+    background: var(--input-bg);
+}
+
+.form-control[type="file"]::file-selector-button {
+    margin-right: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    padding: 0.45rem 0.8rem;
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form-control[type="file"]::file-selector-button:hover {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+    margin-right: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    padding: 0.45rem 0.8rem;
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+}
+
 .form-control:-webkit-autofill,
 .form-control:-webkit-autofill:hover,
 .form-control:-webkit-autofill:focus,

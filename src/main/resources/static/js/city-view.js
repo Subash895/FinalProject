@@ -108,20 +108,32 @@ async function loadCityView() {
   document.getElementById("cityMeta").textContent = [city.state, city.country].filter(Boolean).join(", ") || "City details";
   document.getElementById("cityOverview").textContent = `Explore ${city.name || "this city"} and its local history, places, and community highlights.`;
 
+  const heroSection = document.querySelector(".detail-hero");
   const image = document.getElementById("cityImage");
   if (city.imageUrl) {
     image.src = city.imageUrl;
     image.style.display = "block";
+    heroSection?.classList.remove("detail-hero-no-image");
   } else {
+    image.removeAttribute("src");
     image.style.display = "none";
+    heroSection?.classList.add("detail-hero-no-image");
   }
 
   const galleryAdmin = document.getElementById("cityGalleryAdmin");
   if (galleryAdmin) {
     galleryAdmin.style.display = isAdmin() ? "flex" : "none";
   }
+
+  const reviews = await loadReviews(REVIEW_TARGETS.city, cityId).catch(() => []);
+  const reviewsContainer = document.getElementById("cityReviews");
+  if (reviewsContainer) {
+    reviewsContainer.innerHTML = renderReviewSection(REVIEW_TARGETS.city, cityId, reviews || []);
+  }
+
   renderCityGallery(cityId, gallery);
   renderCityHistories(histories);
+  await hydrateReviewForms(loadCityView);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

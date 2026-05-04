@@ -5,6 +5,10 @@
   margin-bottom: 1rem;
 }
 
+.business-hero.business-hero-no-image {
+  grid-template-columns: 1fr;
+}
+
 .business-hero-image {
   width: 100%;
   min-height: 240px;

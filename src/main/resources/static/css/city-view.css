@@ -5,6 +5,10 @@
   margin-bottom: 1rem;
 }
 
+.detail-hero.detail-hero-no-image {
+  grid-template-columns: 1fr;
+}
+
 .detail-image {
   width: 100%;
   min-height: 240px;
