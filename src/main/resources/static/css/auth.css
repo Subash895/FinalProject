@@ -41,6 +41,14 @@
     letter-spacing: 0.08em;
 }
 
+.auth-logo .logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9px;
+    display: block;
+}
+
 .auth-logo span {
     color: var(--cyan);
 }
@@ -75,6 +83,14 @@
     font-weight: 800;
     letter-spacing: 0.08em;
     margin-bottom: 1rem;
+}
+
+.auth-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    display: block;
 }
 
 .auth-card-header h1 {
